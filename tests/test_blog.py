@@ -50,7 +50,7 @@ def test_create(client, auth, app):
 
     with app.app_context():
         db = get_db()
-        count = db.execute("SELECT COUNT(id) FROM post").fetchone()[0]
+        count = db.execute("SELECT COUNT(id) FROM element").fetchone()[0]
         assert count == 2
 
 
@@ -61,7 +61,7 @@ def test_update(client, auth, app):
 
     with app.app_context():
         db = get_db()
-        post = db.execute("SELECT * FROM post WHERE id = 1").fetchone()
+        post = db.execute("SELECT * FROM element WHERE id = 1").fetchone()
         assert post["title"] == "updated"
 
 
@@ -79,5 +79,5 @@ def test_delete(client, auth, app):
 
     with app.app_context():
         db = get_db()
-        post = db.execute("SELECT * FROM post WHERE id = 1").fetchone()
+        post = db.execute("SELECT * FROM element WHERE id = 1").fetchone()
         assert post is None
