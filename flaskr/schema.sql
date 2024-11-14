@@ -25,7 +25,8 @@ CREATE TABLE element_link (
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   title TEXT NOT NULL,
   comment TEXT,
-  element_id INTEGER NOT NULL REFERENCES element (id)
+  element_id INTEGER NOT NULL REFERENCES element (id) ON DELETE CASCADE,
+  author_id INTEGER NOT NULL REFERENCES user (id)
 );
 
 CREATE TABLE element_tag (
@@ -33,7 +34,8 @@ CREATE TABLE element_tag (
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   title TEXT NOT NULL,
   comment TEXT,
-  element_id INTEGER NOT NULL REFERENCES element (id)
+  element_id INTEGER NOT NULL REFERENCES element (id) ON DELETE CASCADE,
+  author_id INTEGER NOT NULL REFERENCES user (id)
 );
 
 CREATE TABLE game (
@@ -51,7 +53,7 @@ CREATE TABLE game_link (
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   title TEXT NOT NULL,
   comment TEXT,
-  game_id INTEGER NOT NULL REFERENCES game (id)
+  game_id INTEGER NOT NULL REFERENCES game (id) ON DELETE CASCADE
 );
 
 CREATE TABLE game_tag (
@@ -59,11 +61,11 @@ CREATE TABLE game_tag (
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   title TEXT NOT NULL,
   comment TEXT,
-  game_id INTEGER NOT NULL REFERENCES game (id)
+  game_id INTEGER NOT NULL REFERENCES game (id) ON DELETE CASCADE
 );
 
 CREATE TABLE game_and_element (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  game_id INTEGER REFERENCES game (id),
-  element_id INTEGER REFERENCES element (id)
+  game_id INTEGER REFERENCES game (id) ON DELETE CASCADE,
+  element_id INTEGER REFERENCES element (id) ON DELETE RESTRICT
 );

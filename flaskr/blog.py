@@ -37,23 +37,39 @@ def get_post(id, check_author=True):
     :raise 404: if a post with the given id doesn't exist
     :raise 403: if the current user isn't the author
     """
-    post = (
-        get_db()
+    db = get_db()
+
+    element = (
+        db
         .execute(
             "SELECT p.id, title, body, comment, created, author_id, username"
-            " FROM element p JOIN user u ON p.author_id = u.id"
+            "  FROM element p JOIN user u ON p.author_id = u.id"
             " WHERE p.id = ?",
             (id,),
         )
         .fetchone()
     )
+    tags = (
+        db
+        .execute(
+            "SELECT t.id, title, comment"
+            "  FROM element_tag t JOIN user u ON t.author_id = u.id"
+            " WHERE t.element_id = ?"
+            " ORDER BY created DESC",
+            (id,),
+        ).fetchall()
+    )
 
-    if post is None:
-        abort(404, f"Post id {id} doesn't exist.")
+    if element is None:
+        abort(404, f"Element id {id} doesn't exist.")
 
-    if check_author and post["author_id"] != g.user["id"]:
+    if check_author and element["author_id"] != g.user["id"]:
         abort(403)
 
+    post = {
+        "element": element,
+        "tags": tags,
+    }
     return post
 
 
@@ -83,6 +99,29 @@ def create():
 
     return render_template("blog/create.html")
 
+@bp.route("/<int:id>/create-tag", methods=("GET", "POST"))
+@login_required
+def create_tag(id):
+    """Create a new tag for the current user."""
+    if request.method == "POST":
+        title = request.form["tag_title"]
+        error = None
+
+        if not title:
+            error = "Title is required."
+
+        if error is not None:
+            flash(error)
+        else:
+            db = get_db()
+            db.execute(
+                "INSERT INTO element_tag (title, author_id, 1) VALUES (?, ?)"
+                (title, g.user["id"]),
+            )
+            db.commit()
+            return redirect(url_for("blog.index"))
+
+    return render_template("blog/create.html")
 
 @bp.route("/<int:id>/update", methods=("GET", "POST"))
 @login_required
@@ -110,7 +149,7 @@ def update(id):
             db.commit()
             return redirect(url_for("blog.index"))
 
-    return render_template("blog/update.html", post=post)
+    return render_template("blog/update.html", post=post["element"], tags=post["tags"])
 
 
 @bp.route("/<int:id>/delete", methods=("POST",))
