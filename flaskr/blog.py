@@ -99,7 +99,7 @@ def create():
 
     return render_template("blog/create.html")
 
-@bp.route("/<int:id>/create-tag", methods=("GET", "POST"))
+@bp.route("/element-tag/<int:id>/create", methods=("GET", "POST"))
 @login_required
 def create_tag(id):
     """Create a new tag for the current user."""
@@ -113,11 +113,16 @@ def create_tag(id):
         if error is not None:
             flash(error)
         else:
+            print(title)
+            print(g.user["id"])
+            print((id))
+            
             db = get_db()
             db.execute(
-                "INSERT INTO element_tag (title, author_id, 1) VALUES (?, ?)"
-                (title, g.user["id"]),
+                "INSERT INTO element_tag (title, author_id, element_id) VALUES (?, ?, ?)",
+                (title, g.user["id"], id),
             )
+            
             db.commit()
             return redirect(url_for("blog.index"))
 
@@ -144,7 +149,7 @@ def update(id):
         else:
             db = get_db()
             db.execute(
-                "UPDATE post SET title = ?, body = ?, comment = ? WHERE id = ?", (title, body, comment, id)
+                "UPDATE element SET title = ?, body = ?, comment = ? WHERE id = ?", (title, body, comment, id)
             )
             db.commit()
             return redirect(url_for("blog.index"))
@@ -165,3 +170,20 @@ def delete(id):
     db.execute("DELETE FROM element WHERE id = ?", (id,))
     db.commit()
     return redirect(url_for("blog.index"))
+
+@bp.route("/element-tag/<int:id>/delete", methods=("POST",))
+@login_required
+def delete_element_tag(id):
+    """Delete an element tag.
+
+    Ensures that the post exists and that the logged in user is the
+    author of the post.
+    """
+    
+    db = get_db()
+    db.execute("DELETE FROM element_tag WHERE id = ?", (id,))
+    db.commit()
+    
+    print(id)
+    return redirect(url_for("blog.index"))
+    

@@ -21,11 +21,29 @@
   <form action="{{ url_for('blog.delete', id=post['id']) }}" method="post">
     <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
   </form>
+  <hr>
+
+  <label>Tags</label>
+  {% for tag in tags %}
+    <article class="">
+      <header>
+        <div>
+          <h1>{{ tag['title'] }}</h1>
+          <form action="{{ url_for('blog.delete_element_tag', id=tag['id']) }}" method="post">
+            <input class="danger" type="submit" value="Delete tag" onclick="return confirm('Are you sure?');">
+          </form>
+        </div>
+      </header>
+    </article>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
 
   <form action="{{ url_for('blog.create_tag', id=post['id']) }}" method="post">
-    <label for="tag_title">Tag Title</label>
+    <label for="tag_title">New tag</label>
     <input name="tag_title" id="tag_title" value="{{ request.form['tag_title'] }}" required>
     
-    <input type="submit" value="Save tag">
+    <input type="submit" value="Add tag">
   </form>
 {% endblock %}
