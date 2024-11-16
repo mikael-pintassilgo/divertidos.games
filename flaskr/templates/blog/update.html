@@ -23,6 +23,7 @@
   </form>
   <hr>
 
+  <!-- Tags -->
   <label>Tags</label>
   {% for tag in tags %}
     <article class="">
@@ -45,5 +46,31 @@
     <input name="tag_title" id="tag_title" value="{{ request.form['tag_title'] }}" required>
     
     <input type="submit" value="Add tag">
+  </form>
+
+
+  <!-- Links -->
+  <label>Links</label>
+  {% for link in links %}
+    <article class="">
+      <header>
+        <div>
+          <a href="{{ link['title'] }}">{{ link['title'] }}</a>
+          <form action="{{ url_for('blog.delete_element_link', id=link['id']) }}" method="post">
+            <input class="danger" type="submit" value="Delete link" onclick="return confirm('Are you sure?');">
+          </form>
+        </div>
+      </header>
+    </article>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+
+  <form action="{{ url_for('blog.create_link', id=post['id']) }}" method="post">
+    <label for="link_title">New link</label>
+    <input name="link_title" id="link_title" value="{{ request.form['link_title'] }}" required>
+    
+    <input type="submit" value="Add link">
   </form>
 {% endblock %}

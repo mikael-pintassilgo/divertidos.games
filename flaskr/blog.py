@@ -59,6 +59,16 @@ def get_post(id, check_author=True):
             (id,),
         ).fetchall()
     )
+    links = (
+        db
+        .execute(
+            "SELECT l.id, title, comment"
+            "  FROM element_link l JOIN user u ON l.author_id = u.id"
+            " WHERE l.element_id = ?"
+            " ORDER BY created DESC",
+            (id,),
+        ).fetchall()
+    )
 
     if element is None:
         abort(404, f"Element id {id} doesn't exist.")
@@ -69,6 +79,7 @@ def get_post(id, check_author=True):
     post = {
         "element": element,
         "tags": tags,
+        "links": links,
     }
     return post
 
@@ -128,6 +139,35 @@ def create_tag(id):
 
     return render_template("blog/create.html")
 
+@bp.route("/element-link/<int:id>/create", methods=("GET", "POST"))
+@login_required
+def create_link(id):
+    """Create a new link for the current user."""
+    if request.method == "POST":
+        title = request.form["link_title"]
+        error = None
+
+        if not title:
+            error = "Link is required."
+
+        if error is not None:
+            flash(error)
+        else:
+            print(title)
+            print(g.user["id"])
+            print((id))
+            
+            db = get_db()
+            db.execute(
+                "INSERT INTO element_link (title, author_id, element_id) VALUES (?, ?, ?)",
+                (title, g.user["id"], id),
+            )
+            
+            db.commit()
+            return redirect(url_for("blog.index"))
+
+    return render_template("blog/create.html")
+
 @bp.route("/<int:id>/update", methods=("GET", "POST"))
 @login_required
 def update(id):
@@ -154,7 +194,7 @@ def update(id):
             db.commit()
             return redirect(url_for("blog.index"))
 
-    return render_template("blog/update.html", post=post["element"], tags=post["tags"])
+    return render_template("blog/update.html", post=post["element"], tags=post["tags"], links=post["links"])
 
 
 @bp.route("/<int:id>/delete", methods=("POST",))
@@ -185,5 +225,20 @@ def delete_element_tag(id):
     db.commit()
     
     print(id)
-    return redirect(url_for("blog.index"))
+    return redirect(url_for("blog.index"))    
+
+@bp.route("/element-link/<int:id>/delete", methods=("POST",))
+@login_required
+def delete_element_link(id):
+    """Delete an element link.
+
+    Ensures that the post exists and that the logged in user is the
+    author of the post.
+    """
     
+    db = get_db()
+    db.execute("DELETE FROM element_link WHERE id = ?", (id,))
+    db.commit()
+    
+    print(id)
+    return redirect(url_for("blog.index"))
