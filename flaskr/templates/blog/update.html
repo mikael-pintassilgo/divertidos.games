@@ -30,7 +30,7 @@
       <header>
         <div>
           <h1>{{ tag['title'] }}</h1>
-          <form action="{{ url_for('blog.delete_element_tag', id=tag['id']) }}" method="post">
+          <form action="{{ url_for('blog.delete_element_tag', id=tag['id'], element_id=post['id']) }}" method="post">
             <input class="danger" type="submit" value="Delete tag" onclick="return confirm('Are you sure?');">
           </form>
         </div>
@@ -56,7 +56,7 @@
       <header>
         <div>
           <a href="{{ link['title'] }}" target="_blank">{{ link['title'] }}</a>
-          <form action="{{ url_for('blog.delete_element_link', id=link['id']) }}" method="post">
+          <form action="{{ url_for('blog.delete_element_link', id=link['id'], element_id=post['id']) }}" method="post">
             <input class="danger" type="submit" value="Delete link" onclick="return confirm('Are you sure?');">
           </form>
         </div>

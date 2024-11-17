@@ -1,8 +1,11 @@
 <!doctype html>
-<title>{% block title %}{% endblock %} - Flaskr</title>
+<title>{% block title %}{% endblock %} - divertidos games</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<!-- link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}" -->
+<!-- script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script -->
+<!-- script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script -->
 <nav>
-  <h1><a href="{{ url_for('index') }}">Flaskr</a></h1>
+  <h1><a href="{{ url_for('index') }}">divertidos games</a></h1>
   <ul>
     {% if g.user %}
       <li><span>{{ g.user['username'] }}</span>

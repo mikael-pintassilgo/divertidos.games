@@ -135,7 +135,7 @@ def create_tag(id):
             )
             
             db.commit()
-            return redirect(url_for("blog.index"))
+            return redirect(url_for('blog.update', id=id))
 
     return render_template("blog/create.html")
 
@@ -164,7 +164,7 @@ def create_link(id):
             )
             
             db.commit()
-            return redirect(url_for("blog.index"))
+            return redirect(url_for('blog.update', id=id))
 
     return render_template("blog/create.html")
 
@@ -230,8 +230,10 @@ def delete_element_tag(id):
     db.execute("DELETE FROM element_tag WHERE id = ?", (id,))
     db.commit()
     
+    element_id = request.args.get('element_id')
     print(id)
-    return redirect(url_for("blog.index"))    
+    print(element_id)
+    return redirect(url_for('blog.update', id=element_id))   
 
 @bp.route("/element-link/<int:id>/delete", methods=("POST",))
 @login_required
@@ -246,5 +248,7 @@ def delete_element_link(id):
     db.execute("DELETE FROM element_link WHERE id = ?", (id,))
     db.commit()
     
+    element_id = request.args.get('element_id')
     print(id)
-    return redirect(url_for("blog.index"))
+    print(element_id)
+    return redirect(url_for('blog.update', id=element_id))
