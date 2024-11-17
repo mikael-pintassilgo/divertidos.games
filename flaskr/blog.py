@@ -196,6 +196,12 @@ def update(id):
 
     return render_template("blog/update.html", post=post["element"], tags=post["tags"], links=post["links"])
 
+@bp.route("/<int:id>/view", methods=("GET", "POST"))
+@login_required
+def view(id):
+    """View a post if the current user is the author."""
+    post = get_post(id)
+    return render_template("blog/view.html", post=post["element"], tags=post["tags"], links=post["links"])
 
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}{{ post['title'] }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <div name="body" id="body">{{ request.form['body'] or post['body'] }}</div>
+  <br/>
+  <label for="comment">Comment</label>
+  <div name="comment" id="comment">{{ request.form['comment'] or post['comment'] }}</div>
+  
+  <hr>
+  <br/>
+  
+  <!-- Tags -->
+  <label>Tags</label>
+  {% for tag in tags %}
+    <article class="">
+      <header>
+        <div>
+          <a href="#">{{ tag['title'] }}</a>
+        </div>
+      </header>
+    </article>
+    {% if loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+
+  <!-- Links -->
+  <label>Links</label>
+  {% for link in links %}
+    <article class="">
+      <header>
+        <div>
+          <a href="{{ link['title'] }}" target="_blank">{{ link['title'] }}</a>
+        </div>
+      </header>
+    </article>
+    {% if loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+
+{% endblock %}

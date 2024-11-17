@@ -55,7 +55,7 @@
     <article class="">
       <header>
         <div>
-          <a href="{{ link['title'] }}">{{ link['title'] }}</a>
+          <a href="{{ link['title'] }}" target="_blank">{{ link['title'] }}</a>
           <form action="{{ url_for('blog.delete_element_link', id=link['id']) }}" method="post">
             <input class="danger" type="submit" value="Delete link" onclick="return confirm('Are you sure?');">
           </form>
