@@ -15,14 +15,27 @@ bp = Blueprint("blog", __name__)
 
 @bp.route("/")
 def index():
-    """Show all the posts, most recent first."""
     db = get_db()
-    posts = db.execute(
-        "SELECT p.id, title, body, created, author_id, username"
-        " FROM element p JOIN user u ON p.author_id = u.id"
-        " ORDER BY created DESC"
-    ).fetchall()
-    return render_template("blog/index.html", posts=posts)
+    tag_id = request.args.get('tag')
+    if tag_id:
+        posts = db.execute(
+            "SELECT e.id, e.title, e.body, e.created, e.author_id, u.username"
+            " FROM element e"
+            " JOIN user u ON e.author_id = u.id"
+            " INNER JOIN element_tag et ON e.id = et.element_id"
+            " WHERE et.id = ?"
+            " ORDER BY e.created DESC",
+            (tag_id,),
+        ).fetchall()
+        return render_template("blog/index.html", posts=posts, tag=tag_id)
+    else:
+        """Show all the posts, most recent first."""
+        posts = db.execute(
+            "SELECT p.id, title, body, created, author_id, username"
+            " FROM element p JOIN user u ON p.author_id = u.id"
+            " ORDER BY created DESC"
+        ).fetchall()
+        return render_template("blog/index.html", posts=posts, tag="")
 
 
 def get_post(id, check_author=True):
@@ -55,7 +68,7 @@ def get_post(id, check_author=True):
             "SELECT t.id, title, comment"
             "  FROM element_tag t JOIN user u ON t.author_id = u.id"
             " WHERE t.element_id = ?"
-            " ORDER BY created DESC",
+            " ORDER BY created ASC",
             (id,),
         ).fetchall()
     )
@@ -65,16 +78,13 @@ def get_post(id, check_author=True):
             "SELECT l.id, title, comment"
             "  FROM element_link l JOIN user u ON l.author_id = u.id"
             " WHERE l.element_id = ?"
-            " ORDER BY created DESC",
+            " ORDER BY created ASC",
             (id,),
         ).fetchall()
     )
 
     if element is None:
         abort(404, f"Element id {id} doesn't exist.")
-
-    if check_author and element["author_id"] != g.user["id"]:
-        abort(403)
 
     post = {
         "element": element,
@@ -197,7 +207,6 @@ def update(id):
     return render_template("blog/update.html", post=post["element"], tags=post["tags"], links=post["links"])
 
 @bp.route("/<int:id>/view", methods=("GET", "POST"))
-@login_required
 def view(id):
     """View a post if the current user is the author."""
     post = get_post(id)

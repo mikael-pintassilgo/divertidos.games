@@ -10,12 +10,12 @@
     <input name="title" id="title" value="{{ request.form['title'] or post['title'] }}" required>
     
     <label for="body">Body</label>
-    <textarea name="body" id="body">{{ request.form['body'] or post['body'] }}</textarea>
+    <textarea class="uk-textarea" name="body" id="body">{{ request.form['body'] or post['body'] }}</textarea>
     
     <label for="comment">Comment</label>
-    <textarea name="comment" id="comment">{{ request.form['comment'] or post['comment'] }}</textarea>
+    <textarea class="uk-textarea" name="comment" id="comment">{{ request.form['comment'] or post['comment'] }}</textarea>
     
-    <input type="submit" value="Save">
+    <input class="uk-button uk-button-default" type="submit" value="Save">
   </form>
   <hr>
   <form action="{{ url_for('blog.delete', id=post['id']) }}" method="post">
@@ -31,7 +31,7 @@
         <div>
           <h1>{{ tag['title'] }}</h1>
           <form action="{{ url_for('blog.delete_element_tag', id=tag['id'], element_id=post['id']) }}" method="post">
-            <input class="danger" type="submit" value="Delete tag" onclick="return confirm('Are you sure?');">
+            <input class="danger uk-button uk-button-default" type="submit" value="Delete tag" onclick="return confirm('Are you sure?');">
           </form>
         </div>
       </header>
