@@ -37,7 +37,7 @@
     <article class="">
       <header>
         <div>
-          <h1>{{ tag['title'] }}</h1>
+          <h3>{{ tag['title'] }}</h3>
           <form action="{{ url_for('blog.delete_element_tag', id=tag['id'], element_id=post['id']) }}" method="post">
             <input class="danger uk-button uk-button-default" type="submit" value="Delete tag" onclick="return confirm('Are you sure?');">
           </form>
@@ -50,12 +50,15 @@
   {% endfor %}
 
   <form action="{{ url_for('blog.create_tag', id=post['id']) }}" method="post">
-    <label for="tag_title">New tag</label>
-    <input name="tag_title" id="tag_title" value="{{ request.form['tag_title'] }}" required>
+    <div class="uk-margin">
+      <label for="tag_title">New tag</label>
+      <input name="tag_title" id="tag_title" value="{{ request.form['tag_title'] }}" required>
+    </div>
     
-    <input type="submit" value="Add tag">
+    <div class="uk-margin">
+      <input type="submit" value="Add tag">
+    </div>
   </form>
-
 
   <!-- Links -->
   <label>Links</label>
@@ -76,9 +79,22 @@
   {% endfor %}
 
   <form action="{{ url_for('blog.create_link', id=post['id']) }}" method="post">
-    <label for="link_title">New link</label>
-    <input name="link_title" id="link_title" value="{{ request.form['link_title'] }}" required>
-    
-    <input type="submit" value="Add link">
+    <fieldset class="uk-fieldset">
+      <div class="uk-margin">
+        <div uk-grid>
+          <div class="uk-width-5-6">
+            <label for="link_title"><span class="uk-label">New link</span></label>
+            <input class="uk-input" name="link_title" id="link_title" value="{{ request.form['link_title'] }}" required>
+          </div>
+          <div class="uk-width-1-6">
+            <input class="uk-inline uk-button uk-button-default" type="submit" value="Add link">
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="uk-margin">
+      
+    </div>
   </form>
 {% endblock %}
