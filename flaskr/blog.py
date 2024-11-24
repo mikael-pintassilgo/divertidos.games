@@ -261,3 +261,18 @@ def delete_element_link(id):
     print(id)
     print(element_id)
     return redirect(url_for('blog.update', id=element_id))
+
+@bp.route("/authors")
+@login_required
+def authors():
+    """View a list of authors."""
+    db = get_db()
+    authors = db.execute(
+        "SELECT username"
+        "  FROM user",
+    ).fetchall()
+    
+    for val in authors:
+        print(val["username"])
+
+    return render_template('blog/authors.html', authors=authors)
