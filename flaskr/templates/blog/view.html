@@ -19,7 +19,7 @@
     <article class="">
       <header>
         <div>
-          <a href="#">{{ tag['title'] }}</a>
+          <a href="#" onclick="tagOnClick({{ tag['id'] }})" id="{{ tag['id'] }}">{{ tag['title'] }}</a>
         </div>
       </header>
     </article>
@@ -42,5 +42,11 @@
       <hr>
     {% endif %}
   {% endfor %}
+
+<script>
+function tagOnClick(id) {
+    window.location.href = "{{ url_for('index') }}" + "?tag=" + id;
+}
+</script>
 
 {% endblock %}

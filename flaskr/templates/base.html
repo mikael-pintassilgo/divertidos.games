@@ -1,27 +1,49 @@
 <!doctype html>
 <title>{% block title %}{% endblock %} - divertidos games</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<!-- link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}" -->
-<!-- script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script -->
-<!-- script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script -->
-<nav>
-  <h1><a href="{{ url_for('index') }}">divertidos games</a></h1>
-  <ul>
-    {% if g.user %}
-      <li><span>{{ g.user['username'] }}</span>
-      <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
-    {% else %}
-      <li><a href="{{ url_for('auth.register') }}">Register</a>
-      <li><a href="{{ url_for('auth.login') }}">Log In</a>
-    {% endif %}
-  </ul>
-</nav>
-<section class="content">
-  <header>
-    {% block header %}{% endblock %}
-  </header>
-  {% for message in get_flashed_messages() %}
-    <div class="flash">{{ message }}</div>
-  {% endfor %}
-  {% block content %}{% endblock %}
-</section>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='divertidos_games.css') }}">
+<script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>
+<div class="uk-container-expand">
+  <nav class="uk-navbar-container" uk-navbar>
+    <div class="uk-navbar-left">
+
+        <ul class="uk-navbar-nav uk-margin-left">
+            <li class="uk-active"><h1><a href="{{ url_for('index') }}">divertidos games</a></h1></li>
+            
+        </ul>
+
+    </div>
+    <div class="uk-navbar-right">
+
+      <ul class="uk-navbar-nav uk-margin-right">
+          {% if g.user %}
+            <li><span class="uk-text-middle uk-height-1-1">{{ g.user['username'] }}</span>
+            <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
+          {% else %}
+            <li><a href="{{ url_for('auth.register') }}">Register</a>
+            <li><a href="{{ url_for('auth.login') }}">Log In</a>
+          {% endif %}
+      </ul>
+
+  </div>
+  </nav>
+
+  <div class="uk-container uk-align-center">
+    
+        
+        <div class="uk-width-expand">
+          <section class="content">
+            
+            <header>
+              {% block header %}{% endblock %}
+            </header>
+            {% for message in get_flashed_messages() %}
+              <div class="flash">{{ message }}</div>
+            {% endfor %}
+            {% block content %}{% endblock %}
+          </section>
+      
+
+    </div>
+  </div>
