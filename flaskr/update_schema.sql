@@ -1,1 +1,1 @@
-ALTER TABLE post ADD comment TEXT;
+delete from user where id = 1;

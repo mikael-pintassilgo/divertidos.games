@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% for author in authors %}
+<article>
+  <header>
+    <div>
+      <h1>{{ author['username'] }}</h1>
+    </div>
+  </header>
+</article>
+{% endfor %}
+{% endblock %}
