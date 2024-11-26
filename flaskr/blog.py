@@ -27,7 +27,13 @@ def index():
             " ORDER BY e.created DESC",
             (tag_id,),
         ).fetchall()
-        return render_template("blog/index.html", posts=posts, tag=tag_id)
+        tag = db.execute(
+            "SELECT et.name"
+            " FROM element_tag et"
+            " WHERE et.id = ?",
+            (tag_id,),
+        ).fetchone()
+        return render_template("blog/index.html", posts=posts, tag=tag.title)
     else:
         """Show all the posts, most recent first."""
         posts = db.execute(
