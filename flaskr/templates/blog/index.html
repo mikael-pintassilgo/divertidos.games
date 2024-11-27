@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Elements{% endblock %}</h1>
+  <h1 class="__uk-heading-divider">{% block title %}Elements{% endblock %}</h1>
   {% if g.user %}
     <a class="action" href="{{ url_for('blog.create') }}">New</a>
   {% endif %}
@@ -12,25 +12,85 @@
     <span class="uk-badge uk-text-default uk-text-primary dg-badge">{{ tag }}&nbsp
       <a href="{{ url_for('index') }}" uk-close></a>
     </span>
-    
   {% endif %}
-  {% for post in posts %}
-    <article class="post">
-      <header>
-        <div>
-          <a class="action" href="{{ url_for('blog.view', id=post['id']) }}">
-            <h1>{{ post['title'] }}</h1>
-          </a>
-          <div class="about">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</div>
-        </div>
+  
+  <div class="uk-child-width-extend uk-table-striped" uk-grid>
+
+    <table class="uk-table uk-table-striped uk-table-large">
+      <tbody>
+          
+    {% for post in posts %}
+
+    <tr>
+      <td>
+        <a class="" href="{{ url_for('blog.view', id=post['id']) }}">
+          <h4>{{ post['title'] }}</h4>
+        </a>
+        <p class="">{{ post['body'] }}</p>
+        <p class="uk-article-meta">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</p>
         {% if g.user['id'] == post['author_id'] %}
-          <a class="action" href="{{ url_for('blog.update', id=post['id']) }}">Edit</a>
+          <div>
+              <a class="uk-button uk-button-text" href="{{ url_for('blog.update', id=post['id']) }}">edit</a>
+          </div>
         {% endif %}
-      </header>
-      <p class="body">{{ post['body'] }}</p>
-    </article>
-    {% if not loop.last %}
-      <hr>
-    {% endif %}
-  {% endfor %}
+      </td>
+    </tr>
+
+    <!--
+    <dl class="uk-description-list">
+        <dt>
+          <a class="action" href="{{ url_for('blog.view', id=post['id']) }}">
+            <h2>{{ post['title'] }}</h2>
+          </a>
+        </dt>
+        <dd>
+          <p class="">{{ post['body'] }}</p>
+        </dd>
+        <p class="uk-article-meta">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</p>
+    </dl>  
+    
+      <article class="uk-article">
+        <p class="uk-text-lead">
+          <a class="action" href="{{ url_for('blog.view', id=post['id']) }}">
+            <h2>{{ post['title'] }}</h2>
+          </a>
+        </p>
+        
+        <p class="">{{ post['body'] }}</p>
+        
+        {% if g.user['id'] == post['author_id'] %}
+          <div class="uk-grid-small uk-child-width-auto" uk-grid>
+            <div>
+                <a class="uk-button uk-button-text" href="{{ url_for('blog.update', id=post['id']) }}">edit</a>
+            </div>
+          </div>
+        {% endif %}
+        
+        <p class="uk-article-meta">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</p>
+        
+      </article>
+      
+      <div class="uk-card uk-card-default uk-width-1-1">
+        <h3 class="uk-card-title"><a class="action" href="{{ url_for('blog.view', id=post['id']) }}">
+          {{ post['title'] }}
+        </a></h3>
+        <p class="body">{{ post['body'] }}</p>
+        {% if g.user['id'] == post['author_id'] %}
+          <div class="uk-card-footer">
+            <a class="action" href="{{ url_for('blog.update', id=post['id']) }}">Edit</a>
+          </div>
+        {% endif %}
+      </div>
+      {% if not loop.last %}
+        <hr>
+      {% endif %}
+      -->
+      
+    {% endfor %}
+  </tbody>
+</table>
+    
+<a href="" uk-totop></a>
+  </div>
 {% endblock %}
+

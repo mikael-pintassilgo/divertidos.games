@@ -9,8 +9,9 @@
     <div class="uk-navbar-left">
 
         <ul class="uk-navbar-nav uk-margin-left">
-            <li class="uk-active"><h1><a href="{{ url_for('index') }}">divertidos games</a></h1></li>
-            
+            <li class="uk-active">
+              <a class="uk-navbar-item uk-logo" aria-label="Back to Home" href="{{ url_for('index') }}">divertidos games</a>
+            </li>            
         </ul>
 
     </div>
@@ -32,18 +33,15 @@
   <div class="uk-container uk-align-center">
     
         
-        <div class="uk-width-expand">
-          <section class="content">
-            
-            <header>
-              {% block header %}{% endblock %}
-            </header>
-            {% for message in get_flashed_messages() %}
-              <div class="flash">{{ message }}</div>
-            {% endfor %}
-            {% block content %}{% endblock %}
-          </section>
-      
+    <div class="uk-width-expand">
+        <header>
+          {% block header %}{% endblock %}
+        </header>
+        {% for message in get_flashed_messages() %}
+          <div class="flash">{{ message }}</div>
+        {% endfor %}
+        {% block content %}{% endblock %}
+          
 
     </div>
   </div>

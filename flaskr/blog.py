@@ -18,29 +18,32 @@ def index():
     db = get_db()
     tag_id = request.args.get('tag')
     if tag_id:
+        tag = db.execute(
+            "SELECT et.title"
+            " FROM element_tag et"
+            " WHERE et.id = ?",
+            (tag_id,),
+        ).fetchone()
+        
         posts = db.execute(
             "SELECT e.id, e.title, e.body, e.created, e.author_id, u.username"
             " FROM element e"
             " JOIN user u ON e.author_id = u.id"
             " INNER JOIN element_tag et ON e.id = et.element_id"
-            " WHERE et.id = ?"
+            " WHERE et.title = ?"
             " ORDER BY e.created DESC",
-            (tag_id,),
+            (tag['title'],),
         ).fetchall()
-        tag = db.execute(
-            "SELECT et.name"
-            " FROM element_tag et"
-            " WHERE et.id = ?",
-            (tag_id,),
-        ).fetchone()
-        return render_template("blog/index.html", posts=posts, tag=tag.title)
+        
+        return render_template("blog/index.html", posts=posts, tag=tag['title'])
     else:
         """Show all the posts, most recent first."""
         posts = db.execute(
-            "SELECT p.id, title, body, created, author_id, username"
-            " FROM element p JOIN user u ON p.author_id = u.id"
+            "SELECT e.id, title, body, created, author_id, username"
+            " FROM element e JOIN user u ON e.author_id = u.id"
             " ORDER BY created DESC"
         ).fetchall()
+        
         return render_template("blog/index.html", posts=posts, tag="")
 
 
