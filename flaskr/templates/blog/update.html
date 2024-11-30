@@ -21,6 +21,11 @@
       </div>
       
       <div class="uk-margin">
+        <label for="tags"><span class="uk-label">Tags (keep it the same as the tag items below)</span></label>
+        <textarea class="uk-textarea" name="tags" id="tags">{{ request.form['tags'] or post['tags'] }}</textarea>
+      </div>
+
+      <div class="uk-margin">
         <input class="uk-button uk-button-primary" type="submit" value="Save">
       </div>
     </div>

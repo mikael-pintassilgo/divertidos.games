@@ -28,6 +28,11 @@
         </a>
         <p class="">{{ post['body'] }}</p>
         <p class="uk-article-meta">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</p>
+        {% if post["tags"] != None and post["tags"] != "" %}
+          {% for tag in post["tags"].split(';') %}
+            <a href="{{ url_for('index') + '?tag=' + tag }}">{{ tag }}</a>
+          {% endfor %}
+        {% endif %}
         {% if g.user['id'] == post['author_id'] %}
           <div>
               <a class="uk-button uk-button-text" href="{{ url_for('blog.update', id=post['id']) }}">edit</a>
@@ -91,6 +96,12 @@
 </table>
     
 <a href="" uk-totop></a>
-  </div>
+</div>
+
+<script>
+  function tagOnClick(tag_title) {
+      window.location.href = "{{ url_for('index') }}" + "?tag=" + tag_title;
+  }
+</script>
 {% endblock %}
 

@@ -16,30 +16,30 @@ bp = Blueprint("blog", __name__)
 @bp.route("/")
 def index():
     db = get_db()
-    tag_id = request.args.get('tag')
-    if tag_id:
+    tag_title = request.args.get('tag')
+    if tag_title:
         tag = db.execute(
             "SELECT et.title"
             " FROM element_tag et"
-            " WHERE et.id = ?",
-            (tag_id,),
+            " WHERE et.title = ?",
+            (tag_title,),
         ).fetchone()
         
         posts = db.execute(
-            "SELECT e.id, e.title, e.body, e.created, e.author_id, u.username"
+            "SELECT e.id, e.title, e.body, e.created, e.author_id, u.username, e.tags"
             " FROM element e"
             " JOIN user u ON e.author_id = u.id"
             " INNER JOIN element_tag et ON e.id = et.element_id"
             " WHERE et.title = ?"
             " ORDER BY e.created DESC",
-            (tag['title'],),
+            (tag_title,),
         ).fetchall()
         
-        return render_template("blog/index.html", posts=posts, tag=tag['title'])
+        return render_template("blog/index.html", posts=posts, tag=tag_title)
     else:
         """Show all the posts, most recent first."""
         posts = db.execute(
-            "SELECT e.id, title, body, created, author_id, username"
+            "SELECT e.id, title, body, created, author_id, username, e.tags"
             " FROM element e JOIN user u ON e.author_id = u.id"
             " ORDER BY created DESC"
         ).fetchall()
@@ -64,7 +64,7 @@ def get_post(id, check_author=True):
     element = (
         db
         .execute(
-            "SELECT p.id, title, body, comment, created, author_id, username"
+            "SELECT p.id, title, body, comment, created, author_id, username, p.tags"
             "  FROM element p JOIN user u ON p.author_id = u.id"
             " WHERE p.id = ?",
             (id,),
@@ -111,6 +111,7 @@ def create():
         title = request.form["title"]
         body = request.form["body"]
         comment = request.form["comment"]
+        tags = "" #request.form["tags"]
         error = None
 
         if not title:
@@ -121,8 +122,8 @@ def create():
         else:
             db = get_db()
             db.execute(
-                "INSERT INTO element (title, body, author_id, comment) VALUES (?, ?, ?, ?)",
-                (title, body, g.user["id"], comment),
+                "INSERT INTO element (title, body, author_id, comment, tags) VALUES (?, ?, ?, ?, ?)",
+                (title, body, g.user["id"], comment, tags),
             )
             db.commit()
             return redirect(url_for("blog.index"))
@@ -147,11 +148,19 @@ def create_tag(id):
             print(g.user["id"])
             print((id))
             
+            post=get_post(id)
+            
             db = get_db()
             db.execute(
                 "INSERT INTO element_tag (title, author_id, element_id) VALUES (?, ?, ?)",
                 (title, g.user["id"], id),
             )
+            
+            if (post['element']['tags'].find(title) == -1):
+                db.execute(
+                    "UPDATE element SET tags=? WHERE id=?",
+                    (str(post['element']['tags']) + title + ';', id),
+                )
             
             db.commit()
             return redirect(url_for('blog.update', id=id))
@@ -197,6 +206,7 @@ def update(id):
         title = request.form["title"]
         body = request.form["body"]
         comment = request.form["comment"]
+        tags = request.form["tags"]
 
         error = None
 
@@ -208,7 +218,7 @@ def update(id):
         else:
             db = get_db()
             db.execute(
-                "UPDATE element SET title = ?, body = ?, comment = ? WHERE id = ?", (title, body, comment, id)
+                "UPDATE element SET title = ?, body = ?, comment = ?, tags = ? WHERE id = ?", (title, body, comment, tags, id)
             )
             db.commit()
             return redirect(url_for("blog.index"))
