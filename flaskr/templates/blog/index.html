@@ -30,7 +30,8 @@
         <p class="uk-article-meta">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</p>
         {% if post["tags"] != None and post["tags"] != "" %}
           {% for tag in post["tags"].split(';') %}
-            <a href="{{ url_for('index') + '?tag=' + tag }}">{{ tag }}</a>
+            <!-- a href="{{ url_for('index') + '?tag=' + tag }}" onclick='tagOnClick()'>{{ tag }}</a -->
+            <a href="#" onclick="tagOnClick('{{ tag }}')">{{ tag }}</a>
           {% endfor %}
         {% endif %}
         {% if g.user['id'] == post['author_id'] %}
@@ -100,7 +101,16 @@
 
 <script>
   function tagOnClick(tag_title) {
-      window.location.href = "{{ url_for('index') }}" + "?tag=" + tag_title;
+    tags = getCookie('tags');
+    if (tags == null) {
+      tags = ""
+    }
+    if (tags.search(tag_title) == -1) {
+      setCookie('tags', tags + tag_title + '\;', 0)
+    } else {
+      setCookie('tags', tag_title + '\;', 0)
+    }
+    window.location.href = "{{ url_for('index') }}" + "?tag=" + tag_title;
   }
 </script>
 {% endblock %}

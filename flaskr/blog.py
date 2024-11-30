@@ -17,6 +17,19 @@ bp = Blueprint("blog", __name__)
 def index():
     db = get_db()
     tag_title = request.args.get('tag')
+    coockie_tags = request.cookies.get('tags')
+    print('tags = ' + str(coockie_tags))
+    _page = request.args.get('page')
+    if (_page == None):
+        currentPage = 1
+    else:
+        currentPage = int(_page)
+    
+    limit = 3
+    offset = (currentPage - 1) * limit
+    
+    print(currentPage)
+    
     if tag_title:
         tag = db.execute(
             "SELECT et.title"
@@ -31,7 +44,7 @@ def index():
             " JOIN user u ON e.author_id = u.id"
             " INNER JOIN element_tag et ON e.id = et.element_id"
             " WHERE et.title = ?"
-            " ORDER BY e.created DESC",
+            " ORDER BY e.created DESC LIMIT " + str((offset - 1) * limit) + "," + str(limit),
             (tag_title,),
         ).fetchall()
         
@@ -41,7 +54,7 @@ def index():
         posts = db.execute(
             "SELECT e.id, title, body, created, author_id, username, e.tags"
             " FROM element e JOIN user u ON e.author_id = u.id"
-            " ORDER BY created DESC"
+            " ORDER BY created DESC LIMIT " + str((offset - 1) * limit) + "," + str(limit)
         ).fetchall()
         
         return render_template("blog/index.html", posts=posts, tag="")
