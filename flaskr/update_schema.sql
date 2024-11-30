@@ -1,1 +1,1 @@
-delete from user where id = 1;
+ALTER TABLE element ADD tags TEXT;
