@@ -105,10 +105,10 @@
     if (tags == null) {
       tags = ""
     }
-    if (tags.search(tag_title) == -1) {
-      setCookie('tags', tags + tag_title + '\;', 0)
-    } else {
-      setCookie('tags', tag_title + '\;', 0)
+    if (tags.length > 0 && tags.search(tag_title) == -1) {
+      setCookie('tags', tags + '%%' + tag_title, 0)
+    } else if (tags.length == 0) {
+      setCookie('tags', tag_title, 0)
     }
     window.location.href = "{{ url_for('index') }}" + "?tag=" + tag_title;
   }
