@@ -31,7 +31,7 @@
         {% if post["tags"] != None and post["tags"] != "" %}
           {% for tag in post["tags"].split(';') %}
             <!-- a href="{{ url_for('index') + '?tag=' + tag }}" onclick='tagOnClick()'>{{ tag }}</a -->
-            <a href="#" onclick="tagOnClick('{{ tag }}')">{{ tag }}</a>
+            <a href="#" onclick="tagOnClickGeneral('{{ tag }}')">{{ tag }}</a>
           {% endfor %}
         {% endif %}
         {% if g.user['id'] == post['author_id'] %}

@@ -5,6 +5,7 @@
 <script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/work-with-coockies.js' )}}"></script>
+
 <div class="uk-container-expand">
   <nav class="uk-navbar-container" uk-navbar>
     <div class="uk-navbar-left">
@@ -32,8 +33,6 @@
   </nav>
 
   <div class="uk-container uk-align-center">
-    
-        
     <div class="uk-width-expand">
         <header>
           {% block header %}{% endblock %}
@@ -42,7 +41,22 @@
           <div class="flash">{{ message }}</div>
         {% endfor %}
         {% block content %}{% endblock %}
-          
+  
+    <script>      
+      function tagOnClickGeneral(tag_title) {
+        tags = getCookie('tags');
+        if (tags == null) {
+          tags = ""
+        }
+        if (tags.length > 0 && tags.search(tag_title) == -1) {
+          setCookie('tags', tags + '%%' + tag_title, 0)
+        } else if (tags.length == 0) {
+          setCookie('tags', tag_title, 0)
+        }
+        window.location.href = "{{ url_for('index') }}" + "?tag=" + tag_title;
+      }
+    </script>
 
-    </div>
-  </div>
+</div>
+</div>
+
