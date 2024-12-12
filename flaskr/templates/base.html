@@ -55,6 +55,30 @@
         }
         window.location.href = "{{ url_for('index') }}" + "?tag=" + tag_title;
       }
+
+      function tagCloseOnClickGeneral(tag_title) {
+        tags = getCookie('tags');
+        if (tags == null) {
+          tags = ""
+        }
+        if (tags.length > 0 && tags.search(tag_title) > -1) {
+          let isLastTag = (tags.search('%%') == -1)
+          if (isLastTag) {
+            tags = ""
+          } else if (tags.search('%%' + tag_title) == -1) {
+            tags = tags.replace(tag_title + '%%', '')
+          } else {
+            tags = tags.replace('%%' + tag_title, '')
+          }
+          
+          setCookie('tags', tags, 0)
+        }
+        window.location.href = "{{ url_for('index') }}" + "?tag=" + tag_title;
+      }
+
+      function clearTags() {
+        setCookie('tags', '', 0)
+      }
     </script>
 
 </div>

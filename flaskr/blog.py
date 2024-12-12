@@ -1,3 +1,4 @@
+import json
 from flask import Blueprint
 from flask import flash
 from flask import g
@@ -12,43 +13,51 @@ from .db import get_db
 
 bp = Blueprint("blog", __name__)
 
-
 @bp.route("/")
 def index():
     db = get_db()
     tag_title = request.args.get('tag')
+    
+    # tags in coockie
     coockie_tags = request.cookies.get('tags')
-    print('tags = ' + str(coockie_tags))
+    if coockie_tags:
+        tags_list = coockie_tags.split('%%')
+    else:
+        tags_list = []
+    print('coockie_tags = ' + str(coockie_tags))
+    print('tags_list = ' + str(tags_list))
+    # end tags in coockie
+    
     _page = request.args.get('page')
     if (_page == None):
         currentPage = 1
     else:
         currentPage = int(_page)
-    
     limit = 3
     offset = (currentPage - 1) * limit
     
     print(currentPage)
     
-    if tag_title:
-        tag = db.execute(
+    if len(tags_list):
+        tags = db.execute(
             "SELECT et.title"
             " FROM element_tag et"
-            " WHERE et.title = ?",
-            (tag_title,),
+            " WHERE et.title in (SELECT value FROM json_each(?))",
+            (json.dumps(tags_list),),
         ).fetchone()
-        
+                
         posts = db.execute(
             "SELECT e.id, e.title, e.body, e.created, e.author_id, u.username, e.tags"
             " FROM element e"
             " JOIN user u ON e.author_id = u.id"
             " INNER JOIN element_tag et ON e.id = et.element_id"
-            " WHERE et.title = ?"
+            " WHERE et.title in (SELECT value FROM json_each(?))"
             " ORDER BY e.created DESC LIMIT " + str((offset - 1) * limit) + "," + str(limit),
-            (tag_title,),
+            (json.dumps(tags_list),),
         ).fetchall()
         
-        return render_template("blog/index.html", posts=posts, tag=tag_title)
+        print('tags' + str(tags))
+        return render_template("blog/index.html", posts=posts, tag=tag_title, tags=tags_list)
     else:
         """Show all the posts, most recent first."""
         posts = db.execute(

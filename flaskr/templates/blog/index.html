@@ -8,11 +8,13 @@
 {% endblock %}
 
 {% block content %}
-  {% if tag != "" %}
-    <span class="uk-badge uk-text-default uk-text-primary dg-badge">{{ tag }}&nbsp
-      <a href="{{ url_for('index') }}" uk-close></a>
-    </span>
-  {% endif %}
+    {% for tag in tags %}
+      <!-- a href="{{ url_for('index') + '?tag=' + tag }}" onclick='tagOnClick()'>{{ tag }}</a -->
+      <!-- a href="#" onclick="tagOnClickGeneral('{{ tag }}')">{{ tag }}</a -->
+      <span class="uk-badge uk-text-default uk-text-primary dg-badge">{{ tag }}&nbsp
+        <a href="#" onclick="tagCloseOnClickGeneral('{{ tag }}')" uk-close></a>
+      </span>
+    {% endfor %}
   
   <div class="uk-child-width-extend uk-table-striped" uk-grid>
 
