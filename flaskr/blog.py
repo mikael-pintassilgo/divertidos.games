@@ -60,7 +60,7 @@ def index():
         ).fetchall()
         
         print('tags' + str(tags))
-        return render_template("blog/index.html", posts=posts, tag=tag_title, tags=tags_list)
+        return render_template("blog/index.html", posts=posts, tag=tag_title, tags=tags_list, currentPage=currentPage)
     else:
         """Show all the posts, most recent first."""
         posts = db.execute(

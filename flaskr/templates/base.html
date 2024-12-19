@@ -13,6 +13,7 @@
         <ul class="uk-navbar-nav uk-margin-left">
             <li class="uk-active">
               <a class="uk-navbar-item uk-logo" aria-label="Back to Home" href="{{ url_for('index') }}">divertidos games</a>
+              {% block menu_items %}{% endblock %}
             </li>            
         </ul>
 

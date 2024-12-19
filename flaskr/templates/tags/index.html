@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1 class="__uk-heading-divider">{% block title %}Tags{% endblock %}</h1>
+{% endblock %}
+
+{% block menu_items %}
+<li><a href="{{ url_for('index') }}">Elements</a></li>
+<li class="uk-active"><a href="{{ url_for('tags.index') }}">Tags</a></li>
+{% endblock %}
+
+{% block content %}
+  <div class="uk-child-width-extend uk-table-striped" uk-grid>
+
+    <table class="uk-table uk-table-striped uk-table-large">
+      <tbody>
+          
+    {% for tag in tags %}
+
+      <tr>
+        <td>
+          <a href="#" onclick="tagOnClickGeneral('{{ tag['title'] }}')">{{ tag['title'] }}</a>
+        </td>
+      </tr>
+
+      
+    {% endfor %}
+  </tbody>
+</table>
+
+<nav>
+  <ul class="uk-pagination">
+      {% if currentPage == 1 %}
+      <li class="uk-disabled"><a href="{{ url_for('tags.index') + '?page='+(currentPage-1)|string }}"><span class="uk-margin-small-right" uk-pagination-previous></span> Previous</a></li>
+      {% else %}
+      <li><a href="{{ url_for('tags.index') + '?page='+(currentPage-1)|string }}"><span class="uk-margin-small-right" uk-pagination-previous></span> Previous</a></li>
+      {% endif %}
+      <li class="uk-margin-auto-left"><a href="{{ url_for('tags.index') + '?page='+(currentPage+1)|string }}">Next <span class="uk-margin-small-left" uk-pagination-next></span></a></li>
+  </ul>
+</nav>
+
+<a href="" uk-totop></a>
+</div>
+
+{% endblock %}
+

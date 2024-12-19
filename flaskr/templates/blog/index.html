@@ -7,6 +7,11 @@
   {% endif %}
 {% endblock %}
 
+{% block menu_items %}
+<li class="uk-active"><a href="{{ url_for('index') }}">Elements</a></li>
+<li><a href="{{ url_for('tags.index') }}">Tags</a></li>
+{% endblock %}
+
 {% block content %}
     {% for tag in tags %}
       <!-- a href="{{ url_for('index') + '?tag=' + tag }}" onclick='tagOnClick()'>{{ tag }}</a -->

@@ -31,9 +31,9 @@ def index():
     
     """Show all the posts, most recent first."""
     tags = db.execute(
-        "SELECT e.id, title, body, created, author_id, username, e.tags"
-        "  FROM element e JOIN user u ON e.author_id = u.id"
-        " ORDER BY created DESC"
+        "SELECT DISTINCT title"
+        "  FROM element_tag et"
+        " ORDER BY title ASC"
         " LIMIT " + str(offset) + "," + str(limit)
     ).fetchall()
     
