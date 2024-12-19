@@ -33,26 +33,29 @@ def index():
         currentPage = 1
     else:
         currentPage = int(_page)
-    limit = 3
+    limit = 10
     offset = (currentPage - 1) * limit
     
-    print(currentPage)
+    print('currentPage = ' + str(currentPage))
+    print('offset = ' + str(offset))
+    print('limit = ' + str(limit))
     
     if len(tags_list):
         tags = db.execute(
             "SELECT et.title"
-            " FROM element_tag et"
+            "  FROM element_tag et"
             " WHERE et.title in (SELECT value FROM json_each(?))",
             (json.dumps(tags_list),),
         ).fetchone()
                 
         posts = db.execute(
             "SELECT e.id, e.title, e.body, e.created, e.author_id, u.username, e.tags"
-            " FROM element e"
-            " JOIN user u ON e.author_id = u.id"
+            "  FROM element e"
+            "  JOIN user u ON e.author_id = u.id"
             " INNER JOIN element_tag et ON e.id = et.element_id"
             " WHERE et.title in (SELECT value FROM json_each(?))"
-            " ORDER BY e.created DESC LIMIT " + str((offset - 1) * limit) + "," + str(limit),
+            " ORDER BY e.created DESC"
+            " LIMIT " + str(offset) + "," + str(limit),
             (json.dumps(tags_list),),
         ).fetchall()
         
@@ -62,11 +65,12 @@ def index():
         """Show all the posts, most recent first."""
         posts = db.execute(
             "SELECT e.id, title, body, created, author_id, username, e.tags"
-            " FROM element e JOIN user u ON e.author_id = u.id"
-            " ORDER BY created DESC LIMIT " + str((offset - 1) * limit) + "," + str(limit)
+            "  FROM element e JOIN user u ON e.author_id = u.id"
+            " ORDER BY created DESC"
+            " LIMIT " + str(offset) + "," + str(limit)
         ).fetchall()
         
-        return render_template("blog/index.html", posts=posts, tag="")
+        return render_template("blog/index.html", posts=posts, tag="", currentPage=currentPage)
 
 
 def get_post(id, check_author=True):
