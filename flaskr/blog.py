@@ -17,13 +17,17 @@ bp = Blueprint("blog", __name__)
 def index():
     db = get_db()
     tag_title = request.args.get('tag')
-    
-    # tags in coockie
     coockie_tags = request.cookies.get('tags')
-    if coockie_tags:
-        tags_list = coockie_tags.split('%%')
+    
+    if (tag_title):
+        tags_list = [tag_title,]
     else:
-        tags_list = []
+        # tags in coockie
+        if coockie_tags:
+            tags_list = coockie_tags.split('%%')
+        else:
+            tags_list = []
+    
     print('coockie_tags = ' + str(coockie_tags))
     print('tags_list = ' + str(tags_list))
     # end tags in coockie
@@ -41,25 +45,29 @@ def index():
     print('limit = ' + str(limit))
     
     if len(tags_list):
-        tags = db.execute(
-            "SELECT et.title"
+        elements_ids = db.execute(
+            "SELECT e.id"
             "  FROM element_tag et"
-            " WHERE et.title in (SELECT value FROM json_each(?))",
-            (json.dumps(tags_list),),
-        ).fetchone()
-                
+            " INNER JOIN element e ON et.element_id = e.id"
+            " WHERE et.title in (SELECT value FROM json_each(?))"
+            " GROUP BY e.id"
+            " HAVING count(DISTINCT et.title) = ?",
+            (json.dumps(tags_list), len(tags_list)),
+        ).fetchall()
+        
+        if elements_ids == None:
+            return render_template("blog/index.html", posts=[], tag=tag_title, tags=tags_list, currentPage=currentPage)
+        
         posts = db.execute(
             "SELECT e.id, e.title, e.body, e.created, e.author_id, u.username, e.tags"
             "  FROM element e"
             "  JOIN user u ON e.author_id = u.id"
-            " INNER JOIN element_tag et ON e.id = et.element_id"
-            " WHERE et.title in (SELECT value FROM json_each(?))"
+            " WHERE e.id in (SELECT value FROM json_each(?))"
             " ORDER BY e.created DESC"
             " LIMIT " + str(offset) + "," + str(limit),
-            (json.dumps(tags_list),),
+            (json.dumps([row[0] for row in elements_ids]),),
         ).fetchall()
         
-        print('tags' + str(tags))
         return render_template("blog/index.html", posts=posts, tag=tag_title, tags=tags_list, currentPage=currentPage)
     else:
         """Show all the posts, most recent first."""

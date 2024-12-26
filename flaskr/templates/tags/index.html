@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1 class="__uk-heading-divider">{% block title %}Tags{% endblock %}</h1>
+  <h1 class="__uk-heading-divider">{% block title %}#Tags{% endblock %}</h1>
 {% endblock %}
 
 {% block menu_items %}
 <li><a href="{{ url_for('index') }}">Elements</a></li>
-<li class="uk-active"><a href="{{ url_for('tags.index') }}">Tags</a></li>
+<li class="uk-active"><a href="{{ url_for('tags.index') }}">#Tags</a></li>
 {% endblock %}
 
 {% block content %}
@@ -19,7 +19,7 @@
 
       <tr>
         <td>
-          <a href="#" onclick="tagOnClickGeneral('{{ tag['title'] }}')">{{ tag['title'] }}</a>
+          <a href="#" onclick="tagOnClickGeneral('{{ tag['title'] }}')">#{{ tag['title'] }}</a>
         </td>
       </tr>
 

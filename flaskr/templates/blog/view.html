@@ -14,12 +14,12 @@
   <br/>
   
   <!-- Tags -->
-  <label>Tags</label>
+  <label>#Tags</label>
   {% for tag in tags %}
     <article class="">
       <header>
         <div>
-          <a href="#" onclick="tagOnClick('{{ tag['title'] }}')">{{ tag['title'] }}</a>
+          <a href="#" onclick="tagOnClick('{{ tag['title'] }}')">#{{ tag['title'] }}</a>
         </div>
       </header>
     </article>

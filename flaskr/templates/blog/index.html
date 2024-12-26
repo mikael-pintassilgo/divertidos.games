@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1 class="__uk-heading-divider">{% block title %}Elements{% endblock %}</h1>
-  {% if g.user %}
-    <a class="action" href="{{ url_for('blog.create') }}">New</a>
-  {% endif %}
+  <div uk-grid class="uk-margin-bottom">
+    <h1 class="uk-width-auto __uk-heading-divider">{% block title %}Elements{% endblock %}</h1>
+    {% if g.user %}
+    <a class="uk-margin-left uk-button uk-button-default" href="{{ url_for('blog.create') }}">add element</a>
+    {% endif %}
+  </div>
 {% endblock %}
-
+<div class="uk-container-expand"></div>
 {% block menu_items %}
 <li class="uk-active"><a href="{{ url_for('index') }}">Elements</a></li>
 <li><a href="{{ url_for('tags.index') }}">Tags</a></li>
@@ -16,7 +18,7 @@
     {% for tag in tags %}
       <!-- a href="{{ url_for('index') + '?tag=' + tag }}" onclick='tagOnClick()'>{{ tag }}</a -->
       <!-- a href="#" onclick="tagOnClickGeneral('{{ tag }}')">{{ tag }}</a -->
-      <span class="uk-badge uk-text-default uk-text-primary dg-badge">{{ tag }}&nbsp
+      <span class="uk-badge uk-text-default uk-text-primary dg-badge">#{{ tag }}&nbsp
         <a href="#" onclick="tagCloseOnClickGeneral('{{ tag }}')" uk-close></a>
       </span>
     {% endfor %}
@@ -37,8 +39,10 @@
         <p class="uk-article-meta">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</p>
         {% if post["tags"] != None and post["tags"] != "" %}
           {% for tag in post["tags"].split(';') %}
-            <!-- a href="{{ url_for('index') + '?tag=' + tag }}" onclick='tagOnClick()'>{{ tag }}</a -->
-            <a href="#" onclick="tagOnClickGeneral('{{ tag }}')">{{ tag }}</a>
+            {% if tag != '' %}  
+              <!-- a href="{{ url_for('index') + '?tag=' + tag }}" onclick='tagOnClick()'>{{ tag }}</a -->
+              <a href="#" onclick="tagOnClickGeneral('{{ tag }}')">#{{ tag }}</a>
+            {% endif %}
           {% endfor %}
         {% endif %}
         {% if g.user['id'] == post['author_id'] %}

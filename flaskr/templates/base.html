@@ -54,7 +54,7 @@
         } else if (tags.length == 0) {
           setCookie('tags', tag_title, 0)
         }
-        window.location.href = "{{ url_for('index') }}" + "?tag=" + tag_title;
+        window.location.href = "{{ url_for('index') }}"; //+ "?tag=" + tag_title;
       }
 
       function tagCloseOnClickGeneral(tag_title) {
@@ -74,7 +74,7 @@
           
           setCookie('tags', tags, 0)
         }
-        window.location.href = "{{ url_for('index') }}" + "?tag=" + tag_title;
+        window.location.href = "{{ url_for('index') }}"; // + "?tag=" + tag_title;
       }
 
       function clearTags() {
