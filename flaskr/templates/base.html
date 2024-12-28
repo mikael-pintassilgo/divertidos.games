@@ -13,8 +13,12 @@
         <ul class="uk-navbar-nav uk-margin-left">
             <li class="uk-active">
               <a class="uk-navbar-item uk-logo" aria-label="Back to Home" href="{{ url_for('index') }}">divertidos games</a>
-              {% block menu_items %}{% endblock %}
-            </li>            
+              
+            </li>  
+            <li class="{% block elements_active %}{% endblock %}"><a href="{{ url_for('index') }}">Elements</a></li>
+            <li class="{% block tags_active %}{% endblock %}"><a href="{{ url_for('tags.index') }}">#Tags</a></li>
+            <li class="{% block quest_active %}{% endblock %}"><a href="{{ url_for('quests.index') }}">Quests</a></li>
+                      
         </ul>
 
     </div>

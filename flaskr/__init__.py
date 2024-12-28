@@ -39,10 +39,12 @@ def create_app(test_config=None):
     from . import auth
     from . import blog
     from . import tags
+    from . import quests
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(blog.bp)
     app.register_blueprint(tags.bp)
+    app.register_blueprint(quests.bp)
 
     # make url_for('index') == url_for('blog.index')
     # in another app, you might define a separate main index here with
