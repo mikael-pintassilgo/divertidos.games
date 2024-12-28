@@ -18,9 +18,9 @@ def index():
         'city': 'Barreiro',
         'title': 'Old City',
         'description': 'A walk through the historic part of Barreiro. \nInteresting facts about the city and its inhabitants.',
-        'link': url_for('static', filename='quests/Barreiro/old-city.html'),
+        'static_link': url_for('static', filename='quests/Barreiro/old-city.html'),
         'price': 'free',
-        'start': 'Terminal',
+        'start_point': 'Terminal',
     }]
     quests = {
         'barreiro_quests': barreiro_quests,

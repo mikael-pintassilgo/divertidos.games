@@ -17,6 +17,7 @@ CREATE TABLE element (
   title TEXT NOT NULL,
   body TEXT NOT NULL,
   comment TEXT,
+  tags TEXT,
   FOREIGN KEY (author_id) REFERENCES user (id)
 );
 
