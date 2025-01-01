@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="uk-container">  
+  <div class="uk-width-1-1">
+    <form method="post">
+      <fieldset class="uk-fieldset">
+
+        <legend class="uk-legend">New Quest</legend>
+        
+        <div class="uk-margin">
+          <label for="city"><span class="uk-label">City</span></label>
+          <input class="uk-input" name="city" id="city" value="{{ request.form['city'] }}" required>
+        </div>
+
+        <div class="uk-margin">
+          <label for="title"><span class="uk-label">Title</span></label>
+          <input class="uk-input" name="title" id="title" value="{{ request.form['title'] }}" required>
+        </div>
+
+        <div class="uk-margin">
+          <label for="description"><span class="uk-label">Description</span></label>
+          <textarea class="uk-textarea" name="description" id="description">{{ request.form['description'] }}</textarea>
+        </div>
+
+        <div class="uk-margin">
+          <label for="start_point"><span class="uk-label">Start Point</span></label>
+          <textarea class="uk-textarea" name="start_point" id="start_point">{{ request.form['start_point'] }}</textarea>
+        </div>
+
+        <div class="uk-margin">
+          <label for="static_link"><span class="uk-label">Static Link</span></label>
+          <textarea class="uk-textarea" name="static_link" id="static_link">{{ request.form['static_link'] }}</textarea>
+        </div>
+
+        <div class="uk-margin">
+          <label for="image_static_link"><span class="uk-label">Image Static Link</span></label>
+          <textarea class="uk-textarea" name="image_static_link" id="image_static_link">{{ request.form['image_static_link'] }}</textarea>
+        </div>
+
+        <div class="uk-margin">
+          <label for="price"><span class="uk-label">Price</span></label>
+          <textarea class="uk-textarea" name="price" id="price">{{ request.form['price'] }}</textarea>
+        </div>
+
+        <div class="uk-margin">
+          <input class="uk-button uk-button-primary" type="submit" value="Save">
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

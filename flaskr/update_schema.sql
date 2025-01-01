@@ -12,7 +12,8 @@ CREATE TABLE quest (
   title TEXT NOT NULL,
   description TEXT,
   static_link TEXT NOT NULL,
-  price real,
+  image_static_link TEXT,
+  price real DEFAULT 0.0,
   start_point TEXT NOT NULL,
   --
   FOREIGN KEY (author_id) REFERENCES user (id)
@@ -23,6 +24,7 @@ CREATE TABLE quest_task (
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   --
   description TEXT NOT NULL,
+  image_static_link TEXT,
   first_clue TEXT,
   second_clue TEXT,
   third_clue TEXT,

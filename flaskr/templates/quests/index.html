@@ -1,7 +1,12 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1 class="__uk-heading-divider">{% block title %}Quests{% endblock %}</h1>
+  <div uk-grid class="uk-margin-bottom">
+    <h1 class="uk-width-auto __uk-heading-divider">{% block title %}Quests{% endblock %}</h1>
+    {% if g.user %}
+    <a class="uk-margin-left uk-button uk-button-default" href="{{ url_for('quests.create') }}">add quest</a>
+    {% endif %}
+  </div>
 {% endblock %}
 
 {% block quest_active %}uk-active{% endblock %}
@@ -14,7 +19,7 @@
     {% for quest in quests['barreiro_quests'] %}
 
       <div>
-        <a href="{{ quest['static_link'] }}"> 
+        <a href="{{ url_for('static', filename=quest['static_link']) }}"> 
           <div class="uk-card uk-card-primary uk-card-body">
               <h3 class="uk-card-title">{{ quest['title'] }}</h3>
               <p>{{ quest['description'] }}</p>
