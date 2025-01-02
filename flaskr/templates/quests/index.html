@@ -12,14 +12,14 @@
 {% block quest_active %}uk-active{% endblock %}
 
 {% block content %}
-  <h3>Barreiro</h3>
+  <h3>City</h3>
   <hr class="uk-divider-icon">
   <div class="uk-child-width-1-3@m uk-grid-small uk-grid-match" uk-grid>
     
     {% for quest in quests['barreiro_quests'] %}
 
       <div>
-        <a href="{{ url_for('static', filename=quest['static_link']) }}"> 
+        <a href="{{ url_for('quests.view', id=quest['id']) }}"> 
           <div class="uk-card uk-card-primary uk-card-body">
               <h3 class="uk-card-title">{{ quest['title'] }}</h3>
               <p>{{ quest['description'] }}</p>

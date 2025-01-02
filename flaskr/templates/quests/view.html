@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}{{ quest['title'] }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <div name="description" id="description">{{ request.form['description'] or quest['description'] }}</div>
+  <br/>
+  <label for="city">City</label>
+  <div name="city" id="city">{{ request.form['city'] or quest['city'] }}</div>
+  
+  <hr>
+  <br/>
+  
+  <a class="uk-button uk-button-primary" href="{{ url_for('task.view', id=quest['first_task_id']) }}">Start</a>
+
+{% endblock %}

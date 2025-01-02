@@ -11,11 +11,12 @@ CREATE TABLE quest (
   city TEXT NOT NULL,
   title TEXT NOT NULL,
   description TEXT,
-  static_link TEXT NOT NULL,
+  static_link TEXT,
   image_static_link TEXT,
   price real DEFAULT 0.0,
   start_point TEXT NOT NULL,
   --
+  first_task_id INTEGER REFERENCES quest_task (id) ON DELETE SET NULL,
   FOREIGN KEY (author_id) REFERENCES user (id)
 );
 
@@ -30,5 +31,6 @@ CREATE TABLE quest_task (
   third_clue TEXT,
   answer TEXT,
   --
-  game_id INTEGER NOT NULL REFERENCES game (id) ON DELETE CASCADE
+  next_task_id INTEGER REFERENCES quest_task (id) ON DELETE SET NULL,
+  quest_id INTEGER NOT NULL REFERENCES quest (id) ON DELETE CASCADE
 );
