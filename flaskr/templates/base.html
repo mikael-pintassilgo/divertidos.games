@@ -1,91 +1,89 @@
 <!doctype html>
 <title>{% block title %}{% endblock %} - divertidos games</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/uikit.min.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='divertidos_games.css') }}">
-<script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/work-with-coockies.js' )}}"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- link href="{{ url_for('static', filename='bootstrap-5.3.3-dist/css/bootstrap.min.css') }}"></link -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<!-- script src="{{ url_for('static', filename='bootstrap-5.3.3-dist/js/bootstrap.min.js') }}"></script -->
 
-<div class="uk-container-expand">
-  <nav class="uk-navbar-container" uk-navbar>
-    <div class="uk-navbar-left">
-
-        <ul class="uk-navbar-nav uk-margin-left">
-            <li class="uk-active">
-              <a class="uk-navbar-item uk-logo" aria-label="Back to Home" href="{{ url_for('index') }}">divertidos games</a>
-              
-            </li>  
-            <li class="{% block elements_active %}{% endblock %}"><a href="{{ url_for('index') }}">Elements</a></li>
-            <li class="{% block tags_active %}{% endblock %}"><a href="{{ url_for('tags.index') }}">#Tags</a></li>
-            <li class="{% block quest_active %}{% endblock %}"><a href="{{ url_for('quests.index') }}">Quests</a></li>
-                      
+<div class="container">
+  <nav class="navbar sticky-top navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{{ url_for('index') }}">Fun Games</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link {% block elements_active %}{% endblock %}" aria-current="page" href="{{ url_for('index') }}">Elements</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% block tags_active %}{% endblock %}" href="{{ url_for('tags.index') }}">Hashtags</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% block quest_active %}{% endblock %}" href="{{ url_for('quests.index') }}">Quests</a>
+          </li>
         </ul>
-
+        <form class="d-flex" role="search">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+      </div>
     </div>
-    <div class="uk-navbar-right">
-
-      <ul class="uk-navbar-nav uk-margin-right">
-          {% if g.user %}
-            <li><span class="uk-text-middle uk-height-1-1">{{ g.user['username'] }}</span>
-            <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
-          {% else %}
-            <li><a href="{{ url_for('auth.register') }}">Register</a>
-            <li><a href="{{ url_for('auth.login') }}">Log In</a>
-          {% endif %}
-      </ul>
-
-  </div>
   </nav>
 
-  <div class="uk-container uk-align-center">
-    <div class="uk-width-expand">
-        <header>
-          {% block header %}{% endblock %}
-        </header>
-        {% for message in get_flashed_messages() %}
-          <div class="flash">{{ message }}</div>
-        {% endfor %}
-        {% block content %}{% endblock %}
-  
-    <script>      
-      function tagOnClickGeneral(tag_title) {
-        tags = getCookie('tags');
-        if (tags == null) {
-          tags = ""
-        }
-        if (tags.length > 0 && tags.search(tag_title) == -1) {
-          setCookie('tags', tags + '%%' + tag_title, 0)
-        } else if (tags.length == 0) {
-          setCookie('tags', tag_title, 0)
-        }
-        window.location.href = "{{ url_for('index') }}"; //+ "?tag=" + tag_title;
-      }
-
-      function tagCloseOnClickGeneral(tag_title) {
-        tags = getCookie('tags');
-        if (tags == null) {
-          tags = ""
-        }
-        if (tags.length > 0 && tags.search(tag_title) > -1) {
-          let isLastTag = (tags.search('%%') == -1)
-          if (isLastTag) {
-            tags = ""
-          } else if (tags.search('%%' + tag_title) == -1) {
-            tags = tags.replace(tag_title + '%%', '')
-          } else {
-            tags = tags.replace('%%' + tag_title, '')
-          }
-          
-          setCookie('tags', tags, 0)
-        }
-        window.location.href = "{{ url_for('index') }}"; // + "?tag=" + tag_title;
-      }
-
-      function clearTags() {
-        setCookie('tags', '', 0)
-      }
-    </script>
-
+  <div class="row">
+    <div class="col">  
+      <header>
+        {% block header %}{% endblock %}
+      </header>
+      {% for message in get_flashed_messages() %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
+      {% block content %}{% endblock %}
+    </div>
+  </div>
 </div>
-</div>
+
+<script>      
+  function tagOnClickGeneral(tag_title) {
+    tags = getCookie('tags');
+    if (tags == null) {
+      tags = ""
+    }
+    if (tags.length > 0 && tags.search(tag_title) == -1) {
+      setCookie('tags', tags + '%%' + tag_title, 0)
+    } else if (tags.length == 0) {
+      setCookie('tags', tag_title, 0)
+    }
+    window.location.href = "{{ url_for('index') }}"; //+ "?tag=" + tag_title;
+  }
+
+  function tagCloseOnClickGeneral(tag_title) {
+    tags = getCookie('tags');
+    if (tags == null) {
+      tags = ""
+    }
+    if (tags.length > 0 && tags.search(tag_title) > -1) {
+      let isLastTag = (tags.search('%%') == -1)
+      if (isLastTag) {
+        tags = ""
+      } else if (tags.search('%%' + tag_title) == -1) {
+        tags = tags.replace(tag_title + '%%', '')
+      } else {
+        tags = tags.replace('%%' + tag_title, '')
+      }
+      
+      setCookie('tags', tags, 0)
+    }
+    window.location.href = "{{ url_for('index') }}"; // + "?tag=" + tag_title;
+  }
+
+  function clearTags() {
+    setCookie('tags', '', 0)
+  }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
 

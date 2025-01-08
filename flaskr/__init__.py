@@ -19,7 +19,8 @@ def create_app(test_config=None):
     else:
         # load the test config if passed in
         app.config.update(test_config)
-
+        print(test_config)
+    
     # ensure the instance folder exists
     try:
         os.makedirs(app.instance_path)

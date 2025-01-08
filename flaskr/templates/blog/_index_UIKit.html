@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <div uk-grid class="">
-    <h1 class="">{% block title %}Elements{% endblock %}</h1>
+  <div uk-grid class="uk-margin-bottom">
+    <h1 class="uk-width-auto __uk-heading-divider">{% block title %}Elements{% endblock %}</h1>
     {% if g.user %}
-    <a class="" href="{{ url_for('blog.create') }}">add element</a>
+    <a class="uk-margin-left uk-button uk-button-default" href="{{ url_for('blog.create') }}">add element</a>
     {% endif %}
   </div>
 {% endblock %}
@@ -14,7 +14,7 @@
 <!-- li class="uk-active"><a href="{{ url_for('index') }}">Elements</a></li>
 <li><a href="{{ url_for('tags.index') }}">#Tags</a></li -->
 {% endblock %}
-{% block elements_active %}active{% endblock %}
+{% block elements_active %}uk-active{% endblock %}
 
 {% block content %}
     {% for tag in tags %}

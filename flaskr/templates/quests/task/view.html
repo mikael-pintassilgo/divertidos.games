@@ -1,1 +1,24 @@
-Sorry, under construction...
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}{{ task['q_title'] }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <label for="description">Riddle:</label>
+    <div name="description" id="description">{{ request.form['description'] or task['description'] }}</div>
+    <br/>
+    
+    <form method="post">
+        <fieldset class="uk-fieldset">
+
+        <div class="uk-margin">
+            <label for="player_answer"><span class="uk-label">Answer</span></label>
+            <input class="uk-input" name="player_answer" id="player_answer" value="{{ request.form['player_answer'] }}" required>
+        </div>
+        </fieldset>
+    </form>
+
+    <br/>
+
+{% endblock %}
