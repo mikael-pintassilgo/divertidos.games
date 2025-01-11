@@ -1,35 +1,30 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="uk-container">  
-  <div class="uk-width-1-1">
+<div class="">  
+  <div class="">
     <form method="post">
-      <fieldset class="uk-fieldset">
+      <fieldset class="">
 
-        <legend class="uk-legend">New Element</legend>
+        <legend class="">New Element</legend>
         
         <div class="uk-margin">
           <label for="title"><span class="uk-label">Title</span></label>
           <input class="uk-input" name="title" id="title" value="{{ request.form['title'] }}" required>
         </div>
 
-        <div class="uk-margin">
-          <label for="body"><span class="uk-label">Body</span></label>
-          <textarea class="uk-textarea" name="body" id="body">{{ request.form['body'] }}</textarea>
+        <div class="mb-3">
+          <label for="body" class="form-label">Body</label>
+          <textarea class="form-control" name="body" id="body" rows="3">{{ request.form['body'] }}</textarea>
         </div>
 
-        <div class="uk-margin">
-          <label for="comment"><span class="uk-label">Comment</span></label>
-          <textarea class="uk-textarea" name="comment" id="comment">{{ request.form['comment'] }}</textarea>
+        <div class="mb-3">
+          <label for="comment" class="form-label">Comment</label>
+          <textarea class="form-control" name="comment" id="comment" rows="3">{{ request.form['comment'] }}</textarea>
         </div>
 
-        <!-- div class="uk-margin">
-          <label for="tags"><span class="uk-label">Tags</span></label>
-          <textarea class="uk-textarea" name="tags" id="tags">{{ request.form['tags'] }}</textarea>
-        </div -->
-
-        <div class="uk-margin">
-          <input class="uk-button uk-button-primary" type="submit" value="Save">
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">Save</button>
         </div>
       </div>
     </form>
