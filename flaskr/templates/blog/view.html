@@ -1,7 +1,16 @@
 {% extends 'base.html' %}
 
+{% block breadcrumb %}
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Elements</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ post['title'] }}</li>
+  </ol>
+</nav>
+{% endblock %}
+
 {% block header %}
-  <h1>{% block title %}{{ post['title'] }}{% endblock %}</h1>
+  <h1 class="breadcrumb-item active">{% block title %}{{ post['title'] }}{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
@@ -14,7 +23,7 @@
   <br/>
   
   <!-- Tags -->
-  <label>#Tags</label>
+  <label>Hashtags</label>
   {% for tag in tags %}
     <article class="">
       <header>

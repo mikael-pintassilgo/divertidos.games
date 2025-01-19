@@ -29,15 +29,27 @@
           <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
           <button class="btn btn-outline-info" type="submit">Search</button>
         </form>
+        {% if g.user %}
+        <ul class="navbar-nav d-flex justify-content-end ms-2">
+          <li class="navbar-text ml-2">{{ g.user['username'] }}</li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Log Out</a>
+        </ul>
+        {% endif %}
       </div>
     </div>
   </nav>
-
-  <div class="row justify-content-md-center">
+  
+  <div class="row">
+    <div class='col-auto'>
+      {% block breadcrumb %}{% endblock %}
+    </div>
+  </div>
+  
+  <div class="row justify-content-md-start">
     
     <div class='col-auto'></div>
     
-    <div class="col-auto">  
+    <div class="col-auto flex-fill">  
       <header>
         {% block header %}{% endblock %}
       </header>
