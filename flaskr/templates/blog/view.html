@@ -14,41 +14,51 @@
 {% endblock %}
 
 {% block content %}
-  <div name="body" id="body">{{ request.form['body'] or post['body'] }}</div>
-  <br/>
-  <label for="comment">Comment</label>
-  <div name="comment" id="comment">{{ request.form['comment'] or post['comment'] }}</div>
-  
   <hr>
+  <div name="body" id="body">
+    <p class="fs-4">{{ request.form['body'] or post['body'] }}</p>
+  </div>
+  
+  <br/>
+  <div class= "text-body-secondary" name="comment" id="comment">
+    <p class="fs-4">{{ request.form['comment'] or post['comment'] }}</p>
+  </div>
+  
   <br/>
   
   <!-- Tags -->
-  <label>Hashtags</label>
+  <br/>
+  <h3>Hashtags</h3>
+  <hr>
   {% for tag in tags %}
     <article class="">
       <header>
         <div>
-          <a href="#" onclick="tagOnClick('{{ tag['title'] }}')">#{{ tag['title'] }}</a>
+          <a href="#" onclick="tagOnClick('{{ tag['title'] }}')">
+            <p class="fs-4">#{{ tag['title'] }}</p>
+          </a>
         </div>
       </header>
     </article>
   {% endfor %}
   
-  <hr>
   <br/>
   
   <!-- Links -->
-  <label>Links</label>
+  <br/>
+  <h3>Links</h3>
+  <hr>
   {% for link in links %}
     <article class="">
       <header>
         <div>
-          <a href="{{ link['title'] }}" target="_blank">{{ link['title'] }}</a>
+          <a href="{{ link['title'] }}" target="_blank">
+            <p class="fs-4">{{ link['title'] }}</p>
+          </a>
         </div>
       </header>
     </article>
     {% if loop.last %}
-      <hr>
     {% endif %}
   {% endfor %}
 
