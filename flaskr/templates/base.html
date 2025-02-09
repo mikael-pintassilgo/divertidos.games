@@ -19,10 +19,10 @@
             <a class="nav-link {% block elements_active %}{% endblock %}" aria-current="page" href="{{ url_for('index') }}">Elements</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {% block tags_active %}{% endblock %}" href="{{ url_for('tags.index') }}">Hashtags</a>
+            <a class="nav-link {% block games_active %}{% endblock %}" href="{{ url_for('games.index') }}">Games</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {% block quest_active %}{% endblock %}" href="{{ url_for('quests.index') }}">Quests</a>
+            <a class="nav-link {% block tags_active %}{% endblock %}" href="{{ url_for('tags.index') }}">Hashtags</a>
           </li>
         </ul>
         <form class="d-flex" role="search">
