@@ -16,17 +16,6 @@
 
 {% block content %}
   
-<div class='row mb-2 mt-2'>
-  <div class='col'>
-    {% for tag in tags %}
-    <span class="badge text-bg-secondary">
-      #{{ tag }}
-      <button type="button" class="btn-close" aria-label="Close" onclick="tagCloseOnClickGeneral('{{ tag }}')"></button>
-    </span>
-    {% endfor %}
-  </div>
-</div>
-
 <div class="row row-cols-auto">
 {% for game in games %}
   <div class="col">
@@ -39,17 +28,6 @@
       <ul class="list-group list-group-flush">
         <li class="list-group-item">by {{ game['username'] }} on {{ game['created'].strftime('%Y-%m-%d') }}</li>
       </ul>
-      
-      {% if game["tags"] != None and game["tags"] != "" %}
-      <div class="card-body">
-        {% for tag in game["tags"].split(';') %}
-          {% if tag != '' %}  
-            <!-- a href="{{ url_for('index') + '?tag=' + tag }}" onclick='tagOnClick()'>{{ tag }}</a -->
-            <a href="#" onclick="tagOnClickGeneral('{{ tag }}')">#{{ tag }}</a>
-          {% endif %}
-        {% endfor %}
-      </div>
-      {% endif %}
       
       {% if g.user['id'] == game['author_id'] %}
       <div class="card-body">
@@ -72,21 +50,6 @@
     </ul>
   </nav>
 </div>
-
-<script>
-  function tagOnClick(tag_title) {
-    tags = getCookie('tags');
-    if (tags == null) {
-      tags = ""
-    }
-    if (tags.length > 0 && tags.search(tag_title) == -1) {
-      setCookie('tags', tags + '%%' + tag_title, 0)
-    } else if (tags.length == 0) {
-      setCookie('tags', tag_title, 0)
-    }
-    window.location.href = "{{ url_for('index') }}" + "?tag=" + tag_title;
-  }
-</script>
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-C7QR1MW3WC"></script>

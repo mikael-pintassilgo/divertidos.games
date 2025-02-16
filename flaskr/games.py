@@ -69,7 +69,7 @@ def get_game(id, check_author=True):
         .execute(
             "SELECT t.id, title, comment"
             "  FROM game_tag t JOIN user u ON t.author_id = u.id"
-            " WHERE t.element_id = ?"
+            " WHERE t.game_id = ?"
             " ORDER BY created ASC",
             (id,),
         ).fetchall()
@@ -79,7 +79,7 @@ def get_game(id, check_author=True):
         .execute(
             "SELECT l.id, title, comment"
             "  FROM game_link l JOIN user u ON l.author_id = u.id"
-            " WHERE l.element_id = ?"
+            " WHERE l.game_id = ?"
             " ORDER BY created ASC",
             (id,),
         ).fetchall()
@@ -126,13 +126,42 @@ def create():
         else:
             db = get_db()
             db.execute(
-                "INSERT INTO game (title, body, author_id, comment, tags) VALUES (?, ?, ?, ?, ?)",
-                (title, body, g.user["id"], comment, tags),
+                "INSERT INTO game (title, body, author_id, comment) VALUES (?, ?, ?, ?)",
+                (title, body, g.user["id"], comment),
             )
             db.commit()
             return redirect(url_for("games.index"))
 
     return render_template("games/create.html")
+
+
+@bp.route("/<int:id>/update", methods=("GET", "POST"))
+@login_required
+def update(id):
+    """Update a post if the current user is the author."""
+    game_data = get_game(id)
+
+    if request.method == "POST":
+        title = request.form["title"]
+        body = request.form["body"]
+        comment = request.form["comment"]
+        
+        error = None
+
+        if not title:
+            error = "Title is required."
+
+        if error is not None:
+            flash(error)
+        else:
+            db = get_db()
+            db.execute(
+                "UPDATE game SET title = ?, body = ?, comment = ?, WHERE id = ?", (title, body, comment, id)
+            )
+            db.commit()
+            return redirect(url_for("games.index"))
+
+    return render_template("games/update.html", game=game_data["game"], tags=game_data["tags"], links=game_data["links"])
 
 @bp.route("/<int:id>/view", methods=("GET", "POST"))
 def view(id):
@@ -140,6 +169,6 @@ def view(id):
     game_data = get_game(id)
     return render_template("games/view.html",
                            game=game_data["game"], 
-                           elements=game_data["element"], 
+                           elements=game_data["elements"], 
                            tags=game_data["tags"], 
                            links=game_data["links"])

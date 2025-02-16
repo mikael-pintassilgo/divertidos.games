@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block breadcrumb %}
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Games</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ game['title'] }}</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block header %}
+  <h1 class="breadcrumb-item active">{% block title %}{{ game['title'] }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <hr>
+  <div name="body" id="body">
+    <p class="fs-4">{{ request.form['body'] or game['body'] }}</p>
+  </div>
+  
+  <br/>
+  <div class= "text-body-secondary" name="comment" id="comment">
+    <p class="fs-4">{{ request.form['comment'] or game['comment'] }}</p>
+  </div>
+  
+  <br/>
+  
+  <!-- Tags -->
+  <br/>
+  <h3>Hashtags</h3>
+  <hr>
+  {% for tag in tags %}
+    <article class="">
+      <header>
+        <div>
+          <a href="#" onclick="tagOnClick('{{ tag['title'] }}')">
+            <p class="fs-4">#{{ tag['title'] }}</p>
+          </a>
+        </div>
+      </header>
+    </article>
+  {% endfor %}
+  
+  <br/>
+  
+  <!-- Links -->
+  <br/>
+  <h3>Links</h3>
+  <hr>
+  {% for link in links %}
+    <article class="">
+      <header>
+        <div>
+          <a href="{{ link['title'] }}" target="_blank">
+            <p class="fs-4">{{ link['title'] }}</p>
+          </a>
+        </div>
+      </header>
+    </article>
+    {% if loop.last %}
+    {% endif %}
+  {% endfor %}
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-C7QR1MW3WC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-C7QR1MW3WC');
+</script>
+
+{% endblock %}
