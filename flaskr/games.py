@@ -87,10 +87,10 @@ def get_game(id, check_author=True):
     elements = (
         db
         .execute(
-            "SELECT e.id, title, body, created, author_id, username, e.tags"
+            "SELECT e.id, e.title, e.body, e.created, e.tags"
             "  FROM element e JOIN user u ON e.author_id = u.id"
-            " ORDER BY created DESC"
-            " WHERE e.id IN (SELECT element_id FROM game_and_element WHERE game_id = ?)",
+            " INNER JOIN game_and_element ge ON e.id = ge.element_id"
+            " WHERE ge.game_id = ?",
             (id,),
         ).fetchall()
     )
