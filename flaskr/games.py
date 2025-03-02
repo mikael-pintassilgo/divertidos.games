@@ -156,7 +156,9 @@ def update(id):
         else:
             db = get_db()
             db.execute(
-                "UPDATE game SET title = ?, body = ?, comment = ?, WHERE id = ?", (title, body, comment, id)
+                "UPDATE game SET title = ?, body = ?, comment = ?"
+                "WHERE id = ?",
+                (title, body, comment, id)
             )
             db.commit()
             return redirect(url_for("games.index"))
@@ -172,3 +174,125 @@ def view(id):
                            elements=game_data["elements"], 
                            tags=game_data["tags"], 
                            links=game_data["links"])
+
+@bp.route("/<int:id>/delete", methods=("POST",))
+@login_required
+def delete(id):
+    """Delete a game.
+
+    Ensures that the game exists and that the logged in user is the
+    author of the game.
+    """
+    get_game(id)
+    db = get_db()
+    db.execute("DELETE FROM game WHERE id = ?", (id,))
+    db.commit()
+    return redirect(url_for("games.index"))
+
+# Links
+
+@bp.route("/game-link/<int:id>/create", methods=("GET", "POST"))
+@login_required
+def create_link(id):
+    """Create a new link for the current user."""
+    if request.method == "POST":
+        title = request.form["link_title"]
+        error = None
+
+        if not title:
+            error = "Link is required."
+
+        if error is not None:
+            flash(error)
+        else:
+            print(title)
+            print(g.user["id"])
+            print((id))
+            
+            db = get_db()
+            db.execute(
+                "INSERT INTO game_link (title, author_id, game_id) VALUES (?, ?, ?)",
+                (title, g.user["id"], id),
+            )
+            
+            db.commit()
+            return redirect(url_for('games.update', id=id))
+
+    return render_template("games/create.html")
+
+
+@bp.route("/game-link/<int:id>/delete", methods=("POST",))
+@login_required
+def delete_link(id):
+    """Delete an game link.
+
+    Ensures that the post exists and that the logged in user is the
+    author of the post.
+    """
+    
+    db = get_db()
+    db.execute("DELETE FROM game_link WHERE id = ?", (id,))
+    db.commit()
+    
+    game_id = request.args.get('game_id')
+    print(id)
+    print(game_id)
+    return redirect(url_for('games.update', id=game_id))
+# End Links
+
+# Tags
+@bp.route("/game-tag/<int:id>/create", methods=("GET", "POST"))
+@login_required
+def create_tag(id):
+    """Create a new tag for the current user."""
+    if request.method == "POST":
+        title = request.form["tag_title"]
+        error = None
+
+        if not title:
+            error = "Title is required."
+
+        if error is not None:
+            flash(error)
+        else:
+            print(title)
+            print(g.user["id"])
+            print((id))
+            
+            post=get_game(id)
+            
+            db = get_db()
+            db.execute(
+                "INSERT INTO game_tag (title, author_id, game_id) VALUES (?, ?, ?)",
+                (title, g.user["id"], id),
+            )
+            
+            if (post['game']['tags'].find(title) == -1):
+                db.execute(
+                    "UPDATE game SET tags=? WHERE id=?",
+                    (str(post['game']['tags']) + title + ';', id),
+                )
+            
+            db.commit()
+            return redirect(url_for('games.update', id=id))
+
+    return render_template("games/create.html")
+
+@bp.route("/game-tag/<int:id>/delete", methods=("POST",))
+@login_required
+def delete_tag(id):
+    """Delete an game tag.
+
+    Ensures that the post exists and that the logged in user is the
+    author of the post.
+    """
+    
+    db = get_db()
+    db.execute("DELETE FROM game_tag WHERE id = ?", (id,))
+    db.commit()
+    
+    game_id = request.args.get('game_id')
+    print(id)
+    print(game_id)
+    return redirect(url_for('games.update', id=game_id))   
+# End Tags
