@@ -84,10 +84,10 @@ def get_game(id, check_author=True):
             (id,),
         ).fetchall()
     )
-    elements = (
+    game_elements = (
         db
         .execute(
-            "SELECT e.id, e.title, e.body, e.created, e.tags"
+            "SELECT e.id as e_id, e.title, e.body, e.created, e.tags, ge.id as ge_id"
             "  FROM element e JOIN user u ON e.author_id = u.id"
             " INNER JOIN game_and_element ge ON e.id = ge.element_id"
             " WHERE ge.game_id = ?",
@@ -95,6 +95,8 @@ def get_game(id, check_author=True):
         ).fetchall()
     )
 
+    #print("element id = " + str(game_elements[0]['e_id']))
+    
     if game is None:
         abort(404, f"Game id {id} doesn't exist.")
 
@@ -102,7 +104,7 @@ def get_game(id, check_author=True):
         "game": game,
         "tags": tags,
         "links": links,
-        "elements": elements,
+        "game_elements": game_elements,
     }
     return game_data
 
@@ -163,7 +165,11 @@ def update(id):
             db.commit()
             return redirect(url_for("games.index"))
 
-    return render_template("games/update.html", game=game_data["game"], tags=game_data["tags"], links=game_data["links"])
+    return render_template("games/update.html",
+                           game=game_data["game"],
+                           tags=game_data["tags"],
+                           links=game_data["links"],
+                           game_elements=game_data["game_elements"])
 
 @bp.route("/<int:id>/view", methods=("GET", "POST"))
 def view(id):
@@ -171,7 +177,7 @@ def view(id):
     game_data = get_game(id)
     return render_template("games/view.html",
                            game=game_data["game"], 
-                           elements=game_data["elements"], 
+                           game_elements=game_data["game_elements"], 
                            tags=game_data["tags"], 
                            links=game_data["links"])
 
@@ -276,7 +282,7 @@ def create_tag(id):
             db.commit()
             return redirect(url_for('games.update', id=id))
 
-    return render_template("games/create.html")
+    return render_template("games/update.html")
 
 @bp.route("/game-tag/<int:id>/delete", methods=("POST",))
 @login_required
@@ -296,3 +302,52 @@ def delete_tag(id):
     print(game_id)
     return redirect(url_for('games.update', id=game_id))   
 # End Tags
+
+
+# Game Elements
+@bp.route("/<int:id>/game-elements/create", methods=("GET", "POST"))
+@login_required
+def create_game_element(id):
+    """Create a new game element for the current user."""
+    if request.method == "POST":
+        element_id = request.form["element_id"]
+        error = None
+
+        if not element_id:
+            error = "Element ID is required."
+
+        if error is not None:
+            flash(error)
+        else:
+            print(element_id)
+            print(g.user["id"])
+            print((id))
+            
+            db = get_db()
+            db.execute(
+                "INSERT INTO game_and_element (element_id, author_id, game_id) VALUES (?, ?, ?)",
+                (element_id, g.user["id"], id),
+            )
+            
+            db.commit()
+            return redirect(url_for('games.update', id=id))
+
+    return render_template("games/update.html")
+
+@bp.route("/<int:game_id>/game-elements/<int:ge_id>/delete", methods=("POST",))
+@login_required
+def delete_game_element(game_id, ge_id):
+    """Delete a game element.
+
+    Ensures that the post exists and that the logged in user is the
+    author of the post.
+    """
+    #print('ge_id = ', ge_id)
+    #print('game_id = ', game_id)
+    
+    db = get_db()
+    db.execute("DELETE FROM game_and_element WHERE id = ?", (ge_id,))
+    db.commit()
+    
+    return redirect(url_for('games.update', id=game_id))   
+# End Game Elements

@@ -3,3 +3,4 @@ git pull https://github.com/mikael-pintassilgo/divertidos.games.git
 flask --app flaskr init-db
 flask --app flaskr update-db
 flask --app flaskr run --debug
+.venv/Scripts/activate
