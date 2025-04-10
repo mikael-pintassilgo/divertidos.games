@@ -36,124 +36,118 @@
       </div>
     </form>
   
-
-  </div>
-</div>
-
-<div class='row'>
-  <div class='col-12'>
-    
-  
     <form action="{{ url_for('games.delete', id=game['id']) }}" method="post">
       <fieldset class="">
         <div class="col-12 mt-3">
-          <button type="submit" class="btn btn-primary" onclick="return confirm('Are you sure?');">Delete Game</button>
+          <button type="submit" class="btn btn-link" onclick="return confirm('Are you sure?');">Delete Game</button>
         </div>
       </fieldset>
     </form>
 
-  </div>
-</div>
 
-<div class='row'>
-  <div class='col-12'>
-
-      <table class="uk-table  uk-table-divider">
-        <caption>Tags</caption>
-        <tbody>
-          {% for tag in tags %}
-          <tr>
-              <td>
-                <p>{{ tag['title'] }}</p>
-              </td>
-              <td>
-                <form action="{{ url_for('games.delete_tag', id=tag['id'], game_id=game['id']) }}" method="post">
-                  <input class="danger uk-button uk-button-default" type="submit" value="Delete Tag" onclick="return confirm('Are you sure?');">
+    <div class='row'>
+      <div class='col-12'>
+    
+          <table class="table table-hover">
+            <caption class="caption-top">Tags</caption>
+            <tbody>
+              {% for tag in tags %}
+              <tr>
+                  <td>
+                    <p>{{ tag['title'] }}</p>
+                  </td>
+                  <td>
+                    <form action="{{ url_for('games.delete_tag', id=tag['id'], game_id=game['id']) }}" method="post">
+                      <input class="danger uk-button uk-button-default" type="submit" value="Delete Tag" onclick="return confirm('Are you sure?');">
+                    </form>
+                  </td>
+              </tr>
+              {% endfor %}
+              <tr>
+                <form action="{{ url_for('games.create_tag', id=game['id']) }}" method="post">
+                  <td>
+                    <input class="uk-input" placeholder="Enter new tag here..." name="tag_title" id="tag_title" value="{{ request.form['tag_title'] }}" required>
+                  </td>
+                  <td>
+                    <input class="uk-button uk-button-secondary" type="submit" value="Add Tag">
+                  </td>
                 </form>
-              </td>
-          </tr>
-          {% endfor %}
-          <tr>
-            <form action="{{ url_for('games.create_tag', id=game['id']) }}" method="post">
-              <td>
-                <input class="uk-input" placeholder="Enter new tag here..." name="tag_title" id="tag_title" value="{{ request.form['tag_title'] }}" required>
-              </td>
-              <td>
-                <input class="uk-button uk-button-secondary" type="submit" value="Add Tag">
-              </td>
-            </form>
-          </tr>
-        </tbody>
-    </table>
-  </div>
-</div>
-
-<div class='row'>
-  <div class='col-12'>
-
-    <!-- Links -->
-    <table class="uk-table  uk-table-divider">
-      <caption>Links</caption>
-      <tbody>
-        {% for link in links %}
-        <tr>
-            <td>
-              <p><a href="{{ link['title'] }}" target="_blank">{{ link['title'] }}</a></p>
-            </td>
-            <td>
-              <form action="{{ url_for('games.delete_link', id=link['id'], game_id=game['id']) }}" method="post">
-                <input class="danger uk-button uk-button-default" type="submit" value="Delete link" onclick="return confirm('Are you sure?');">
+              </tr>
+            </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class='row'>
+      <div class='col-12'>
+    
+        <!-- Links -->
+        <table class="table table-hover">
+          <caption class="caption-top">Links</caption>
+          <tbody>
+            {% for link in links %}
+            <tr>
+                <td>
+                  <p><a href="{{ link['title'] }}" target="_blank">{{ link['title'] }}</a></p>
+                </td>
+                <td>
+                  <form action="{{ url_for('games.delete_link', id=link['id'], game_id=game['id']) }}" method="post">
+                    <input class="danger uk-button uk-button-default" type="submit" value="Delete link" onclick="return confirm('Are you sure?');">
+                  </form>
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+              <form action="{{ url_for('games.create_link', id=game['id']) }}" method="post">
+                <td>
+                  <input class="uk-input" placeholder="Enter new link here..." name="link_title" id="link_title" value="{{ request.form['link_title'] }}" required>
+                </td>
+                <td>
+                  <input class="uk-button uk-button-secondary" type="submit" value="Add Link">
+                </td>
               </form>
-            </td>
-        </tr>
-        {% endfor %}
-        <tr>
-          <form action="{{ url_for('games.create_link', id=game['id']) }}" method="post">
-            <td>
-              <input class="uk-input" placeholder="Enter new link here..." name="link_title" id="link_title" value="{{ request.form['link_title'] }}" required>
-            </td>
-            <td>
-              <input class="uk-button uk-button-secondary" type="submit" value="Add Link">
-            </td>
-          </form>
-        </tr>
-      </tbody>
-    </table>
-
-  </div>
-</div>
-
-<!-- Game Elements -->
-<div class='row'>
-  <div class='col-12'>
-
-    <table class="uk-table  uk-table-divider">
-      <caption>Game Elements</caption>
-      <tbody>
-        {% for game_element in game_elements %}
-        <tr>
-            <td>
-              <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}" target="_blank">{{ game_element['title'] }}</a></p>
-            </td>
-            <td>
-              <form action="{{ url_for('games.delete_game_element', ge_id=game_element['ge_id'], game_id=game['id']) }}" method="post">
-                <input class="danger uk-button uk-button-default" type="submit" value="Delete element" onclick="return confirm('Are you sure?');">
+            </tr>
+          </tbody>
+        </table>
+    
+      </div>
+    </div>
+    
+    <!-- Game Elements -->
+    <div class='row'>
+      <div class='col-12'>
+    
+        <table class="table table-hover">
+          <caption class="caption-top">Game Elements</caption>
+          <tbody>
+            {% for game_element in game_elements %}
+            <tr>
+                <td>
+                  <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}" target="_blank">{{ game_element['title'] }}</a></p>
+                </td>
+                <td>
+                  <form action="{{ url_for('games.delete_game_element', ge_id=game_element['ge_id'], game_id=game['id']) }}" method="post">
+                    <input class="danger uk-button uk-button-default" type="submit" value="Delete element" onclick="return confirm('Are you sure?');">
+                  </form>
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+              <form action="{{ url_for('games.create_game_element', id=game['id']) }}" method="post">
+                <td>
+                  <input class="" placeholder="Enter element ID here..." name="element_id" id="element_id" value="{{ request.form['element_id'] }}" required>
+                </td>
+                <td>
+                  <input class="" type="submit" value="Add Element">
+                </td>
               </form>
-            </td>
-        </tr>
-        {% endfor %}
-        <tr>
-          <form action="{{ url_for('games.create_game_element', id=game['id']) }}" method="post">
-            <td>
-              <input class="uk-input" placeholder="Enter element ID here..." name="element_id" id="element_id" value="{{ request.form['element_id'] }}" required>
-            </td>
-            <td>
-              <input class="uk-button uk-button-secondary" type="submit" value="Add Element">
-            </td>
-          </form>
-        </tr>
-      </tbody>
-    </table>
+            </tr>
+          </tbody>
+        </table>
+    
+      </div>
+    </div>
+    
 
   </div>
 </div>

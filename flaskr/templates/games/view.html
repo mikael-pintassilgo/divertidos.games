@@ -62,6 +62,32 @@
     {% endif %}
   {% endfor %}
 
+  <!-- Elements -->
+  <br/>
+  <h3>Game Elements</h3>
+  <hr>
+
+  <table class="table table-hover">
+    <tbody>
+      <thead>
+        <tr>
+          <th scope="col">Title</th>
+          <th scope="col">Description</th>
+        </tr>
+      </thead>
+      {% for game_element in game_elements %}
+      <tr>
+          <td>
+            <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}" target="_blank">{{ game_element['title'] }}</a></p>
+          </td>
+          <td>
+            <p>{{ game_element['body'] }}</p>
+          </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-C7QR1MW3WC"></script>
