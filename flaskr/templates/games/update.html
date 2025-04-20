@@ -120,8 +120,22 @@
         <table class="table table-hover">
           <caption class="caption-top">Game Elements</caption>
           <tbody>
+            <thead>
+              <tr>
+                <th scope="col">ge_id</th>
+                <th scope="col">pge_id</th>
+                <th scope="col">title</th>
+                <th scope="col">action</th>
+              </tr>
+            </thead>
             {% for game_element in game_elements %}
             <tr>
+                <td>
+                  {{ game_element['ge_id'] }}
+                </td>
+                <td>
+                  {{ game_element['parent_element_id'] }}
+                </td>
                 <td>
                   <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}" target="_blank">{{ game_element['title'] }}</a></p>
                 </td>
@@ -136,6 +150,9 @@
               <form action="{{ url_for('games.create_game_element', id=game['id']) }}" method="post">
                 <td>
                   <input class="" placeholder="Enter element ID here..." name="element_id" id="element_id" value="{{ request.form['element_id'] }}" required>
+                </td>
+                <td>
+                  <input class="" placeholder="Enter game-element ID here..." name="parent_element_id" id="parent_element_id" value="{{ request.form['parent_element_id'] }}">
                 </td>
                 <td>
                   <input class="" type="submit" value="Add Element">

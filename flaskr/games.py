@@ -87,7 +87,8 @@ def get_game(id, check_author=True):
     game_elements = (
         db
         .execute(
-            "SELECT e.id as e_id, e.title, e.body, e.created, e.tags, ge.id as ge_id"
+            "SELECT "
+            " e.id as e_id, e.title, e.body, e.created, e.tags, ge.id as ge_id, ge.parent_element_id as parent_element_id"
             "  FROM element e JOIN user u ON e.author_id = u.id"
             " INNER JOIN game_and_element ge ON e.id = ge.element_id"
             " WHERE ge.game_id = ?",
@@ -311,6 +312,7 @@ def create_game_element(id):
     """Create a new game element for the current user."""
     if request.method == "POST":
         element_id = request.form["element_id"]
+        parent_element_id = request.form["parent_element_id"]
         error = None
 
         if not element_id:
@@ -325,8 +327,8 @@ def create_game_element(id):
             
             db = get_db()
             db.execute(
-                "INSERT INTO game_and_element (element_id, author_id, game_id) VALUES (?, ?, ?)",
-                (element_id, g.user["id"], id),
+                "INSERT INTO game_and_element (element_id, parent_element_id, author_id, game_id) VALUES (?, ?, ?, ?)",
+                (element_id, parent_element_id, g.user["id"], id),
             )
             
             db.commit()

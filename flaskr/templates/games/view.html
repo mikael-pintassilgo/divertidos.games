@@ -11,6 +11,11 @@
 
 {% block header %}
   <h1 class="breadcrumb-item active">{% block title %}{{ game['title'] }}{% endblock %}</h1>
+  {% if g.user['id'] == game['author_id'] %}
+  <div class="card-body">
+    <a class="" href="{{ url_for('games.update', id=game['id']) }}">edit</a>
+  </div>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
