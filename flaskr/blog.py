@@ -125,7 +125,18 @@ def get_post(id, check_author=True):
             (id,),
         ).fetchall()
     )
-
+    games = (
+        db
+        .execute(
+            "SELECT g.id as g_id, g.title, g.body, ge.id as ge_id, ge.parent_element_id as parent_element_id"
+            "  FROM game g JOIN user u ON g.author_id = u.id"
+            " INNER JOIN game_and_element ge ON g.id = ge.game_id"
+            " WHERE ge.element_id = ?",
+            (id,),
+        ).fetchall()
+    )
+    print('games = ' + str(games))
+    
     if element is None:
         abort(404, f"Element id {id} doesn't exist.")
 
@@ -133,6 +144,7 @@ def get_post(id, check_author=True):
         "element": element,
         "tags": tags,
         "links": links,
+        "games": games,
     }
     return post
 
@@ -263,7 +275,7 @@ def update(id):
 def view(id):
     """View a post if the current user is the author."""
     post = get_post(id)
-    return render_template("blog/view.html", post=post["element"], tags=post["tags"], links=post["links"])
+    return render_template("blog/view.html", post=post["element"], tags=post["tags"], links=post["links"], games=post["games"])
 
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required

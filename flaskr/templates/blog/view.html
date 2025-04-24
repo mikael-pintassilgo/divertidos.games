@@ -62,6 +62,24 @@
     {% endif %}
   {% endfor %}
 
+<!-- Games -->
+<br/>
+<h3>Games</h3>
+<hr>
+{% for game in games %}
+  <article class="">
+    <header>
+      <div>
+        <a href="{{ url_for('games.update', id=game['g_id']) }}" target="_blank">
+          <p class="fs-4">{{ game['title'] }}</p>
+        </a>
+      </div>
+    </header>
+  </article>
+  {% if loop.last %}
+  {% endif %}
+{% endfor %}
+
 <script>
 function tagOnClick(tag_title) {
     window.location.href = "{{ url_for('index') }}" + "?tag=" + tag_title;

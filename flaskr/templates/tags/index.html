@@ -25,16 +25,17 @@
   </tbody>
 </table>
 
-<nav>
-  <ul class="uk-pagination">
-      {% if currentPage == 1 %}
-      <li class="uk-disabled"><a href="{{ url_for('tags.index') + '?page='+(currentPage-1)|string }}"><span class="uk-margin-small-right" uk-pagination-previous></span> Previous</a></li>
+<div class='row mt-2'>
+  <nav aria-label="Pagination">
+    <ul class="pagination">
+      {% if currentPage > 1 %}
+      <li class="page-item"><a class="page-link" href="{{ url_for('tags.index') + '?page='+(currentPage-1)|string }}">Previous</a></li>
       {% else %}
-      <li><a href="{{ url_for('tags.index') + '?page='+(currentPage-1)|string }}"><span class="uk-margin-small-right" uk-pagination-previous></span> Previous</a></li>
       {% endif %}
-      <li class="uk-margin-auto-left"><a href="{{ url_for('tags.index') + '?page='+(currentPage+1)|string }}">Next <span class="uk-margin-small-left" uk-pagination-next></span></a></li>
-  </ul>
-</nav>
+      <li class="page-item"><a class="page-link" href="{{ url_for('tags.index') + '?page='+(currentPage+1)|string }}">Next</a></li>
+    </ul>
+  </nav>
+</div>
 
 <a href="" uk-totop></a>
 </div>

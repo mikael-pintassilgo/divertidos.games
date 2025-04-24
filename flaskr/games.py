@@ -95,6 +95,16 @@ def get_game(id, check_author=True):
             (id,),
         ).fetchall()
     )
+    game_elements_hierarchy = (
+        db
+        .execute(
+            "SELECT ge.id as ge_id, COUNT(ge2.id) as consist_count"
+            "  FROM game_and_element ge"
+            " INNER JOIN game_and_element ge2 ON ge2.parent_element_id = ge.id"
+            " WHERE ge.game_id = ?",
+            (id,),
+        ).fetchall()
+    )
 
     #print("element id = " + str(game_elements[0]['e_id']))
     
@@ -106,6 +116,7 @@ def get_game(id, check_author=True):
         "tags": tags,
         "links": links,
         "game_elements": game_elements,
+        "game_elements_hierarchy": game_elements_hierarchy,
     }
     return game_data
 
@@ -180,7 +191,8 @@ def view(id):
                            game=game_data["game"], 
                            game_elements=game_data["game_elements"], 
                            tags=game_data["tags"], 
-                           links=game_data["links"])
+                           links=game_data["links"],
+                           game_elements_hierarchy=game_data["game_elements_hierarchy"])
 
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required

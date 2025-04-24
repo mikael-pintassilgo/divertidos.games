@@ -77,6 +77,7 @@
       <thead>
         <tr>
           <th scope="col">Title</th>
+          <th scope="col">Consist</th>
           <th scope="col">Description</th>
         </tr>
       </thead>
@@ -84,6 +85,9 @@
       <tr>
           <td>
             <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}" target="_blank">{{ game_element['title'] }}</a></p>
+          </td>
+          <td>
+            <p><a href="#">consist</a></p>
           </td>
           <td>
             <p>{{ game_element['body'] }}</p>
