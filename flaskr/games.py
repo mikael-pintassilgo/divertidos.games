@@ -87,7 +87,7 @@ def get_game(id, check_author=True):
     game_elements = (
         db
         .execute(
-            "SELECT "
+            "SELECT 0 as consist_count,"
             " e.id as e_id, e.title, e.body, e.created, e.tags, ge.id as ge_id, ge.parent_element_id as parent_element_id"
             "  FROM element e JOIN user u ON e.author_id = u.id"
             " INNER JOIN game_and_element ge ON e.id = ge.element_id"
@@ -101,11 +101,20 @@ def get_game(id, check_author=True):
             "SELECT ge.id as ge_id, COUNT(ge2.id) as consist_count"
             "  FROM game_and_element ge"
             " INNER JOIN game_and_element ge2 ON ge2.parent_element_id = ge.id"
-            " WHERE ge.game_id = ?",
+            " WHERE ge.game_id = ?"
+            " GROUP BY ge.id",
             (id,),
         ).fetchall()
     )
 
+    # Map consist_count from game_elements_hierarchy to game_elements by ge_id
+    consist_count_map = {row['ge_id']: row['consist_count'] for row in game_elements_hierarchy}
+    # Convert sqlite3.Row to dict and add consist_count
+    game_elements = [
+        dict(element, consist_count=consist_count_map.get(element['ge_id'], 0))
+        for element in game_elements
+    ]
+    print("game_elements = ", game_elements)
     #print("element id = " + str(game_elements[0]['e_id']))
     
     if game is None:
