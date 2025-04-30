@@ -128,7 +128,7 @@ def get_post(id, check_author=True):
     games = (
         db
         .execute(
-            "SELECT g.id as g_id, g.title, g.body, ge.id as ge_id, ge.parent_element_id as parent_element_id"
+            "SELECT DISTINCT g.id as g_id, g.title, g.body"
             "  FROM game g JOIN user u ON g.author_id = u.id"
             " INNER JOIN game_and_element ge ON g.id = ge.game_id"
             " WHERE ge.element_id = ?",

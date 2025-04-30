@@ -73,7 +73,9 @@ CREATE TABLE game_and_element (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   game_id INTEGER REFERENCES game (id) ON DELETE CASCADE,
   element_id INTEGER REFERENCES element (id) ON DELETE RESTRICT,
-  author_id INTEGER NOT NULL REFERENCES user (id)
+  author_id INTEGER NOT NULL REFERENCES user (id),
+  parent_element_id INTEGER REFERENCES game_and_element (id) ON DELETE CASCADE,
+  type_of_id TEXT NOT NULL DEFAULT 'element' CHECK (type_of_id IN ('element', 'game_element'))
 );
 
 DROP TABLE IF EXISTS quest;

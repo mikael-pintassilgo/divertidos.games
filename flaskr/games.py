@@ -89,8 +89,9 @@ def get_game(id, check_author=True):
         .execute(
             "SELECT 0 as consist_count,"
             " e.id as e_id, e.title, e.body, e.created, e.tags, ge.id as ge_id, ge.parent_element_id as parent_element_id"
-            "  FROM element e JOIN user u ON e.author_id = u.id"
-            " INNER JOIN game_and_element ge ON e.id = ge.element_id"
+            "  FROM game_and_element AS ge"
+            " INNER JOIN element AS e "
+            " ON e.id = ge.element_id AND ge.type_of_id = 'element' "
             " WHERE ge.game_id = ?",
             (id,),
         ).fetchall()
