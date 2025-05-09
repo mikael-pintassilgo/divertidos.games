@@ -82,24 +82,26 @@
         </tr>
       </thead>
       {% for game_element in game_elements %}
-      <tr>
-          <td>
-            <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}" target="_blank">{{ game_element['title'] }}</a></p>
-          </td>
-          <td>
-            {% if game_element['consist_count'] == 1 %}
-            <p><a href="#">1 element</a></p>
-            {% elif game_element['consist_count'] > 1 %}
-            <p><a href="#">{{ game_element['consist_count'] }} elements</a></p>
-            {% else %}
-            <p/>
-            {% endif %}
-            
-          </td>
-          <td>
-            <p>{{ game_element['body'] }}</p>
-          </td>
-      </tr>
+        {% if (game_element['parent_element_id'] == None or game_element['parent_element_id'] == '') %}
+          <tr>
+              <td>
+                <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}" target="_blank">{{ game_element['title'] }}</a></p>
+              </td>
+              <td>
+                {% if game_element['consist_count'] == 1 %}
+                <p><a href="#">1 element</a></p>
+                {% elif game_element['consist_count'] > 1 %}
+                <p><a href="#">{{ game_element['consist_count'] }} elements</a></p>
+                {% else %}
+                <p/>
+                {% endif %}
+                
+              </td>
+              <td>
+                <p>{{ game_element['body'] }}</p>
+              </td>
+          </tr>
+        {% endif %}
       {% endfor %}
     </tbody>
   </table>

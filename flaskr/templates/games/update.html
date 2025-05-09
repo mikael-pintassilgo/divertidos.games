@@ -122,14 +122,24 @@
           <tbody>
             <thead>
               <tr>
+                <th scope="col">id type</th>
+                <th scope="col">previous_ge_id</th>
                 <th scope="col">ge_id</th>
-                <th scope="col">pge_id</th>
+                <th scope="col">parent_element_id</th>
+                <th scope="col">e_id</th>
                 <th scope="col">title</th>
+                <th scope="col">description</th>
                 <th scope="col">action</th>
               </tr>
             </thead>
             {% for game_element in game_elements %}
             <tr>
+                <td>
+                  {{ game_element['type_of_id'] }}
+                </td>
+                <td>
+                  {{ game_element['previous_ge_id'] }}
+                </td>
                 <td>
                   {{ game_element['ge_id'] }}
                 </td>
@@ -137,7 +147,13 @@
                   {{ game_element['parent_element_id'] }}
                 </td>
                 <td>
+                  {{ game_element['e_id'] }}
+                </td>
+                <td>
                   <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}" target="_blank">{{ game_element['title'] }}</a></p>
+                </td>
+                <td>
+                  {{ game_element['description'] }}
                 </td>
                 <td>
                   <form action="{{ url_for('games.delete_game_element', ge_id=game_element['ge_id'], game_id=game['id']) }}" method="post">
@@ -149,10 +165,28 @@
             <tr>
               <form action="{{ url_for('games.create_game_element', id=game['id']) }}" method="post">
                 <td>
-                  <input class="" placeholder="Enter element ID here..." name="element_id" id="element_id" value="{{ request.form['element_id'] }}" required>
+                  <select class="form-select" aria-label="Type of element ID" name="type_of_id" id="type_of_id" required>
+                    <option selected value="element">Element</option>
+                    <option value="game_element">Game element</option>
+                  </select>
                 </td>
                 <td>
-                  <input class="" placeholder="Enter game-element ID here..." name="parent_element_id" id="parent_element_id" value="{{ request.form['parent_element_id'] }}">
+                  <input class="" placeholder="previous_ge_id" name="previous_ge_id" id="previous_ge_id" value="{{ request.form['previous_ge_id'] }}">
+                </td>
+                <td>
+                  ge_id
+                </td>
+                <td>
+                  <input class="" placeholder="parent_ge_id" name="parent_element_id" id="parent_element_id" value="{{ request.form['parent_element_id'] }}">
+                </td>
+                <td>
+                  <input class="" placeholder="element_id" name="element_id" id="element_id" value="{{ request.form['element_id'] }}" required>
+                </td>
+                <td>
+                  e_title
+                </td>
+                <td>
+                  <input class="" placeholder="description" name="description" id="description" value="{{ request.form['description'] }}">
                 </td>
                 <td>
                   <input class="" type="submit" value="Add Element">

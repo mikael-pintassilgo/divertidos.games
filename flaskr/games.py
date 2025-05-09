@@ -87,13 +87,36 @@ def get_game(id, check_author=True):
     game_elements = (
         db
         .execute(
-            "SELECT 0 as consist_count,"
-            " e.id as e_id, e.title, e.body, e.created, e.tags, ge.id as ge_id, ge.parent_element_id as parent_element_id"
+            "SELECT 0 AS consist_count,"
+            "       e.id AS e_id, "
+            "       e.title, "
+            "       e.body, "
+            "       e.created, "
+            "       e.tags, "
+            "       ge.type_of_id,  "
+            "       ge.previous_game_element_id AS previous_ge_id,  "
+            "       ge.id AS ge_id,  "
+            "       ge.description,  "
+            "       ge.parent_element_id AS parent_element_id"
             "  FROM game_and_element AS ge"
             " INNER JOIN element AS e "
-            " ON e.id = ge.element_id AND ge.type_of_id = 'element' "
-            " WHERE ge.game_id = ?",
-            (id,),
+            "    ON e.id = ge.element_id AND ge.type_of_id = 'element' "
+            " WHERE ge.game_id = ?"
+            " UNION ALL "
+            "SELECT 0 AS consist_count,"
+            "       'e.id',  "
+            "       'e.title',  "
+            "       'ge.body',  "
+            "       'ge.created',  "
+            "       'ge.tags', "
+            "       ge.type_of_id,  "
+            "       ge.previous_game_element_id,  "
+            "       ge.id,  "
+            "       ge.description,  "
+            "       ge.parent_element_id"
+            "  FROM game_and_element AS ge"
+            " WHERE ge.type_of_id = 'game_element' AND ge.game_id = ?",
+            (id,id,),
         ).fetchall()
     )
     game_elements_hierarchy = (
@@ -333,8 +356,23 @@ def delete_tag(id):
 def create_game_element(id):
     """Create a new game element for the current user."""
     if request.method == "POST":
+        print('--------------------------------------------------------')
+        type_of_id = request.form["type_of_id"]
+        print(f'type_of_id = {type_of_id}')
+        
         element_id = request.form["element_id"]
+        print(f'element_id = {element_id}')
+        
         parent_element_id = request.form["parent_element_id"]
+        print(f'parent_element_id = {parent_element_id}')
+        
+        description = request.form["description"]
+        print(f'description = {description}')
+        
+        previous_game_element_id = request.form["previous_ge_id"]
+        print(f'previous_game_element_id = {previous_game_element_id}')
+        print('--------------------------------------------------------')
+        
         error = None
 
         if not element_id:
@@ -343,15 +381,22 @@ def create_game_element(id):
         if error is not None:
             flash(error)
         else:
+            print(type_of_id)
             print(element_id)
             print(g.user["id"])
             print((id))
             
             db = get_db()
-            db.execute(
-                "INSERT INTO game_and_element (element_id, parent_element_id, author_id, game_id) VALUES (?, ?, ?, ?)",
-                (element_id, parent_element_id, g.user["id"], id),
-            )
+            if (type_of_id == 'element'):
+                db.execute(
+                    "INSERT INTO game_and_element (type_of_id, element_id, parent_element_id, author_id, game_id, description, previous_game_element_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (type_of_id, element_id, parent_element_id, g.user["id"], id, description, previous_game_element_id),
+                )
+            else:
+                db.execute(
+                    "INSERT INTO game_and_element (type_of_id, game_element_id, parent_element_id, author_id, game_id, description, previous_game_element_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (type_of_id, element_id, parent_element_id, g.user["id"], id, description, previous_game_element_id),
+                )
             
             db.commit()
             return redirect(url_for('games.update', id=id))
