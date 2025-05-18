@@ -153,7 +153,6 @@ def get_game(id, check_author=True):
     }
     return game_data
 
-
 @bp.route("/create", methods=("GET", "POST"))
 @login_required
 def create():
@@ -226,6 +225,90 @@ def view(id):
                            tags=game_data["tags"], 
                            links=game_data["links"],
                            game_elements_hierarchy=game_data["game_elements_hierarchy"])
+
+def get_game_elements_of_the_parent(game_id, parent_element_id):
+    db = get_db()
+
+    game_elements = (
+        db
+        .execute(
+            "SELECT 0 AS consist_count,"
+            "       e.id AS e_id, "
+            "       e.title, "
+            "       e.body, "
+            "       e.created, "
+            "       e.tags, "
+            "       ge.type_of_id,  "
+            "       ge.previous_game_element_id AS previous_ge_id,  "
+            "       ge.id AS ge_id,  "
+            "       ge.description,  "
+            "       ge.parent_element_id AS parent_element_id"
+            "  FROM game_and_element AS ge"
+            " INNER JOIN element AS e "
+            "    ON e.id = ge.element_id AND ge.type_of_id = 'element' "
+            " WHERE ge.game_id = ? AND ge.parent_element_id = ?"
+            " UNION ALL "
+            "SELECT 0 AS consist_count,"
+            "       'e.id',  "
+            "       'e.title',  "
+            "       'ge.body',  "
+            "       'ge.created',  "
+            "       'ge.tags', "
+            "       ge.type_of_id,  "
+            "       ge.previous_game_element_id,  "
+            "       ge.id,  "
+            "       ge.description,  "
+            "       ge.parent_element_id"
+            "  FROM game_and_element AS ge"
+            " WHERE ge.type_of_id = 'game_element' AND ge.game_id = ? AND ge.parent_element_id = ?",
+            (game_id, int(parent_element_id), game_id, int(parent_element_id),),
+        ).fetchall()
+    )
+    game_elements_hierarchy = (
+        db
+        .execute(
+            "SELECT ge.id as ge_id, COUNT(ge2.id) as consist_count"
+            "  FROM game_and_element ge"
+            " INNER JOIN game_and_element ge2 ON ge2.parent_element_id = ge.id"
+            " WHERE ge.game_id = ? AND ge.parent_element_id = ?"
+            " GROUP BY ge.id",
+            (game_id, parent_element_id,),
+        ).fetchall()
+    )
+
+    # Map consist_count from game_elements_hierarchy to game_elements by ge_id
+    consist_count_map = {row['ge_id']: row['consist_count'] for row in game_elements_hierarchy}
+    # Convert sqlite3.Row to dict and add consist_count
+    game_elements = [
+        dict(element, consist_count=consist_count_map.get(element['ge_id'], 0))
+        for element in game_elements
+    ]
+    print("game_elements = ", game_elements)
+    #print("element id = " + str(game_elements[0]['e_id']))
+    
+    game_data = {
+        "game_elements": game_elements,
+        "game_elements_hierarchy": game_elements_hierarchy,
+    }
+    return game_data
+
+@bp.route("/<int:game_id>/view/game-elements/<int:parent_id>", methods=("GET",))
+def view_game_elements_of_the_parent(game_id, parent_id):
+    game_title = request.args.get('title')
+    parent = request.args.get('parent')
+    print('--------------------------------------------------------')
+    print(f"game_title: {game_title}")
+    print(f"game_id: {game_id}")
+    print(f"parent_id: {parent_id}")
+    
+    game_elements = get_game_elements_of_the_parent(game_id, parent_id)
+    #game_elements = get_game(game_id)
+    return render_template("games/view_ge_of_the_parent.html",
+                           game_elements=game_elements["game_elements"],
+                           game_title=game_title,
+                           game_id=game_id,
+                           parent=parent)
+
 
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required

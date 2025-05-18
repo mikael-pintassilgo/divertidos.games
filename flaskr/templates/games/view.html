@@ -85,13 +85,13 @@
         {% if (game_element['parent_element_id'] == None or game_element['parent_element_id'] == '') %}
           <tr>
               <td>
-                <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}" target="_blank">{{ game_element['title'] }}</a></p>
+                <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}">{{ game_element['title'] }}</a></p>
               </td>
               <td>
                 {% if game_element['consist_count'] == 1 %}
-                <p><a href="#">1 element</a></p>
+                <p><a href="{{ url_for('games.view_game_elements_of_the_parent', game_id=game['id'], parent_id=game_element['ge_id']) }}?title={{game['title']}}&parent={{ game_element['title'] }}">1 element</a></p>
                 {% elif game_element['consist_count'] > 1 %}
-                <p><a href="#">{{ game_element['consist_count'] }} elements</a></p>
+                <p><a href="{{ url_for('games.view_game_elements_of_the_parent', game_id=game['id'], parent_id=game_element['ge_id']) }}?title={{game['title']}}&parent={{ game_element['title'] }}">{{ game_element['consist_count'] }} elements</a></p>
                 {% else %}
                 <p/>
                 {% endif %}

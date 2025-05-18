@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block breadcrumb %}
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('games.index') }}">Games</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('games.view', id=game_id) }}">{{ game_title }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ parent }}</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+  <!-- Elements -->
+  <br/>
+  <h3>Game Elements</h3>
+  <hr>
+
+  <table class="table table-hover">
+    <tbody>
+      <thead>
+        <tr>
+          <th scope="col">Title</th>
+          <th scope="col">Consist</th>
+          <th scope="col">Description</th>
+        </tr>
+      </thead>
+      {% for game_element in game_elements %}
+          <tr>
+              <td>
+                <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}">{{ game_element['title'] }}</a></p>
+              </td>
+              <td>
+                {% if game_element['consist_count'] == 1 %}
+                <p><a href="#">1 element</a></p>
+                {% elif game_element['consist_count'] > 1 %}
+                <p><a href="#">{{ game_element['consist_count'] }} elements</a></p>
+                {% else %}
+                <p/>
+                {% endif %}
+                
+              </td>
+              <td>
+                <p>{{ game_element['description'] }}</p>
+              </td>
+          </tr>
+        
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-C7QR1MW3WC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-C7QR1MW3WC');
+</script>
+
+{% endblock %}
