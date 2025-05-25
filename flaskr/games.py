@@ -309,6 +309,22 @@ def view_game_elements_of_the_parent(game_id, parent_id):
                            game_id=game_id,
                            parent=parent)
 
+@bp.route("/<int:game_id>/update/game-elements/<int:parent_id>", methods=("GET",))
+def update_game_elements_of_the_parent(game_id, parent_id):
+    game_title = request.args.get('title')
+    parent = request.args.get('parent')
+    print('--------------------------------------------------------')
+    print(f"game_title: {game_title}")
+    print(f"game_id: {game_id}")
+    print(f"parent_id: {parent_id}")
+    
+    game_elements = get_game_elements_of_the_parent(game_id, parent_id)
+    #game_elements = get_game(game_id)
+    return render_template("games/update_ge_of_the_parent.html",
+                           game_elements=game_elements["game_elements"],
+                           game_title=game_title,
+                           game_id=game_id,
+                           parent=parent)
 
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required

@@ -129,10 +129,12 @@
                 <th scope="col">e_id</th>
                 <th scope="col">title</th>
                 <th scope="col">description</th>
+                <th scope="col">consist</th>
                 <th scope="col">action</th>
               </tr>
             </thead>
             {% for game_element in game_elements %}
+            {% if (game_element['parent_element_id'] == None or game_element['parent_element_id'] == '') %}
             <tr>
                 <td>
                   {{ game_element['type_of_id'] }}
@@ -156,11 +158,21 @@
                   {{ game_element['description'] }}
                 </td>
                 <td>
+                  {% if game_element['consist_count'] == 1 %}
+                  <p><a href="{{ url_for('games.update_game_elements_of_the_parent', game_id=game['id'], parent_id=game_element['ge_id']) }}?title={{game['title']}}&parent={{ game_element['title'] }}">1 element</a></p>
+                  {% elif game_element['consist_count'] > 1 %}
+                  <p><a href="{{ url_for('games.update_game_elements_of_the_parent', game_id=game['id'], parent_id=game_element['ge_id']) }}?title={{game['title']}}&parent={{ game_element['title'] }}">{{ game_element['consist_count'] }} elements</a></p>
+                  {% else %}
+                  <p/>
+                  {% endif %}                  
+                </td>
+                <td>
                   <form action="{{ url_for('games.delete_game_element', ge_id=game_element['ge_id'], game_id=game['id']) }}" method="post">
                     <input class="danger uk-button uk-button-default" type="submit" value="Delete element" onclick="return confirm('Are you sure?');">
                   </form>
                 </td>
             </tr>
+            {% endif %}
             {% endfor %}
             <tr>
               <form action="{{ url_for('games.create_game_element', id=game['id']) }}" method="post">
