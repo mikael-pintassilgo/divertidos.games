@@ -4,8 +4,11 @@
 <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ url_for('games.index') }}">Games</a></li>
-    <li class="breadcrumb-item"><a href="{{ url_for('games.view', id=game_id) }}">{{ game_title }}</a></li>
-    <li class="breadcrumb-item active" aria-current="page">{{ parent }}</li>
+    <li class="breadcrumb-item"><a href="{{ url_for('games.update', id=game_id) }}">{{ game_title }}</a></li>
+    {% for parent in game_elements_parents %}
+    <li class="breadcrumb-item"><a href="{{ url_for('games.update_game_elements_of_the_parent', game_id=game_id, parent_id=parent.id) }}?title={{ game_title }}">{{ parent.description }}</a></li>
+    {% endfor %}
+    <!-- <li class="breadcrumb-item active" aria-current="page">{{ parent }}</li> -->
   </ol>
 </nav>
 {% endblock %}
@@ -19,38 +22,111 @@
   <h3>Game Elements</h3>
   <hr>
 
-  <table class="table table-hover">
-    <tbody>
-      <thead>
-        <tr>
-          <th scope="col">Title</th>
-          <th scope="col">Consist</th>
-          <th scope="col">Description</th>
-        </tr>
-      </thead>
-      {% for game_element in game_elements %}
-          <tr>
-              <td>
-                <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}">{{ game_element['title'] }}</a></p>
-              </td>
-              <td>
-                {% if game_element['consist_count'] == 1 %}
-                <p><a href="#">1 element</a></p>
-                {% elif game_element['consist_count'] > 1 %}
-                <p><a href="#">{{ game_element['consist_count'] }} elements</a></p>
-                {% else %}
-                <p/>
-                {% endif %}
-                
-              </td>
-              <td>
-                <p>{{ game_element['description'] }}</p>
-              </td>
-          </tr>
-        
-      {% endfor %}
-    </tbody>
-  </table>
+
+    <!-- Game Elements -->
+    <div class='row'>
+      <div class='col-12'>
+    
+        <table class="table table-hover">
+          <caption class="caption-top">Game Elements</caption>
+          <tbody>
+            <thead>
+              <tr>
+                <th scope="col">id type</th>
+                <th scope="col">previous_ge_id</th>
+                <th scope="col">ge_id</th>
+                <th scope="col">parent_element_id</th>
+                <th scope="col">e_id</th>
+                <th scope="col">title</th>
+                <th scope="col">description</th>
+                <th scope="col">consist</th>
+                <th scope="col">action</th>
+              </tr>
+            </thead>
+            {% for game_element in game_elements %}
+            <tr>
+                <td>
+                  {{ game_element['type_of_id'] }}
+                </td>
+                <td>
+                  {{ game_element['previous_ge_id'] }}
+                </td>
+                <td>
+                  {{ game_element['ge_id'] }}
+                </td>
+                <td>
+                  {{ game_element['parent_element_id'] }}
+                </td>
+                <td>
+                  {{ game_element['e_id'] }}
+                </td>
+                <td>
+                  <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}" target="_blank">{{ game_element['title'] }}</a></p>
+                </td>
+                <td>
+                  {{ game_element['description'] }}
+                </td>
+                <td>
+                  {% if game_element['consist_count'] == 1 %}
+                  <p><a href="{{ url_for('games.update_game_elements_of_the_parent', game_id=game_id, parent_id=game_element['ge_id']) }}?title={{ game_title }}&parent={{ game_element['title'] }}">1 element</a></p>
+                  {% elif game_element['consist_count'] > 1 %}
+                  <p><a href="{{ url_for('games.update_game_elements_of_the_parent', game_id=game_id, parent_id=game_element['ge_id']) }}?title={{ game_title }}&parent={{ game_element['title'] }}">{{ game_element['consist_count'] }} elements</a></p>
+                  {% else %}
+                  <p><a href="{{ url_for('games.update_game_elements_of_the_parent', game_id=game_id, parent_id=game_element['ge_id']) }}?title={{ game_title }}&parent={{ game_element['title'] }}">0 elements</a></p>
+                  {% endif %}                  
+                </td>
+                <td>
+                  <form action="{{ url_for('games.delete_game_element', ge_id=game_element['ge_id'], game_id=game_id) }}?parent_id={{parent_id}}&title={{game_title}}&parent={{parent}}" method="post">
+                    <input class="danger uk-button uk-button-default" type="submit" value="Delete element" onclick="return confirm('Are you sure?');">
+                  </form>
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+              <form 
+              action="{{ url_for('games.create_game_element', id=game_id) }}?title={{game_title}}&parent={{parent}}" 
+              method="post">
+                <td>
+                  <select class="form-select" aria-label="Type of element ID" name="type_of_id" id="type_of_id" required>
+                    <option selected value="element">Element</option>
+                    <option value="game_element">Game element</option>
+                  </select>
+                </td>
+                <td>
+                  <input class="" placeholder="previous_ge_id" name="previous_ge_id" id="previous_ge_id" value="{{ request.form['previous_ge_id'] }}">
+                </td>
+                <td>
+                  ge_id
+                </td>
+                <td>
+                  <input
+                  class="" 
+                  placeholder="parent_ge_id" 
+                  name="parent_element_id" 
+                  id="parent_element_id" 
+                  value="{{ request.form["parent_element_id"] or parent_id }}"
+                  >
+                </td>
+                <td>
+                  <input class="" placeholder="element_id or ge_id" name="element_id" id="element_id" value="{{ request.form['element_id'] }}" required>
+                </td>
+                <td>
+                  e_title
+                </td>
+                <td>
+                  <input class="" placeholder="description" name="description" id="description" value="{{ request.form['description'] }}">
+                </td>
+                <td>
+                  <input class="" type="submit" value="Add Element">
+                </td>
+              </form>
+            </tr>
+          </tbody>
+        </table>
+    
+      </div>
+    </div>
+
 
 
 <!-- Google tag (gtag.js) -->

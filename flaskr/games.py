@@ -275,6 +275,25 @@ def get_game_elements_of_the_parent(game_id, parent_element_id):
             (game_id, parent_element_id,),
         ).fetchall()
     )
+    # Get all parents of the game element with id = parent_element_id
+    def get_parents(db, ge_id):
+        parents = []
+        current_id = ge_id
+        while current_id:
+            parent = db.execute(
+                "SELECT id, description, parent_element_id FROM game_and_element WHERE id = ?",
+                (current_id,)
+            ).fetchone()
+            
+            if parent:
+                parents.insert(0, {"id": current_id, "description": parent["description"]})
+                current_id = parent["parent_element_id"]
+            else:
+                break
+        return parents
+
+    game_elements_parents = get_parents(db, parent_element_id)
+    print("All parents of element id", parent_element_id, ":", game_elements_parents)
 
     # Map consist_count from game_elements_hierarchy to game_elements by ge_id
     consist_count_map = {row['ge_id']: row['consist_count'] for row in game_elements_hierarchy}
@@ -289,6 +308,7 @@ def get_game_elements_of_the_parent(game_id, parent_element_id):
     game_data = {
         "game_elements": game_elements,
         "game_elements_hierarchy": game_elements_hierarchy,
+        "game_elements_parents": game_elements_parents,
     }
     return game_data
 
@@ -318,13 +338,15 @@ def update_game_elements_of_the_parent(game_id, parent_id):
     print(f"game_id: {game_id}")
     print(f"parent_id: {parent_id}")
     
-    game_elements = get_game_elements_of_the_parent(game_id, parent_id)
+    game_elements_data = get_game_elements_of_the_parent(game_id, parent_id)
     #game_elements = get_game(game_id)
     return render_template("games/update_ge_of_the_parent.html",
-                           game_elements=game_elements["game_elements"],
+                           game_elements=game_elements_data["game_elements"],
                            game_title=game_title,
                            game_id=game_id,
-                           parent=parent)
+                           parent=parent,
+                           parent_id=parent_id,
+                           game_elements_parents=game_elements_data["game_elements_parents"])
 
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required
@@ -498,7 +520,12 @@ def create_game_element(id):
                 )
             
             db.commit()
-            return redirect(url_for('games.update', id=id))
+            if parent_element_id:
+                game_title = request.args.get('title')
+                parent = request.args.get('parent')
+                return redirect(url_for("games.update_game_elements_of_the_parent", game_id=id, parent_id=parent_element_id)+"?title="+game_title+"&parent="+parent)
+            else:
+                return redirect(url_for('games.update', id=id))
 
     return render_template("games/update.html")
 
@@ -517,5 +544,18 @@ def delete_game_element(game_id, ge_id):
     db.execute("DELETE FROM game_and_element WHERE id = ?", (ge_id,))
     db.commit()
     
-    return redirect(url_for('games.update', id=game_id))   
+    try:
+        parent_id = request.args.get('parent_id')
+    except:
+        parent_id = None
+       
+    if parent_id:
+        game_title = request.args.get('title')
+        parent = request.args.get('parent')
+        
+        print(f"parent_id = {parent_id}")
+        
+        return redirect(url_for("games.update_game_elements_of_the_parent", game_id=game_id, parent_id=parent_id)+"?title="+game_title+"&parent="+parent)
+    else:
+        return redirect(url_for('games.update', id=game_id))   
 # End Game Elements
