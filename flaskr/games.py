@@ -558,4 +558,70 @@ def delete_game_element(game_id, ge_id):
         return redirect(url_for("games.update_game_elements_of_the_parent", game_id=game_id, parent_id=parent_id)+"?title="+game_title+"&parent="+parent)
     else:
         return redirect(url_for('games.update', id=game_id))   
+
+@bp.route("/<int:game_id>/game-elements/<int:ge_id>/update", methods=("GET", "POST"))
+@login_required
+def update_game_element(game_id, ge_id):
+    """Update an existing game element for the current user."""
+    db = get_db()
+    game_element = db.execute(
+        "SELECT * FROM game_and_element WHERE id = ? AND author_id = ?",
+        (ge_id, g.user["id"]),
+    ).fetchone()
+
+    if game_element is None:
+        abort(404)
+
+    if request.method == "POST":
+        print('--------------------------------------------------------')
+        type_of_id = request.form["type_of_id"]
+        print(f'type_of_id = {type_of_id}')
+        
+        element_id = request.form["element_id"]
+        print(f'element_id = {element_id}')
+        
+        parent_element_id = request.form["parent_element_id"]
+        print(f'parent_element_id = {parent_element_id}')
+        
+        description = request.form["description"]
+        print(f'description = {description}')
+        
+        previous_game_element_id = request.form["previous_ge_id"]
+        print(f'previous_game_element_id = {previous_game_element_id}')
+        print('--------------------------------------------------------')
+        
+        error = None
+
+        if not element_id:
+            error = "Element ID is required."
+
+        if error is not None:
+            flash(error)
+        else:
+            print(type_of_id)
+            print(element_id)
+            print(g.user["id"])
+            print((game_id))
+            
+            db = get_db()
+            if (type_of_id == 'element'):
+                db.execute(
+                    "UPDATE game_and_element SET type_of_id = ?, element_id = ?, parent_element_id = ?, author_id = ?, game_id = ?, description = ?, previous_game_element_id = ? WHERE id = ?",
+                    (type_of_id, element_id, parent_element_id, g.user["id"], game_id, description, previous_game_element_id, ge_id),
+                )
+            else:
+                db.execute(
+                    "UPDATE game_and_element SET type_of_id = ?, game_element_id = ?, parent_element_id = ?, author_id = ?, game_id = ?, description = ?, previous_game_element_id = ? WHERE id = ?",
+                    (type_of_id, element_id, parent_element_id, g.user["id"], game_id, description, previous_game_element_id, ge_id),
+                )
+
+            db.commit()
+            if parent_element_id:
+                game_title = request.args.get('title')
+                parent = request.args.get('parent')
+                return redirect(url_for("games.update_game_elements_of_the_parent", game_id=game_id, parent_id=parent_element_id)+"?title="+game_title+"&parent="+parent)
+            else:
+                return redirect(url_for('games.update', id=game_id))
+
+    return render_template("games/update.html")
 # End Game Elements

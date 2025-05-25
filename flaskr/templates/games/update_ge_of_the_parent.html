@@ -45,39 +45,45 @@
             </thead>
             {% for game_element in game_elements %}
             <tr>
-                <td>
-                  {{ game_element['type_of_id'] }}
-                </td>
-                <td>
-                  {{ game_element['previous_ge_id'] }}
-                </td>
-                <td>
-                  {{ game_element['ge_id'] }}
-                </td>
-                <td>
-                  {{ game_element['parent_element_id'] }}
-                </td>
-                <td>
-                  {{ game_element['e_id'] }}
-                </td>
-                <td>
-                  <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}" target="_blank">{{ game_element['title'] }}</a></p>
-                </td>
-                <td>
-                  {{ game_element['description'] }}
-                </td>
-                <td>
-                  {% if game_element['consist_count'] == 1 %}
-                  <p><a href="{{ url_for('games.update_game_elements_of_the_parent', game_id=game_id, parent_id=game_element['ge_id']) }}?title={{ game_title }}&parent={{ game_element['title'] }}">1 element</a></p>
-                  {% elif game_element['consist_count'] > 1 %}
-                  <p><a href="{{ url_for('games.update_game_elements_of_the_parent', game_id=game_id, parent_id=game_element['ge_id']) }}?title={{ game_title }}&parent={{ game_element['title'] }}">{{ game_element['consist_count'] }} elements</a></p>
-                  {% else %}
-                  <p><a href="{{ url_for('games.update_game_elements_of_the_parent', game_id=game_id, parent_id=game_element['ge_id']) }}?title={{ game_title }}&parent={{ game_element['title'] }}">0 elements</a></p>
-                  {% endif %}                  
-                </td>
+                <form action="{{ url_for('games.update_game_element', ge_id=game_element['ge_id'], game_id=game_id) }}?parent_id={{parent_id}}&title={{game_title}}&parent={{parent}}" method="post">
+                  <td>
+                    <input class="" placeholder="Type of element ID" name="type_of_id" id="type_of_id" value="{{ game_element['type_of_id'] }}">
+                  </td>
+                  <td>
+                    <input class="" placeholder="previous_ge_id" name="previous_ge_id" id="previous_ge_id" value="{{ game_element['previous_ge_id'] }}">
+                  </td>
+                  <td>
+                    <input class="" placeholder="ge_id" name="ge_id" id="ge_id" value="{{ game_element['ge_id'] }}">
+                  </td>
+                  <td>
+                    <input class="" placeholder="parent_element_id" name="parent_element_id" id="parent_element_id" value="{{ game_element['parent_element_id'] }}">
+                  </td>
+                  <td>
+                    <input class="" placeholder="element_id" name="element_id" id="element_id" value="{{ game_element['e_id'] }}">
+                  </td>
+                  <td>
+                    <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}" target="_blank">{{ game_element['title'] }}</a></p>
+                  </td>
+                  <td>
+                    <input class="" placeholder="description" name="description" id="description" value="{{ game_element['description'] }}">
+                  </td>
+                  <td>
+                    {% if game_element['consist_count'] == 1 %}
+                    <p><a href="{{ url_for('games.update_game_elements_of_the_parent', game_id=game_id, parent_id=game_element['ge_id']) }}?title={{ game_title }}&parent={{ game_element['title'] }}">1 element</a></p>
+                    {% elif game_element['consist_count'] > 1 %}
+                    <p><a href="{{ url_for('games.update_game_elements_of_the_parent', game_id=game_id, parent_id=game_element['ge_id']) }}?title={{ game_title }}&parent={{ game_element['title'] }}">{{ game_element['consist_count'] }} elements</a></p>
+                    {% else %}
+                    <p><a href="{{ url_for('games.update_game_elements_of_the_parent', game_id=game_id, parent_id=game_element['ge_id']) }}?title={{ game_title }}&parent={{ game_element['title'] }}">0 elements</a></p>
+                    {% endif %}                  
+                  </td>
+                  <td>
+                      <input class="danger uk-button uk-button-default" type="submit" value="Update element">
+                    
+                  </td>
+                </form>
                 <td>
                   <form action="{{ url_for('games.delete_game_element', ge_id=game_element['ge_id'], game_id=game_id) }}?parent_id={{parent_id}}&title={{game_title}}&parent={{parent}}" method="post">
-                    <input class="danger uk-button uk-button-default" type="submit" value="Delete element" onclick="return confirm('Are you sure?');">
+                    <input class="danger uk-button uk-button-default" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
                   </form>
                 </td>
             </tr>
