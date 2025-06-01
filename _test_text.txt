@@ -1,0 +1,71 @@
+Here’s a **Game Design Document (GDD)-style description** of *The WereCleaner*, based on available information:
+
+---
+
+## **Game Design Document: The WereCleaner**
+
+### **1. Game Overview**
+- **Title:** The WereCleaner  
+- **Genre:** Stealth-Comedy  
+- **Platform(s):** Windows, iOS, Android  
+- **Engine:** Unity  
+- **Developer:** Howlin' Hugs (USC Games student team)  
+- **Release Date:** May 7, 2024  
+- **Mode:** Single-player  
+- **Target Audience:** Ages 13+, fans of stealth games and dark humor
+
+---
+
+### **2. High Concept**
+*The WereCleaner* is a stealth-comedy game where you play as **Kyle**, a janitor who is secretly a werewolf. Forced into a week of unpaid night shifts, Kyle must clean the office while avoiding detection. If spotted, his instincts take over—leading to violent outbursts that must also be cleaned up. The game blends stealth mechanics with absurd humor and moral ambiguity.
+
+---
+
+### **3. Core Gameplay**
+- **Primary Loop:**
+  1. Clean up messes (trash, spills, blood).
+  2. Avoid detection by co-workers and security.
+  3. Manage Kyle’s “Wolf Meter” to prevent transformation.
+  4. Use tools and distractions to navigate the office.
+
+- **Key Mechanics:**
+  - **Stealth Navigation:** Avoid light, cameras, and patrols.
+  - **Cleaning Tools:** Mop, hose, vacuum, trash bags.
+  - **Distractions:** Throw trash balls to lure NPCs.
+  - **Wolf Meter:** Builds with stress or exposure; maxing out triggers a violent transformation.
+  - **Post-Rampage Cleanup:** If Kyle kills someone, he must clean the scene to avoid suspicion.
+
+---
+
+### **4. Narrative**
+- **Setting:** A plush toy company’s office during a mandatory unpaid overtime week.
+- **Story Arc:**
+  - Day 1–6: Kyle cleans and hides his secret.
+  - Day 7: Security guard Daryl uncovers the truth.
+  - Finale: A confrontation leads to Daryl’s death and Kyle’s escape.
+  - Epilogue: Kyle receives a meager paycheck of \$119.
+
+---
+
+### **5. Art & Audio**
+- **Visual Style:** Isometric, cartoonish with dark undertones.
+- **Character Design:** Exaggerated features, humorous animations.
+- **Audio:** Comedic stealth music, exaggerated sound effects, minimal voice acting.
+
+---
+
+### **6. Technical Details**
+- **Camera:** Fixed isometric perspective.
+- **Controls:** Touch (mobile) / Keyboard & Mouse (PC).
+- **AI:** Simple patrol and detection logic with escalating difficulty.
+
+---
+
+### **7. Development Notes**
+- Created as part of USC’s Advanced Games Projects program.
+- NPCs modeled after real team members.
+- Emphasis on subverting traditional stealth tropes (player is the threat).
+
+---
+
+Would you like this formatted into a downloadable PDF or editable document?

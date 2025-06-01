@@ -281,12 +281,28 @@ def get_game_elements_of_the_parent(game_id, parent_element_id):
         current_id = ge_id
         while current_id:
             parent = db.execute(
-                "SELECT id, description, parent_element_id FROM game_and_element WHERE id = ?",
+                """
+                SELECT gae.id, gae.description, gae.parent_element_id, gae.type_of_id,
+                       CASE
+                           WHEN gae.description IS NOT NULL AND gae.description != '' THEN gae.description
+                           WHEN gae.type_of_id = 'element' THEN e.title
+                           WHEN gae.type_of_id = 'game_element' THEN ge2.description
+                           ELSE gae.description
+                       END AS parent_title,
+                       e.title AS element_title,
+                       ge2.description AS game_element_title
+                  FROM game_and_element gae
+                  LEFT JOIN element e
+                    ON gae.type_of_id = 'element' AND gae.element_id = e.id
+                  LEFT JOIN game_and_element ge2
+                    ON gae.type_of_id = 'game_element' AND gae.game_element_id = ge2.id
+                 WHERE gae.id = ?
+                """,
                 (current_id,)
             ).fetchone()
             
             if parent:
-                parents.insert(0, {"id": current_id, "description": parent["description"]})
+                parents.insert(0, {"id": current_id, "description": parent["parent_title"], "element_title": parent["element_title"], "game_element_title": parent["game_element_title"]})
                 current_id = parent["parent_element_id"]
             else:
                 break
@@ -294,6 +310,10 @@ def get_game_elements_of_the_parent(game_id, parent_element_id):
 
     game_elements_parents = get_parents(db, parent_element_id)
     print("All parents of element id", parent_element_id, ":", game_elements_parents)
+    for idx, parent in enumerate(game_elements_parents):
+        print(f"Parent {idx}:")
+        for key, value in parent.items():
+            print(f"  {key}: {value}")
 
     # Map consist_count from game_elements_hierarchy to game_elements by ge_id
     consist_count_map = {row['ge_id']: row['consist_count'] for row in game_elements_hierarchy}
