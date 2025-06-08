@@ -136,7 +136,119 @@
       </div>
     </div>
 
+<script>
+function drawArrows() {
+  // Collect all rows and map ge_id to their type_of_id cell
+  const rows = document.querySelectorAll("table tbody tr");
+  const geIdToTypeCell = {};
+  rows.forEach(row => {
+    const geIdInput = row.querySelector('input[name="ge_id"]');
+    const typeCell = row.querySelector('input[name="type_of_id"]');
+    if (geIdInput && typeCell) {
+      geIdToTypeCell[geIdInput.value] = typeCell;
+    }
+  });
 
+  // Prepare SVG overlay
+  let svg = document.getElementById("arrow-svg-overlay");
+  if (!svg) {
+    svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("id", "arrow-svg-overlay");
+    svg.style.position = "absolute";
+    svg.style.top = "0";
+    svg.style.left = "0";
+    svg.style.width = "100vw";
+    svg.style.height = "100vh";
+    svg.style.pointerEvents = "none";
+    svg.style.zIndex = "10";
+    svg.style.overflow = "visible";
+    document.body.appendChild(svg);
+  }
+  // Set SVG size to cover the whole document, not just viewport
+  const docWidth = Math.max(
+    document.body.scrollWidth, document.documentElement.scrollWidth,
+    document.body.offsetWidth, document.documentElement.offsetWidth,
+    document.body.clientWidth, document.documentElement.clientWidth
+  );
+  const docHeight = Math.max(
+    document.body.scrollHeight, document.documentElement.scrollHeight,
+    document.body.offsetHeight, document.documentElement.offsetHeight,
+    document.body.clientHeight, document.documentElement.clientHeight
+  );
+  svg.setAttribute("width", docWidth);
+  svg.setAttribute("height", docHeight);
+  svg.style.width = docWidth + "px";
+  svg.style.height = docHeight + "px";
+  svg.innerHTML = ""; // Clear previous arrows
+
+  // Draw arrows
+  rows.forEach(row => {
+    const prevGeIdInput = row.querySelector('input[name="previous_ge_id"]');
+    const geIdInput = row.querySelector('input[name="ge_id"]');
+    if (prevGeIdInput && geIdInput && prevGeIdInput.value && geIdToTypeCell[prevGeIdInput.value]) {
+      const fromInput = geIdToTypeCell[prevGeIdInput.value];
+      const toInput = row.querySelector('input[name="type_of_id"]');
+      if (fromInput && toInput) {
+        // Get positions
+        const fromRect = fromInput.getBoundingClientRect();
+        const toRect = toInput.getBoundingClientRect();
+        const scrollY = window.scrollY || document.documentElement.scrollTop;
+        const scrollX = window.scrollX || document.documentElement.scrollLeft;
+
+        // Start at left edge of previous type_of_id
+        const x1 = fromRect.left + scrollX;
+        const y1 = fromRect.top + fromRect.height / 2 + scrollY + 3;
+
+        // Go left 15px
+        const x2 = x1 - 15;
+        const y2 = y1;
+
+        // Go down to the vertical center of the next type_of_id
+        const x3 = x2;
+        const y3 = toRect.top + toRect.height / 2 + scrollY - 3;
+
+        // Go right to the left edge of the next type_of_id
+        const x4 = toRect.left + scrollX;
+        const y4 = y3;
+
+        // Draw polyline for the path
+        const points = [
+          [x1, y1],
+          [x2, y2],
+          [x3, y3],
+          [x4, y4]
+        ].map(p => p.join(",")).join(" ");
+
+        const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+        polyline.setAttribute("points", points);
+        polyline.setAttribute("fill", "none");
+        polyline.setAttribute("stroke", "#007bff");
+        polyline.setAttribute("stroke-width", "2");
+        svg.appendChild(polyline);
+
+        // Draw arrowhead at the end (left edge of next type_of_id)
+        const arrowHead = 8;
+        const arrowX = x4;
+        const arrowY = y4;
+        const arrow = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        const arrowPoints = [
+          [arrowX, arrowY],
+          [arrowX - arrowHead, arrowY - 4],
+          [arrowX - arrowHead, arrowY + 4]
+        ].map(p => p.join(",")).join(" ");
+        arrow.setAttribute("points", arrowPoints);
+        arrow.setAttribute("fill", "#007bff");
+        svg.appendChild(arrow);
+      }
+    }
+  });
+}
+
+// Redraw arrows on load, resize, and scroll
+document.addEventListener("DOMContentLoaded", drawArrows);
+window.addEventListener("resize", drawArrows);
+window.addEventListener("scroll", drawArrows);
+</script>
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-C7QR1MW3WC"></script>
