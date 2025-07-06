@@ -6,7 +6,11 @@
     <li class="breadcrumb-item"><a href="{{ url_for('games.index') }}">Games</a></li>
     <li class="breadcrumb-item"><a href="{{ url_for('games.update', id=game_id) }}">{{ game_title }}</a></li>
     {% for parent in game_elements_parents %}
-    <li class="breadcrumb-item"><a href="{{ url_for('games.update_game_elements_of_the_parent', game_id=game_id, parent_id=parent.id) }}?title={{ game_title }}">{{ parent.description }}</a></li>
+      {% if loop.last %}
+      <li class="breadcrumb-item active" aria-current="page">{{ parent.description }}</li>
+      {% else %}
+      <li class="breadcrumb-item"><a href="{{ url_for('games.update_game_elements_of_the_parent', game_id=game_id, parent_id=parent.id) }}?title={{ game_title }}">{{ parent.description }}</a></li>
+      {% endif %}
     {% endfor %}
     <!-- <li class="breadcrumb-item active" aria-current="page">{{ parent }}</li> -->
   </ol>

@@ -95,12 +95,15 @@ def get_game(id, check_author=True):
             "       e.tags, "
             "       ge.type_of_id,  "
             "       ge.previous_game_element_id AS previous_ge_id,  "
+            "       previous_ge.description AS previous_ge_description,  "
             "       ge.id AS ge_id,  "
             "       ge.description,  "
             "       ge.parent_element_id AS parent_element_id"
             "  FROM game_and_element AS ge"
             " INNER JOIN element AS e "
             "    ON e.id = ge.element_id AND ge.type_of_id = 'element' "
+            "  LEFT JOIN game_and_element AS previous_ge "
+            "    ON ge.previous_game_element_id = previous_ge.id"
             " WHERE ge.game_id = ?"
             " UNION ALL "
             "SELECT 0 AS consist_count,"
@@ -111,10 +114,13 @@ def get_game(id, check_author=True):
             "       'ge.tags', "
             "       ge.type_of_id,  "
             "       ge.previous_game_element_id,  "
+            "       previous_ge.description AS previous_ge_description,  "
             "       ge.id,  "
             "       ge.description,  "
             "       ge.parent_element_id"
             "  FROM game_and_element AS ge"
+            "  LEFT JOIN game_and_element AS previous_ge "
+            "    ON ge.previous_game_element_id = previous_ge.id"
             " WHERE ge.type_of_id = 'game_element' AND ge.game_id = ?",
             (id,id,),
         ).fetchall()
@@ -240,12 +246,15 @@ def get_game_elements_of_the_parent(game_id, parent_element_id):
             "       e.tags, "
             "       ge.type_of_id,  "
             "       ge.previous_game_element_id AS previous_ge_id,  "
+            "       previous_ge.description AS previous_ge_description,  "
             "       ge.id AS ge_id,  "
             "       ge.description,  "
             "       ge.parent_element_id AS parent_element_id"
             "  FROM game_and_element AS ge"
             " INNER JOIN element AS e "
             "    ON e.id = ge.element_id AND ge.type_of_id = 'element' "
+            "  LEFT JOIN game_and_element AS previous_ge "
+            "    ON ge.previous_game_element_id = previous_ge.id"
             " WHERE ge.game_id = ? AND ge.parent_element_id = ?"
             " UNION ALL "
             "SELECT 0 AS consist_count,"
@@ -256,10 +265,13 @@ def get_game_elements_of_the_parent(game_id, parent_element_id):
             "       'ge.tags', "
             "       ge.type_of_id,  "
             "       ge.previous_game_element_id,  "
+            "       previous_ge.description AS previous_ge_description,  "
             "       ge.id,  "
             "       ge.description,  "
             "       ge.parent_element_id"
             "  FROM game_and_element AS ge"
+            "  LEFT JOIN game_and_element AS previous_ge "
+            "    ON ge.previous_game_element_id = previous_ge.id"
             " WHERE ge.type_of_id = 'game_element' AND ge.game_id = ? AND ge.parent_element_id = ?",
             (game_id, int(parent_element_id), game_id, int(parent_element_id),),
         ).fetchall()
@@ -341,13 +353,14 @@ def view_game_elements_of_the_parent(game_id, parent_id):
     print(f"game_id: {game_id}")
     print(f"parent_id: {parent_id}")
     
-    game_elements = get_game_elements_of_the_parent(game_id, parent_id)
+    game_elements_data = get_game_elements_of_the_parent(game_id, parent_id)
     #game_elements = get_game(game_id)
     return render_template("games/view_ge_of_the_parent.html",
-                           game_elements=game_elements["game_elements"],
+                           game_elements=game_elements_data["game_elements"],
                            game_title=game_title,
                            game_id=game_id,
-                           parent=parent)
+                           parent_id=parent_id,
+                           game_elements_parents=game_elements_data["game_elements_parents"])
 
 @bp.route("/<int:game_id>/update/game-elements/<int:parent_id>", methods=("GET",))
 def update_game_elements_of_the_parent(game_id, parent_id):
@@ -364,7 +377,7 @@ def update_game_elements_of_the_parent(game_id, parent_id):
                            game_elements=game_elements_data["game_elements"],
                            game_title=game_title,
                            game_id=game_id,
-                           parent=parent,
+                           #parent=parent,
                            parent_id=parent_id,
                            game_elements_parents=game_elements_data["game_elements_parents"])
 

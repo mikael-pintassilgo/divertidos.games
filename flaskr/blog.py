@@ -59,7 +59,7 @@ def index():
             return render_template("blog/index.html", posts=[], tag=tag_title, tags=tags_list, currentPage=currentPage)
         
         posts = db.execute(
-            "SELECT e.id, e.title, e.body, e.created, e.author_id, u.username, e.tags"
+            "SELECT e.id, e.title, substr(e.body, 1, 150) as body, e.created, e.author_id, u.username, e.tags"
             "  FROM element e"
             "  JOIN user u ON e.author_id = u.id"
             " WHERE e.id in (SELECT value FROM json_each(?))"
@@ -72,7 +72,7 @@ def index():
     else:
         """Show all the posts, most recent first."""
         posts = db.execute(
-            "SELECT e.id, title, body, created, author_id, username, e.tags"
+            "SELECT e.id, title, substr(e.body, 1, 170) as body, created, author_id, username, e.tags"
             "  FROM element e JOIN user u ON e.author_id = u.id"
             " ORDER BY created DESC"
             " LIMIT " + str(offset) + "," + str(limit)

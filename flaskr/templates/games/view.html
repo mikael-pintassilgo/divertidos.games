@@ -76,17 +76,28 @@
     <tbody>
       <thead>
         <tr>
+          <th scope="col">Previous Element</th>
           <th scope="col">Title</th>
-          <th scope="col">Consist</th>
           <th scope="col">Description</th>
+          <th scope="col">Consist</th>
+          
         </tr>
       </thead>
       {% for game_element in game_elements %}
         {% if (game_element['parent_element_id'] == None or game_element['parent_element_id'] == '') %}
           <tr>
               <td>
+                {% if game_element['previous_ge_description'] is not none %}
+                <p>{{ game_element['previous_ge_description'] }}</p>
+                {% endif %}
+              </td>
+              <td>
                 <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}">{{ game_element['title'] }}</a></p>
               </td>
+              <td>
+                <p>{{ game_element['description'] }}</p>
+              </td>
+              
               <td>
                 {% if game_element['consist_count'] == 1 %}
                 <p><a href="{{ url_for('games.view_game_elements_of_the_parent', game_id=game['id'], parent_id=game_element['ge_id']) }}?title={{game['title']}}&parent={{ game_element['title'] }}">1 element</a></p>
@@ -97,9 +108,7 @@
                 {% endif %}
                 
               </td>
-              <td>
-                <p>{{ game_element['body'] }}</p>
-              </td>
+              
           </tr>
         {% endif %}
       {% endfor %}
