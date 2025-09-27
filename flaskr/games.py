@@ -186,6 +186,15 @@ def create():
 
     return render_template("games/create.html")
 
+@bp.route("/<int:id>/get_full_description", methods=("GET", "POST"))
+def get_full_description(id):
+    game_data = get_game(id)
+    
+    full_description = 'Here will be the full description of the game.\n\n'
+    
+    return render_template("games/full_description.html",
+                           game=game_data["game"],
+                           full_description=full_description,)
 
 @bp.route("/<int:id>/update", methods=("GET", "POST"))
 @login_required

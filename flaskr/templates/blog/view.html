@@ -16,7 +16,7 @@
 {% block content %}
   <hr>
   <div name="body" id="body">
-    <p class="fs-4">{{ request.form['body'] or post['body'] }}</p>
+    <p class="fs-4">{{ (request.form['body'] or post['body']) | e | replace('\n', '<br>') | safe }}</p>
   </div>
   
   <br/>
