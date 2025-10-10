@@ -17,7 +17,39 @@
 {% block content %}
   <hr>
   <div name="body" id="body">
-    {{ full_description }}
+    <form class="row g-3">
+      <div class="col-12">
+        <label for="full_description" class="form-label">Full Description</label>
+      </div>
+      <textarea class="form-control" aria-label="With textarea" rows="10">{{ full_description }}</textarea>
+      <div class="col-auto">
+        <button type="button" id="copy-btn" class="btn btn-primary mb-3">Copy</button>
+        <script>
+        (function(){
+          const btn = document.getElementById('copy-btn');
+          btn.addEventListener('click', async function(){
+            const textarea = document.getElementById('body')?.querySelector('textarea');
+            if (!textarea) return;
+            const text = textarea.value;
+            try {
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(text);
+              } else {
+                textarea.select();
+                document.execCommand('copy');
+                textarea.setSelectionRange(0, 0);
+              }
+              const orig = btn.textContent;
+              btn.textContent = 'Copied!';
+              setTimeout(() => btn.textContent = orig, 1500);
+            } catch (err) {
+              console.error('Copy to clipboard failed', err);
+            }
+          });
+        })();
+        </script>
+      </div>
+    </form>
   </div>
 
 <!-- Google tag (gtag.js) -->

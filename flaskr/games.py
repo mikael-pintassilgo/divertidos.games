@@ -186,12 +186,32 @@ def create():
 
     return render_template("games/create.html")
 
+def get_only_game_elements_of_the_parent(game_elements, parent_element_id):
+    if parent_element_id == None:
+        return [element for element in game_elements if element["parent_element_id"]\
+            is None or element["parent_element_id"] == '']
+    else:
+        return [element for element in game_elements if element["parent_element_id"] == parent_element_id]
+
+def handle_sub_elements(game_elements, parent_element_id, full_description, level):
+    sub_elements = get_only_game_elements_of_the_parent(game_elements, parent_element_id)
+    if sub_elements:
+        for element in sub_elements:
+            indent = '    ' * level
+            if element['type_of_id'] == 'element':
+                full_description += f"{indent}{element['title']}\n{indent}{element['description']}\n\n"
+            else:
+                full_description += f"{indent}{element['description']}\n\n"
+            full_description = handle_sub_elements(game_elements, element['ge_id'], full_description, level + 1)
+    return full_description
+
 @bp.route("/<int:id>/get_full_description", methods=("GET", "POST"))
 def get_full_description(id):
     game_data = get_game(id)
     
-    full_description = 'Here will be the full description of the game.\n\n'
-    
+    full_description = ''
+    full_description = handle_sub_elements(game_data['game_elements'], None, full_description, 0)
+
     return render_template("games/full_description.html",
                            game=game_data["game"],
                            full_description=full_description,)
@@ -241,13 +261,8 @@ def view(id):
                            links=game_data["links"],
                            game_elements_hierarchy=game_data["game_elements_hierarchy"])
 
-def get_game_elements_of_the_parent(game_id, parent_element_id):
-    db = get_db()
-
-    game_elements = (
-        db
-        .execute(
-            "SELECT 0 AS consist_count,"
+def get_sql_for_elements_of_the_parent():
+    return ("SELECT 0 AS consist_count,"
             "       e.id AS e_id, "
             "       e.title, "
             "       e.body, "
@@ -281,7 +296,16 @@ def get_game_elements_of_the_parent(game_id, parent_element_id):
             "  FROM game_and_element AS ge"
             "  LEFT JOIN game_and_element AS previous_ge "
             "    ON ge.previous_game_element_id = previous_ge.id"
-            " WHERE ge.type_of_id = 'game_element' AND ge.game_id = ? AND ge.parent_element_id = ?",
+            " WHERE ge.type_of_id = 'game_element' AND ge.game_id = ? AND ge.parent_element_id = ?"
+    )
+    
+def get_game_elements_of_the_parent(game_id, parent_element_id):
+    db = get_db()
+
+    game_elements = (
+        db
+        .execute(
+            get_sql_for_elements_of_the_parent(),
             (game_id, int(parent_element_id), game_id, int(parent_element_id),),
         ).fetchall()
     )
@@ -296,6 +320,7 @@ def get_game_elements_of_the_parent(game_id, parent_element_id):
             (game_id, parent_element_id,),
         ).fetchall()
     )
+    
     # Get all parents of the game element with id = parent_element_id
     def get_parents(db, ge_id):
         parents = []
