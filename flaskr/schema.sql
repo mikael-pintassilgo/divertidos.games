@@ -72,13 +72,18 @@ CREATE TABLE game_tag (
 CREATE TABLE game_and_element (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   description TEXT,
+  link TEXT,
+  weight INTEGER DEFAULT 0,
+  --
   game_id INTEGER REFERENCES game (id) ON DELETE CASCADE,
   type_of_id TEXT NOT NULL DEFAULT 'element' CHECK (type_of_id IN ('element', 'game_element')),
   element_id INTEGER REFERENCES element (id) ON DELETE RESTRICT,
   game_element_id INTEGER REFERENCES game_and_element (id) ON DELETE CASCADE,
   author_id INTEGER NOT NULL REFERENCES user (id),
   parent_element_id INTEGER REFERENCES game_and_element (id) ON DELETE CASCADE,
-  previous_game_element_id INTEGER REFERENCES game_and_element (id) ON DELETE SET NULL
+  previous_game_element_id INTEGER REFERENCES game_and_element (id) ON DELETE SET NULL,
+  --
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 DROP TABLE IF EXISTS quest;

@@ -42,6 +42,8 @@
                 <th scope="col" class="w-10">parent_element_id</th>
                 <th scope="col" class="w-10">e_id</th>
                 <th scope="col" class="w-10">title</th>
+                <th scope="col" class="w-10">weight</th>
+                <th scope="col" class="w-10">link</th>
                 <th scope="col" class="w-10">description</th>
                 <th scope="col" class="w-10">consist</th>
                 <th scope="col" class="w-10">action</th>
@@ -67,6 +69,13 @@
                   </td>
                   <td class="w-10">
                     <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}" target="_blank">{{ game_element['title'] }}</a></p>
+                  </td>
+
+                  <td class="w-10">
+                    <input class="" placeholder="weight" name="ge_weight" id="ge_weight" value="{{ game_element['weight'] }}">
+                  </td>
+                  <td class="w-10">
+                    <input class="" placeholder="link" name="ge_link" id="ge_link" value="{{ game_element['link'] }}">
                   </td>
                   <td class="w-10">
                     <input class="" placeholder="description" name="description" id="description" value="{{ game_element['description'] }}">
@@ -122,6 +131,12 @@
                 </td>
                 <td class="w-10">
                   e_title
+                </td>
+                <td class="w-10">
+                  <input class="" placeholder="weight" name="ge_weight" id="ge_weight" value="{{ request.form['ge_weight'] }}">
+                </td>
+                <td class="w-10">
+                  <input class="" placeholder="link" name="ge_link" id="ge_link" value="{{ request.form['ge_link'] }}">
                 </td>
                 <td class="w-10">
                   <input class="" placeholder="description" name="description" id="description" value="{{ request.form['description'] }}">
