@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+Hello
+
+<form method="post">
+  <fieldset class="">
+
+    <legend class="">Update Game Element</legend>
+    
+    <select class="form-select" aria-label="Type of element ID" name="type_of_id" id="type_of_id" required>
+      <option selected value="element">Element</option>
+      <option value="game_element">Game element</option>
+    </select>
+    
+    <input class="" placeholder="previous_ge_id" name="previous_ge_id" id="previous_ge_id" value="{{ game_element['previous_ge_id'] }}">
+    <input class="" placeholder="parent_ge_id" name="parent_element_id" id="parent_element_id" value="{{ game_element['parent_element_id'] }}">
+    
+    <input class="" placeholder="element_id or ge_id" name="element_id" id="element_id" value="{{ game_element['e_id'] }}" required>
+    <input class="" placeholder="weight" name="ge_weight" id="ge_weight" value="{{ game_element['weight'] }}">
+    <input class="" placeholder="link" name="ge_link" id="ge_link" value="{{ game_element['link'] }}">
+    <input class="" placeholder="description" name="description" id="description" value="{{ game_element['description'] }}">
+    <input class="" type="submit" value="Update Element">
+    <input name="game_id" value="{{ request.args.get('game_id') }}">                
+
+  </fieldset>
+</form>
+
+{% endblock %}

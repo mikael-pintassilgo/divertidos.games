@@ -86,7 +86,7 @@ def create():
 
 @bp.route("/<int:ge_id>/delete", methods=("POST",))
 @login_required
-def delete_game_element(ge_id):
+def delete(ge_id):
     """Delete a game element.
 
     Ensures that the post exists and that the logged in user is the
@@ -118,7 +118,7 @@ def delete_game_element(ge_id):
 
 @bp.route("/<int:ge_id>/update", methods=("GET", "POST"))
 @login_required
-def update_game_element(ge_id):
+def update(ge_id):
     """Update an existing game element for the current user."""
     db = get_db()
     game_element = db.execute(
@@ -132,7 +132,7 @@ def update_game_element(ge_id):
     if request.method == "POST":
         print('--------------------------------------------------------')
         game_id = request.form["game_id"]
-        print(f'game_id = {game_id}')
+        print(f'1 game_id = {game_id}')
 
         type_of_id = request.form["type_of_id"]
         print(f'type_of_id = {type_of_id}')
@@ -192,7 +192,10 @@ def update_game_element(ge_id):
                 parent = request.args.get('parent')
                 return redirect(url_for("games.update_game_elements_of_the_parent", game_id=game_id, parent_id=parent_element_id)+"?title="+game_title+"&parent="+parent)
             else:
-                return redirect(url_for('games.update', id=game_id))
+                return redirect(url_for('game_elements.update', ge_id=ge_id))
 
-    return render_template("games/update.html")
+    game_id = request.args.get("game_id")
+    print(f'2 game_id = {game_id}')
+    print(f'ge_id = {ge_id}')
+    return render_template("game_elements/update.html", ge_id=ge_id, game_element=game_element, game_id=game_id)
 # End Game Elements
