@@ -45,7 +45,8 @@ def create_app(test_config=None):
     from . import games
     from . import game_elements
     from . import game_element_tags
-
+    from . import game_element_links
+    
     app.register_blueprint(auth.bp)
     app.register_blueprint(blog.bp)
     app.register_blueprint(tags.bp)
@@ -54,6 +55,7 @@ def create_app(test_config=None):
     app.register_blueprint(games.bp)
     app.register_blueprint(game_elements.bp)
     app.register_blueprint(game_element_tags.bp)
+    app.register_blueprint(game_element_links.bp)
 
     # make url_for('index') == url_for('blog.index')
     # in another app, you might define a separate main index here with

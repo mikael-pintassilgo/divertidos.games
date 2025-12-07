@@ -11,6 +11,7 @@ from werkzeug.exceptions import abort
 from .auth import login_required
 from .db import get_db
 from .game_element_tags import get_game_element_tags
+from .game_element_links import get_game_element_links
 
 bp = Blueprint("game_elements", __name__, url_prefix="/game_elements")
 
@@ -205,9 +206,15 @@ def update(ge_id):
                 return redirect(url_for('game_elements.update', ge_id=ge_id))
 
     game_element_tags = get_game_element_tags(ge_id)
+    game_element_links = get_game_element_links(ge_id)
                 
     game_id = request.args.get("game_id")
     print(f'2 game_id = {game_id}')
     print(f'ge_id = {ge_id}')
-    return render_template("game_elements/update.html", ge_id=ge_id, game_element=game_element, game_id=game_id, game_element_tags=game_element_tags)
+    return render_template("game_elements/update.html", 
+                           ge_id=ge_id, 
+                           game_element=game_element, 
+                           game_id=game_id,
+                           game_element_tags=game_element_tags,
+                           game_element_links=game_element_links)
 # End Game Elements

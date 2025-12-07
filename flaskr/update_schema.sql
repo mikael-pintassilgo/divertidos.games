@@ -12,8 +12,6 @@ CREATE TABLE tag (
   comment TEXT,
   author_id INTEGER NOT NULL REFERENCES user (id)
 );
-*/
-
 
 CREATE TABLE game_element_tag (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,3 +20,16 @@ CREATE TABLE game_element_tag (
   tag_id INTEGER NOT NULL REFERENCES tag (id) ON DELETE SET NULL,
   author_id INTEGER NOT NULL REFERENCES user (id) ON DELETE SET NULL
 );
+
+CREATE TABLE game_element_link (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  title TEXT NOT NULL,
+  comment TEXT,
+  game_element_id INTEGER NOT NULL REFERENCES game_and_element (id) ON DELETE CASCADE,
+  author_id INTEGER NOT NULL REFERENCES user (id) ON DELETE SET NULL
+);
+
+ALTER TABLE game_element_link
+ADD COLUMN link TEXT DEFAULT '';
+*/

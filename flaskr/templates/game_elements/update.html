@@ -1,74 +1,160 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<!-- Game Element Tags -->
 <div class='row'>
-      <div class='col-12'>
-    
-          <table class="table table-hover">
-            <caption class="caption-top">Tags</caption>
-            <tbody>
-              <thead>
-                <tr>
-                  <th scope="col">tag ID</th>
-                  <th scope="col">game_element_id</th>
-                  <th scope="col">action</th>
-                </tr>
-              </thead>
+  <div class='col-12'>
 
-              {% for ge_tag in game_element_tags %}
-              <tr>
-                  <td>
-                    <p>{{ ge_tag['tag_title'] }}</p>
-                  </td>
-                  <td>
-                    <p>{{ ge_tag['game_element_id'] }}</p>
-                  </td>
-                  <td>
-                    <form action="{{ url_for('game_element_tags.delete', id=ge_tag['ge_tag_id']) }}" method="post">
-                      <input class="" type="hidden" name="game_element_id" id="game_element_id" value="{{ ge_id }}">
-                      <button class="btn btn-danger" type="submit" value="Delete Tag" onclick="return confirm('Are you sure?');">Delete</button>
-                    </form>
-                  </td>
-              </tr>
-              {% endfor %}
-              <tr>
-                <form action="{{ url_for('game_element_tags.create') }}" method="post">
-                  <td>
-                    <input class="" placeholder="Enter new tag ID here..." name="tag_id" id="tag_id" value="{{ request.form['tag_id'] }}" required>
-                  </td>
-                  <td>
-                    <input class="" type="" name="game_element_id" id="game_element_id" value="{{ ge_id }}">
-                  </td>
-                  <td>
-                    <input class="" type="submit" value="Add Tag">
-                  </td>
+      <table class="table table-hover">
+        <caption class="caption-top">Tags</caption>
+        <tbody>
+          <thead>
+            <tr>
+              <th scope="col">tag ID</th>
+              <th scope="col">game_element_id</th>
+              <th scope="col">action</th>
+            </tr>
+          </thead>
+
+          {% for ge_tag in game_element_tags %}
+          <tr>
+              <td>
+                <p>{{ ge_tag['tag_title'] }}</p>
+              </td>
+              <td>
+                <p>{{ ge_tag['game_element_id'] }}</p>
+              </td>
+              <td>
+                <form action="{{ url_for('game_element_tags.delete', id=ge_tag['ge_tag_id']) }}" method="post">
+                  <input class="form-control" type="hidden" name="game_element_id" id="game_element_id" value="{{ ge_id }}">
+                  <button class="btn btn-danger" type="submit" value="Delete Tag" onclick="return confirm('Are you sure?');">Delete</button>
                 </form>
-              </tr>
-            </tbody>
-        </table>
-      </div>
-    </div>
+              </td>
+          </tr>
+          {% endfor %}
+          <tr>
+            <form action="{{ url_for('game_element_tags.create') }}" method="post">
+              <td>
+                <input class="form-control" placeholder="Enter new tag ID here..." name="tag_id" id="tag_id" value="{{ request.form['tag_id'] }}" required>
+              </td>
+              <td>
+                <input class="form-control" type="" name="game_element_id" id="game_element_id" value="{{ ge_id }}">
+              </td>
+              <td>
+                <button class="btn btn-primary" type="submit" value="Add Tag">Add Tag</button>
+              </td>
+            </form>
+          </tr>
+        </tbody>
+    </table>
+  </div>
+</div>
+<!-- End of Game Element Tags -->
+
+<!-- Game Element Links -->
+ <div class='row'>
+  <div class='col-12'>
+
+      <table class="table table-hover">
+        <caption class="caption-top">Links</caption>
+        <tbody>
+          <thead>
+            <tr>
+              <th scope="col">link</th>
+              <th scope="col">id</th>
+              <th scope="col">title</th>
+              <th scope="col">comment</th>
+              <th scope="col">game_element_id</th>
+              <th scope="col">action</th>
+            </tr>
+          </thead>
+
+          {% for ge_link in game_element_links %}
+          <tr>
+              <td>
+                <p><a href='{{ ge_link['link'] }}' target="_blank">{{ ge_link['link'] }}</a></p>
+              </td>
+              <td>
+                <p>{{ ge_link['ge_link_id'] }}</p>
+              </td>
+              <td>
+                <p>{{ ge_link['title'] }}</p>
+              </td>
+              <td>
+                <p>{{ ge_link['comment'] }}</p>
+              </td>
+              <td>
+                <p>{{ ge_link['game_element_id'] }}</p>
+              </td>
+              <td>
+                <form action="{{ url_for('game_element_links.delete', id=ge_link['ge_link_id']) }}" method="post">
+                  <input class="form-control" type="hidden" name="game_element_id" id="game_element_id" value="{{ ge_id }}">
+                  <button class="btn btn-danger" type="submit" value="Delete Link" onclick="return confirm('Are you sure?');">Delete</button>
+                </form>
+              </td>
+          </tr>
+          {% endfor %}
+          <tr>
+            <form action="{{ url_for('game_element_links.create') }}" method="post">
+              <td>
+                <input class="form-control" placeholder="Enter a link here..." name="link" id="link" value="{{ request.form['link'] }}" required>
+              </td>
+              <td>
+                --
+              </td>
+              <td>
+                <input class="form-control" placeholder="title" name="title" id="title" value="{{ request.form['title'] }}">
+              </td>
+              <td>
+                <input class="form-control" placeholder="comment" name="comment" id="comment" value="{{ request.form['comment'] }}">
+              </td>
+              <td>
+                <input class="form-control" type="" name="game_element_id" id="game_element_id" value="{{ ge_id }}">
+              </td>
+              <td>
+                <button class="btn btn-primary" type="submit" value="Add Link">Add Link</button>
+              </td>
+            </form>
+          </tr>
+        </tbody>
+    </table>
+  </div>
+</div>
+<!-- End Game Element Links -->
 
 <form method="post">
   <fieldset class="">
 
     <legend class="">Update Game Element</legend>
     
-    <select class="form-select" aria-label="Type of element ID" name="type_of_id" id="type_of_id" required>
+    <label for="type_of_id" class="form-label">Type of ID</label>
+    <select class="form-select mb-3" aria-label="Type of element ID" name="type_of_id" id="type_of_id" required>
       <option selected value="element">Element</option>
       <option value="game_element">Game element</option>
     </select>
     
-    <input class="" placeholder="previous_ge_id" name="previous_ge_id" id="previous_ge_id" value="{{ game_element['previous_game_element_id'] }}">
-    <input class="" placeholder="parent_ge_id" name="parent_element_id" id="parent_element_id" value="{{ game_element['parent_element_id'] }}">
+    <label for="previous_ge_id" class="form-label">Previous Game Element ID</label>
+    <input class="form-control mb-3" placeholder="previous_ge_id" name="previous_ge_id" id="previous_ge_id" value="{{ game_element['previous_game_element_id'] }}">
+    <label for="parent_element_id" class="form-label">Parent Game Element ID</label>
+    <input class="form-control mb-3" placeholder="parent_ge_id" name="parent_element_id" id="parent_element_id" value="{{ game_element['parent_element_id'] }}">
     
-    <input class="" placeholder="element_id or ge_id" name="element_id" id="element_id" value="{{ game_element['e_or_ge_id'] }}" required>
-    <input class="" placeholder="weight" name="ge_weight" id="ge_weight" value="{{ game_element['weight'] }}">
-    <input class="" placeholder="link" name="ge_link" id="ge_link" value="{{ game_element['link'] }}">
-    <input class="" placeholder="description" name="description" id="description" value="{{ game_element['description'] }}">
-    <input class="" type="submit" value="Update Element">
-    <input name="game_id" value="{{ game_element['game_id'] }}">                
+    <label for="element_id" class="form-label">Element or Game Element ID</label>
+    <input class="form-control mb-3" placeholder="element_id or ge_id" name="element_id" id="element_id" value="{{ game_element['e_or_ge_id'] }}" required>
+    
+    <label for="ge_weight" class="form-label">Weight</label>
+    <input class="form-control mb-3" placeholder="weight" name="ge_weight" id="ge_weight" value="{{ game_element['weight'] }}">
+    
+    <label for="ge_link" class="form-label">Link</label>
+    <input class="form-control mb-3" placeholder="link" name="ge_link" id="ge_link" value="{{ game_element['link'] }}">
+    
+    <label for="description" class="form-label">Description</label>
+    <input class="form-control mb-3" placeholder="description" name="description" id="description" value="{{ game_element['description'] }}">
+    
+    <label for="game_id" class="form-label">Game ID</label>
+    <input class="form-control mb-3" name="game_id" value="{{ game_element['game_id'] }}" disabled>                
 
+    <button class="btn btn-primary mb-3" type="submit" value="Update Element">Update Element</button>
+    
   </fieldset>
 </form>
 
