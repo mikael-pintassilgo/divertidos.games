@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="">  
+  <div class="">
+    <form method="post">
+      <fieldset class="">
+
+        <legend class="">New Tag</legend>
+        
+        <div class="mb-3">
+          <label for="title" class="form-label">Title</label>
+          <input class="form-control" type="text" aria-label="Title"
+          name="title" id="title" value="{{ request.form['title'] }}" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="comment" class="form-label">Comment</label>
+          <textarea class="form-control" name="comment" id="comment" rows="3">{{ request.form['comment'] }}</textarea>
+        </div>
+
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

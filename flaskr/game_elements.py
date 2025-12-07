@@ -10,6 +10,7 @@ from werkzeug.exceptions import abort
 
 from .auth import login_required
 from .db import get_db
+from .game_element_tags import get_game_element_tags
 
 bp = Blueprint("game_elements", __name__, url_prefix="/game_elements")
 
@@ -122,7 +123,15 @@ def update(ge_id):
     """Update an existing game element for the current user."""
     db = get_db()
     game_element = db.execute(
-        "SELECT * FROM game_and_element WHERE id = ? AND author_id = ?",
+        """
+        SELECT
+            CASE WHEN type_of_id = 'element' THEN element_id
+                 ELSE game_element_id
+            END AS e_or_ge_id,
+            *
+        FROM game_and_element 
+        WHERE id = ? AND author_id = ?
+        """,
         (ge_id, g.user["id"]),
     ).fetchone()
 
@@ -187,6 +196,7 @@ def update(ge_id):
                 )
 
             db.commit()
+            
             if parent_element_id:
                 game_title = request.args.get('title')
                 parent = request.args.get('parent')
@@ -194,8 +204,10 @@ def update(ge_id):
             else:
                 return redirect(url_for('game_elements.update', ge_id=ge_id))
 
+    game_element_tags = get_game_element_tags(ge_id)
+                
     game_id = request.args.get("game_id")
     print(f'2 game_id = {game_id}')
     print(f'ge_id = {ge_id}')
-    return render_template("game_elements/update.html", ge_id=ge_id, game_element=game_element, game_id=game_id)
+    return render_template("game_elements/update.html", ge_id=ge_id, game_element=game_element, game_id=game_id, game_element_tags=game_element_tags)
 # End Game Elements

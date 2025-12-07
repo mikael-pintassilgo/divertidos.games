@@ -32,9 +32,35 @@ def index():
     """Show all the posts, most recent first."""
     tags = db.execute(
         "SELECT DISTINCT title"
-        "  FROM element_tag et"
+        "  FROM tag t"
         " ORDER BY title ASC"
         " LIMIT " + str(offset) + "," + str(limit)
     ).fetchall()
     
     return render_template("tags/index.html", tags=tags, currentPage=currentPage)
+
+
+@bp.route("/create", methods=("GET", "POST"))
+@login_required
+def create():
+    """Create a new tag."""
+    if request.method == "POST":
+        title = request.form["title"]
+        comment = request.form["comment"]
+        error = None
+
+        if not title:
+            error = "Title is required."
+
+        if error is not None:
+            flash(error)
+        else:
+            db = get_db()
+            db.execute(
+                "INSERT INTO tag (title, comment, author_id) VALUES (?, ?, ?)",
+                (title, comment, g.user["id"]),
+            )
+            db.commit()
+            return redirect(url_for("tags.index"))
+        
+    return render_template("tags/create.html")

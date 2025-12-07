@@ -1,7 +1,53 @@
 {% extends 'base.html' %}
 
 {% block content %}
-Hello
+<div class='row'>
+      <div class='col-12'>
+    
+          <table class="table table-hover">
+            <caption class="caption-top">Tags</caption>
+            <tbody>
+              <thead>
+                <tr>
+                  <th scope="col">tag ID</th>
+                  <th scope="col">game_element_id</th>
+                  <th scope="col">action</th>
+                </tr>
+              </thead>
+
+              {% for ge_tag in game_element_tags %}
+              <tr>
+                  <td>
+                    <p>{{ ge_tag['tag_title'] }}</p>
+                  </td>
+                  <td>
+                    <p>{{ ge_tag['game_element_id'] }}</p>
+                  </td>
+                  <td>
+                    <form action="{{ url_for('game_element_tags.delete', id=ge_tag['ge_tag_id']) }}" method="post">
+                      <input class="" type="hidden" name="game_element_id" id="game_element_id" value="{{ ge_id }}">
+                      <button class="btn btn-danger" type="submit" value="Delete Tag" onclick="return confirm('Are you sure?');">Delete</button>
+                    </form>
+                  </td>
+              </tr>
+              {% endfor %}
+              <tr>
+                <form action="{{ url_for('game_element_tags.create') }}" method="post">
+                  <td>
+                    <input class="" placeholder="Enter new tag ID here..." name="tag_id" id="tag_id" value="{{ request.form['tag_id'] }}" required>
+                  </td>
+                  <td>
+                    <input class="" type="" name="game_element_id" id="game_element_id" value="{{ ge_id }}">
+                  </td>
+                  <td>
+                    <input class="" type="submit" value="Add Tag">
+                  </td>
+                </form>
+              </tr>
+            </tbody>
+        </table>
+      </div>
+    </div>
 
 <form method="post">
   <fieldset class="">
@@ -13,15 +59,15 @@ Hello
       <option value="game_element">Game element</option>
     </select>
     
-    <input class="" placeholder="previous_ge_id" name="previous_ge_id" id="previous_ge_id" value="{{ game_element['previous_ge_id'] }}">
+    <input class="" placeholder="previous_ge_id" name="previous_ge_id" id="previous_ge_id" value="{{ game_element['previous_game_element_id'] }}">
     <input class="" placeholder="parent_ge_id" name="parent_element_id" id="parent_element_id" value="{{ game_element['parent_element_id'] }}">
     
-    <input class="" placeholder="element_id or ge_id" name="element_id" id="element_id" value="{{ game_element['e_id'] }}" required>
+    <input class="" placeholder="element_id or ge_id" name="element_id" id="element_id" value="{{ game_element['e_or_ge_id'] }}" required>
     <input class="" placeholder="weight" name="ge_weight" id="ge_weight" value="{{ game_element['weight'] }}">
     <input class="" placeholder="link" name="ge_link" id="ge_link" value="{{ game_element['link'] }}">
     <input class="" placeholder="description" name="description" id="description" value="{{ game_element['description'] }}">
     <input class="" type="submit" value="Update Element">
-    <input name="game_id" value="{{ request.args.get('game_id') }}">                
+    <input name="game_id" value="{{ game_element['game_id'] }}">                
 
   </fieldset>
 </form>

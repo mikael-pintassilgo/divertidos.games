@@ -1,7 +1,12 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1 class="__uk-heading-divider">{% block title %}Hashtags{% endblock %}</h1>
+  <div class="">
+    <h1 class="">{% block title %}Hashtags{% endblock %}</h1>
+    {% if g.user %}
+    <a class="" href="{{ url_for('tags.create') }}">add tag</a>
+    {% endif %}
+  </div>
 {% endblock %}
 
 {% block tags_active %}uk-active{% endblock %}
