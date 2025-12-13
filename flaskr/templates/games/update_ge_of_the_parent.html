@@ -30,6 +30,7 @@
     <!-- Game Elements -->
     <div class='row'>
       <div class='col-12'>
+        <a class="" href="{{ url_for('game_elements.create', game_id=game_id) }}">Add game element</a>
     
         <table class="table table-hover table-responsive w-auto">
           <caption class="caption-top">Game Elements</caption>
@@ -91,7 +92,7 @@
                   </td>
                   <td class="w-10">
                       <input class="danger uk-button uk-button-default" type="submit" value="Update element">
-                    
+                      <a class="btn btn-primary btn-sm" href="{{ url_for('game_elements.update', ge_id=game_element['ge_id'], game_id=game_id, parent_element_id=parent_id) }}">Edit</a>
                   </td>
                 </form>
                 <td class="w-10">
@@ -101,57 +102,9 @@
                 </td>
             </tr>
             {% endfor %}
-            <tr>
-              <form 
-              action="{{ url_for('games.create_game_element', id=game_id) }}?title={{game_title}}&parent={{parent}}" 
-              method="post">
-                <td class="w-10">
-                  <select class="form-select" aria-label="Type of element ID" name="type_of_id" id="type_of_id" required>
-                    <option selected value="element">Element</option>
-                    <option value="game_element">Game element</option>
-                  </select>
-                </td>
-                <td class="w-10">
-                  <input class="" placeholder="previous_ge_id" name="previous_ge_id" id="previous_ge_id" value="{{ request.form['previous_ge_id'] }}">
-                </td>
-                <td class="w-10">
-                  ge_id
-                </td>
-                <td class="w-10">
-                  <input
-                  class="" 
-                  placeholder="parent_ge_id" 
-                  name="parent_element_id" 
-                  id="parent_element_id" 
-                  value="{{ request.form["parent_element_id"] or parent_id }}"
-                  >
-                </td>
-                <td class="w-10">
-                  <input class="" placeholder="element_id or ge_id" name="element_id" id="element_id" value="{{ request.form['element_id'] }}" required>
-                </td>
-                <td class="w-10">
-                  e_title
-                </td>
-                <td class="w-10">
-                  <input class="" placeholder="weight" name="ge_weight" id="ge_weight" value="{{ request.form['ge_weight'] }}">
-                </td>
-                <td class="w-10">
-                  <input class="" placeholder="link" name="ge_link" id="ge_link" value="{{ request.form['ge_link'] }}">
-                </td>
-                <td class="w-10">
-                  <input class="" placeholder="description" name="description" id="description" value="{{ request.form['description'] }}">
-                </td>
-                <td class="w-10">
-                  consist
-                </td>
-                <td class="w-10">
-                  <input class="" type="submit" value="Add Element">
-                </td>
-              </form>
-            </tr>
+            
           </tbody>
         </table>
-    
       </div>
     </div>
 

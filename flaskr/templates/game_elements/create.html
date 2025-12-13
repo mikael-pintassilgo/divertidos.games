@@ -12,7 +12,7 @@
     </select>
     
     <input class="" placeholder="previous_ge_id" name="previous_ge_id" id="previous_ge_id" value="{{ request.form['previous_ge_id'] }}">
-    <input class="" placeholder="parent_ge_id" name="parent_element_id" id="parent_element_id" value="{{ request.form['parent_element_id'] }}">
+    <input class="" placeholder="parent_ge_id" name="parent_element_id" id="parent_element_id" value="{{ parent_element_id or request.form['parent_element_id'] }}">
     
     <input class="" placeholder="element_id or ge_id" name="element_id" id="element_id" value="{{ request.form['element_id'] }}" required>
     <input class="" placeholder="weight" name="ge_weight" id="ge_weight" value="{{ request.form['ge_weight'] }}">

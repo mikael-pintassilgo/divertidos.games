@@ -78,13 +78,15 @@ def create():
             if parent_element_id:
                 game_title = request.args.get('title')
                 parent = request.args.get('parent')
-                return redirect(url_for("games.update_game_elements_of_the_parent", game_id=game_id, parent_id=parent_element_id)+"?title="+game_title+"&parent="+parent)
+                return redirect(url_for("games.update_game_elements_of_the_parent", game_id=game_id, parent_id=parent_element_id))
             else:
                 return redirect(url_for('games.update', id=game_id))
 
     game_id = request.args.get("game_id")
+    
     print(f'game_id = {game_id}')
-    return render_template("game_elements/create.html", game_id=game_id)
+    return render_template("game_elements/create.html", game_id=game_id, 
+                           parent_element_id=request.args.get("parent_element_id"))
 
 @bp.route("/<int:ge_id>/delete", methods=("POST",))
 @login_required
@@ -141,7 +143,7 @@ def update(ge_id):
 
     if request.method == "POST":
         print('--------------------------------------------------------')
-        game_id = request.form["game_id"]
+        game_id = request.args.get("game_id")
         print(f'1 game_id = {game_id}')
 
         type_of_id = request.form["type_of_id"]
@@ -199,11 +201,9 @@ def update(ge_id):
             db.commit()
             
             if parent_element_id:
-                game_title = request.args.get('title')
-                parent = request.args.get('parent')
-                return redirect(url_for("games.update_game_elements_of_the_parent", game_id=game_id, parent_id=parent_element_id)+"?title="+game_title+"&parent="+parent)
+                return redirect(url_for("games.update_game_elements_of_the_parent", game_id=game_id, parent_id=parent_element_id))
             else:
-                return redirect(url_for('game_elements.update', ge_id=ge_id))
+                return redirect(url_for('games.update', id=game_id))
 
     game_element_tags = get_game_element_tags(ge_id)
     game_element_links = get_game_element_links(ge_id)

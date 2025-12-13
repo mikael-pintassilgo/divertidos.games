@@ -3,12 +3,11 @@
 {% block content %}
 <div class='row'>
   <div class='col-12'>
-    
+  <legend class="">Edit "{{ game['title'] }}</legend>
+
     <form method="post">
       <fieldset class="">
   
-        <legend class="">Edit "{{ game['title'] }}</legend>
-        
         <div class="mb-3">
           <label for="title" class="form-label">Title</label>
           <input class="form-control" type="text" aria-label="Title"
@@ -116,6 +115,22 @@
     <!-- Game Elements -->
     <div class='row'>
       <div class='col-12'>
+        {% if parent_id != None and parent_id != '' %}
+          <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{{ url_for('games.update', id=game['id']) }}">Top elements</a></li>
+              {% for parent in game_elements_parents %}
+                {% if loop.last %}
+                <li class="breadcrumb-item active" aria-current="page">{{ parent.description }}</li>
+                {% else %}
+                <li class="breadcrumb-item"><a href="{{ url_for('games.update', id=game['id'], parent_id=parent.id) }}">{{ parent.description }}</a></li>
+                {% endif %}
+              {% endfor %}
+              <!-- <li class="breadcrumb-item active" aria-current="page">{{ parent }}</li> -->
+            </ol>
+          </nav>
+        {% endif %}
+        
         <a class="" href="{{ url_for('game_elements.create', game_id=game['id']) }}">Add game element</a>
         <table class="table table-hover">
           <caption class="caption-top">Game Elements</caption>
@@ -135,7 +150,7 @@
               </tr>
             </thead>
             {% for game_element in game_elements %}
-            {% if (game_element['parent_element_id'] == None or game_element['parent_element_id'] == '') %}
+            {% if (game_element['parent_element_id'] == None or game_element['parent_element_id'] == '') or parent_id|string == game_element['parent_element_id']|string %}
             <div class="row">
               <tr>
                   
@@ -166,6 +181,7 @@
                   <td>
                     <input class="form-control" placeholder="description" name="description" id="description" value="{{ game_element['description'] }}">
                   </td>
+                  <!--
                   <td>
                     {% if game_element['consist_count'] == 1 %}
                     <p><a href="{{ url_for('games.update_game_elements_of_the_parent', game_id=game['id'], parent_id=game_element['ge_id']) }}?title={{game['title']}}&parent={{ game_element['title'] }}">1 element</a></p>
@@ -175,6 +191,18 @@
                     <p><a href="{{ url_for('games.update_game_elements_of_the_parent', game_id=game['id'], parent_id=game_element['ge_id']) }}?title={{game['title']}}&parent={{ game_element['title'] }}">0 elements</a></p>
                     {% endif %}                  
                   </td>
+                  -->
+                  <td>
+                    {% if game_element['consist_count'] == 1 %}
+                    <p><a href="{{ url_for('games.update', id=game['id'], parent_id=game_element['ge_id']) }}">1 element</a></p>
+                    {% elif game_element['consist_count'] > 1 %}
+                    <p><a href="{{ url_for('games.update', id=game['id'], parent_id=game_element['ge_id']) }}">{{ game_element['consist_count'] }} elements</a></p>
+                    {% else %}
+                    <p><a href="{{ url_for('games.update', id=game['id'], parent_id=game_element['ge_id']) }}">0 elements</a></p>
+                    {% endif %}                  
+                  </td>
+                  
+                  
                   <td class="">
                     <a class="btn btn-primary btn-sm" href="{{ url_for('game_elements.update', ge_id=game_element['ge_id'], game_id=game['id']) }}">Edit</a>
                   </td>
