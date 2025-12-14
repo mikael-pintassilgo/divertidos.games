@@ -6,21 +6,27 @@
 
     <legend class="">New Game Element</legend>
     
-    <select class="form-select" aria-label="Type of element ID" name="type_of_id" id="type_of_id" required>
+    <label for="type_of_id" class="form-label">Type of ID</label>
+    <select class="form-select mb-3" aria-label="Type of element ID" name="type_of_id" id="type_of_id" required>
       <option selected value="element">Element</option>
       <option value="game_element">Game element</option>
     </select>
     
-    <input class="" placeholder="previous_ge_id" name="previous_ge_id" id="previous_ge_id" value="{{ request.form['previous_ge_id'] }}">
-    <input class="" placeholder="parent_ge_id" name="parent_element_id" id="parent_element_id" value="{{ parent_element_id or request.form['parent_element_id'] }}">
+    <label for="previous_ge_id" class="form-label">Previous Game Element ID</label>
+    <input class="form-control mb-3" placeholder="previous_ge_id" name="previous_ge_id" id="previous_ge_id" value="{{ request.form['previous_ge_id'] }}">
+    <label for="parent_element_id" class="form-label">Parent Game Element ID</label>
+    <input class="form-control mb-3" placeholder="parent_ge_id" name="parent_element_id" id="parent_element_id" value="{{ parent_element_id or request.form['parent_element_id'] }}">
     
-    <input class="" placeholder="element_id or ge_id" name="element_id" id="element_id" value="{{ request.form['element_id'] }}" required>
-    <input class="" placeholder="weight" name="ge_weight" id="ge_weight" value="{{ request.form['ge_weight'] }}">
-    <input class="" placeholder="link" name="ge_link" id="ge_link" value="{{ request.form['ge_link'] }}">
-    <input class="" placeholder="description" name="description" id="description" value="{{ request.form['description'] }}">
-    <input class="" type="submit" value="Add Element">
-    <input name="game_id" value="{{ request.args.get('game_id') }}">                
+    <label for="element_id" class="form-label">Element or Game Element ID</label>
+    <input class="form-control mb-3" placeholder="element_id or ge_id" name="element_id" id="element_id" value="{{ request.form['element_id'] }}" required>
+    <input class="form-control mb-3" placeholder="weight" name="ge_weight" id="ge_weight" value="{{ request.form['ge_weight'] }}">
+    <input class="form-control mb-3" placeholder="link" name="ge_link" id="ge_link" value="{{ request.form['ge_link'] }}">
+    <input class="form-control mb-3" placeholder="description" name="description" id="description" value="{{ request.form['description'] }}">
 
+    <input name="game_id" id="games_id" value="{{ request.args.get('game_id') }}">                
+
+    <input class="btn btn-primary" type="submit" value="Add Element">
+    
   </fieldset>
 </form>
 {% endblock %}

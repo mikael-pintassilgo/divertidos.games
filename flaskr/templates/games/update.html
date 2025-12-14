@@ -111,30 +111,30 @@
                       
                     <div class="col-1">
                       <td>
-                        <input class="form-control" placeholder="Type of element ID" name="type_of_id" id="type_of_id" value="{{ game_element['type_of_id'] }}">
+                        {{ game_element['type_of_id'] }}
                       </td>
                     </div>
                     <div class="col-10">
                       <td>
-                        <input class="form-control" placeholder="Previous element ID" name="previous_ge_id" id="previous_ge_id" value="{{ game_element['previous_ge_id'] }}">
+                        {{ game_element['previous_ge_id'] }}
                       </td>
                       <td>
-                        <input class="form-control" placeholder="ge_id" name="ge_id" id="ge_id" value="{{ game_element['ge_id'] }}">
+                        {{ game_element['ge_id'] }}
                       </td>
                       <td>
-                        <input class="form-control" placeholder="parent_element_id" name="parent_element_id" id="parent_element_id" value="{{ game_element['parent_element_id'] }}">
+                        {{ game_element['parent_element_id'] }}
                       </td>
                       <td>
-                        <input class="form-control" placeholder="element_id" name="element_id" id="element_id" value="{{ game_element['e_id'] }}">
+                        {{ game_element['e_id'] }}
                       </td>
                       <td>
                         <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}" target="_blank">{{ game_element['title'] }}</a></p>
                       </td>
                       <td class="w-3">
-                        <input class="form-control" placeholder="weight" name="ge_weight" id="ge_weight" value="{{ game_element['weight'] }}">
+                        {{ game_element['weight'] }}
                       </td>
                       <td>
-                        <input class="form-control" placeholder="description" name="description" id="description" value="{{ game_element['description'] }}">
+                        {{ game_element['description'] }}
                       </td>
                       <!--
                       <td>

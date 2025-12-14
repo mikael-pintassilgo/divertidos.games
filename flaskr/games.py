@@ -723,7 +723,7 @@ def update_game_element(game_id, ge_id):
             if parent_element_id:
                 game_title = request.args.get('title')
                 parent = request.args.get('parent')
-                return redirect(url_for("games.update_game_elements_of_the_parent", game_id=game_id, parent_id=parent_element_id)+"?title="+game_title+"&parent="+parent)
+                return redirect(url_for("games.update", id=game_id, parent_id=parent_element_id))
             else:
                 return redirect(url_for('games.update', id=game_id))
 
