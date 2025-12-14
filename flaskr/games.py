@@ -648,7 +648,7 @@ def delete_game_element(game_id, ge_id):
         
         print(f"parent_id = {parent_id}")
         
-        return redirect(url_for("games.update_game_elements_of_the_parent", game_id=game_id, parent_id=parent_id)+"?title="+game_title+"&parent="+parent)
+        return redirect(url_for("games.update", id=game_id, parent_id=parent_id))
     else:
         return redirect(url_for('games.update', id=game_id))   
 
