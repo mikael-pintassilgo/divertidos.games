@@ -1,4 +1,3 @@
-/*
 ALTER TABLE game_and_element
 ADD COLUMN link TEXT;
 
@@ -32,4 +31,4 @@ CREATE TABLE game_element_link (
 
 ALTER TABLE game_element_link
 ADD COLUMN link TEXT DEFAULT '';
-*/
+
