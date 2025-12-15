@@ -1,5 +1,4 @@
-import json
-from flask import Blueprint
+from flask import Blueprint, jsonify
 from flask import flash
 from flask import g
 from flask import redirect
@@ -12,6 +11,7 @@ from .auth import login_required
 from .db import get_db
 from .game_element_tags import get_game_element_tags
 from .game_element_links import get_game_element_links
+from .blog import get_elements
 
 bp = Blueprint("game_elements", __name__, url_prefix="/game_elements")
 
@@ -85,8 +85,14 @@ def create():
     game_id = request.args.get("game_id")
     
     print(f'game_id = {game_id}')
+    elements, currentPage = get_elements(1, [])
+    print(f'elements = {elements}')
+    print('elements length = ', len(elements))
+    
     return render_template("game_elements/create.html", game_id=game_id, 
-                           parent_element_id=request.args.get("parent_element_id"))
+                           parent_element_id=request.args.get("parent_element_id"),
+                           elements=elements,
+                           currentPage=currentPage)
 
 @bp.route("/<int:ge_id>/delete", methods=("POST",))
 @login_required

@@ -1,5 +1,5 @@
 import json
-from flask import Blueprint
+from flask import Blueprint, jsonify
 from flask import flash
 from flask import g
 from flask import redirect
@@ -13,32 +13,18 @@ from .db import get_db
 
 bp = Blueprint("blog", __name__)
 
-@bp.route("/")
-def index():
+def get_elements(_page, tags_list):
     db = get_db()
-    tag_title = request.args.get('tag')
-    coockie_tags = request.cookies.get('tags')
     
-    if (tag_title):
-        tags_list = [tag_title,]
-    else:
-        # tags in coockie
-        if coockie_tags:
-            tags_list = coockie_tags.split('%%')
-        else:
-            tags_list = []
-    
-    print('coockie_tags = ' + str(coockie_tags))
-    print('tags_list = ' + str(tags_list))
-    # end tags in coockie
-    
-    _page = request.args.get('page')
     if (_page == None):
         currentPage = 1
     else:
         currentPage = int(_page)
-    limit = 10
+    limit = 12
     offset = (currentPage - 1) * limit
+    
+    if (tags_list == None):
+        tags_list = []
     
     print('currentPage = ' + str(currentPage))
     print('offset = ' + str(offset))
@@ -56,20 +42,21 @@ def index():
         ).fetchall()
         
         if elements_ids == None:
-            return render_template("blog/index.html", posts=[], tag=tag_title, tags=tags_list, currentPage=currentPage)
+            posts = []
+        else:        
+            posts = db.execute(
+                "SELECT e.id, e.title, substr(e.body, 1, 150) as body, e.created, e.author_id, u.username, e.tags"
+                "  FROM element e"
+                "  JOIN user u ON e.author_id = u.id"
+                " WHERE e.id in (SELECT value FROM json_each(?))"
+                " ORDER BY e.created DESC"
+                " LIMIT " + str(offset) + "," + str(limit),
+                (json.dumps([row[0] for row in elements_ids]),),
+            ).fetchall()        
         
-        posts = db.execute(
-            "SELECT e.id, e.title, substr(e.body, 1, 150) as body, e.created, e.author_id, u.username, e.tags"
-            "  FROM element e"
-            "  JOIN user u ON e.author_id = u.id"
-            " WHERE e.id in (SELECT value FROM json_each(?))"
-            " ORDER BY e.created DESC"
-            " LIMIT " + str(offset) + "," + str(limit),
-            (json.dumps([row[0] for row in elements_ids]),),
-        ).fetchall()
-        
-        return render_template("blog/index.html", posts=posts, tag=tag_title, tags=tags_list, currentPage=currentPage)
     else:
+        #tag_title = ""
+        #tags_list = []
         """Show all the posts, most recent first."""
         posts = db.execute(
             "SELECT e.id, title, substr(e.body, 1, 170) as body, created, author_id, username, e.tags"
@@ -78,8 +65,39 @@ def index():
             " LIMIT " + str(offset) + "," + str(limit)
         ).fetchall()
         
-        return render_template("blog/index.html", posts=posts, tag="", currentPage=currentPage)
+    return posts, currentPage
+    
+@bp.route("/")
+def index():
+    tag_title = request.args.get('tag')
+    coockie_tags = request.cookies.get('tags')
+    
+    if (tag_title):
+        tags_list = [tag_title,]
+    else:
+        # tags in coockie
+        if coockie_tags:
+            tags_list = coockie_tags.split('%%')
+        else:
+            tags_list = []
+    
+    print('coockie_tags = ' + str(coockie_tags))
+    print('tags_list = ' + str(tags_list))
+    # end tags in coockie
+    
+    _page = request.args.get('page')
+    posts, currentPage = get_elements(_page, tags_list)
+        
+    return render_template("blog/index.html", posts=posts, tag=tag_title, tags=tags_list, currentPage=currentPage)
 
+
+@bp.route("/get_elements_for_selection", methods=("GET", "POST"))
+@login_required
+def get_elements_for_selection():
+    elements, currentPage = get_elements(1, [])
+    print('elements = ', elements)
+    print('elements length = ', len(elements))
+    return jsonify({"elements": [{"id": e["id"], "title": e["title"], "body": e["body"]} for e in elements]})
 
 def get_post(id, check_author=True):
     """Get a post and its author by id.
