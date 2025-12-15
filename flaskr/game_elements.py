@@ -85,14 +85,10 @@ def create():
     game_id = request.args.get("game_id")
     
     print(f'game_id = {game_id}')
-    elements, currentPage = get_elements(1, [])
-    print(f'elements = {elements}')
-    print('elements length = ', len(elements))
     
     return render_template("game_elements/create.html", game_id=game_id, 
                            parent_element_id=request.args.get("parent_element_id"),
-                           elements=elements,
-                           currentPage=currentPage)
+                           currentPage=1)
 
 @bp.route("/<int:ge_id>/delete", methods=("POST",))
 @login_required

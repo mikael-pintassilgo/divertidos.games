@@ -94,7 +94,10 @@ def index():
 @bp.route("/get_elements_for_selection", methods=("GET", "POST"))
 @login_required
 def get_elements_for_selection():
-    elements, currentPage = get_elements(1, [])
+    _page = request.args.get('page')
+    if (_page == None):
+        _page = 1
+    elements, currentPage = get_elements(_page, [])
     print('elements = ', elements)
     print('elements length = ', len(elements))
     return jsonify({"elements": [{"id": e["id"], "title": e["title"], "body": e["body"]} for e in elements]})

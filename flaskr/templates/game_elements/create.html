@@ -29,32 +29,60 @@
 
     <div class="offcanvas offcanvas-end" tabindex="-1" id="elementPanel" aria-labelledby="elementPanelLabel">
       <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="elementPanelLabel">Select an Element</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        <h5 class="offcanvas-title" id="elementPanelLabel">Select an Element</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
       <div class="offcanvas-body p-0">
-      <div class="list-group list-group-flush" id="elementsList">
-        <p class="p-3">Loading...</p>
-      </div>
+        <div class="list-group list-group-flush" id="elementsList">
+          <p class="p-3">Loading...</p>
+        </div>
+        <div class='row mt-2'>
+          <nav aria-label="Pagination">
+            <ul class="pagination">
+              <li class="page-item"><a class="page-link" href="#" id="previous_page_btn">Previous</a></li>
+              <li class="page-item"><a class="page-link" href="#" id="next_page_btn">Next</a></li>
+            </ul>
+          </nav>
+        </div>
       </div>
     </div>
 
     <script>
-    document.getElementById('selectElementBtn').addEventListener('click', function() {
-      fetch('{{ url_for("blog.get_elements_for_selection") }}')
-      .then(response => response.json())
-      .then(data => {
-        const elementsList = document.getElementById('elementsList');
-        elementsList.innerHTML = '';
-        data.elements.forEach(element => {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'list-group-item list-group-item-action text-start p-3';
-        button.innerHTML = `<h6 class="mb-1">${element.title}</h6><p class="mb-1 small text-muted">${element.body.substring(0, 100)}</p>`;
-        button.onclick = () => selectElement(element.id);
-        elementsList.appendChild(button);
+      currentPage = {{ currentPage }};
+      fetchElementsForSelection = function(page) {
+        fetch('{{ url_for("blog.get_elements_for_selection") }}' + '?page=' + page)
+        .then(response => response.json())
+        .then(data => {
+          const elementsList = document.getElementById('elementsList');
+          elementsList.innerHTML = '';
+          data.elements.forEach(element => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'list-group-item list-group-item-action text-start p-3';
+          button.innerHTML = `<h6 class="mb-1">${element.title}</h6><p class="mb-1 small text-muted">${element.body.substring(0, 100)}</p>`;
+          button.onclick = () => selectElement(element.id);
+          elementsList.appendChild(button);
+          });
         });
+      };
+      
+      document.getElementById('previous_page_btn').addEventListener('click', function() {
+        currentPage -= 1;
+        if (currentPage < 1) {
+          currentPage = 1;
+        };
+        console.log('currentPage = ', currentPage);
+        fetchElementsForSelection(currentPage);
       });
+      
+      document.getElementById('next_page_btn').addEventListener('click', function() {
+        currentPage += 1;
+        console.log('currentPage = ', currentPage);
+        fetchElementsForSelection(currentPage);
+      });
+      
+      document.getElementById('selectElementBtn').addEventListener('click', function() {
+        fetchElementsForSelection(1);
     });
 
     function selectElement(elementId) {
