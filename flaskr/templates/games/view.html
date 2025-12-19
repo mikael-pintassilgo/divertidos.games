@@ -18,6 +18,7 @@
   <div class='col-12'>
   
     <div class="card" style="">
+      <div class="card-header">Game Details</div>
       <div class="card-body">
         <h5 class="card-title">{{ game['title'] }}
         </h5>
@@ -60,8 +61,25 @@
         <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">Tags</button>
       </li>
     </ul>
+    
     <div class="tab-content" id="myTabContent">
       <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+        {% if parent_id != None and parent_id != '' %}
+          <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{{ url_for('games.view', id=game['id']) }}">Top elements</a></li>
+              {% for parent in game_elements_parents %}
+                {% if loop.last %}
+                <li class="breadcrumb-item active" aria-current="page">{{ parent.description }}</li>
+                {% else %}
+                <li class="breadcrumb-item"><a href="{{ url_for('games.view', id=game['id'], parent_id=parent.id) }}">{{ parent.description }}</a></li>
+                {% endif %}
+              {% endfor %}
+              <!-- <li class="breadcrumb-item active" aria-current="page">{{ parent }}</li> -->
+            </ol>
+          </nav>
+        {% endif %}
+        
         <table class="table table-hover">
           <tbody>
             <thead>
@@ -74,7 +92,7 @@
               </tr>
             </thead>
             {% for game_element in game_elements %}
-              {% if (game_element['parent_element_id'] == None or game_element['parent_element_id'] == '') %}
+              {% if (game_element['parent_element_id'] == None or game_element['parent_element_id'] == '') or parent_id|string == game_element['parent_element_id']|string %}
                 <tr>
                     <td>
                       {% if game_element['previous_ge_description'] is not none %}
@@ -90,9 +108,9 @@
                     
                     <td>
                       {% if game_element['consist_count'] == 1 %}
-                      <p><a href="{{ url_for('games.view_game_elements_of_the_parent', game_id=game['id'], parent_id=game_element['ge_id']) }}?title={{game['title']}}&parent={{ game_element['title'] }}">1 element</a></p>
+                      <p><a href="{{ url_for('games.view', id=game['id'], parent_id=game_element['ge_id']) }}">1 element</a></p>
                       {% elif game_element['consist_count'] > 1 %}
-                      <p><a href="{{ url_for('games.view_game_elements_of_the_parent', game_id=game['id'], parent_id=game_element['ge_id']) }}?title={{game['title']}}&parent={{ game_element['title'] }}">{{ game_element['consist_count'] }} elements</a></p>
+                      <p><a href="{{ url_for('games.view', id=game['id'], parent_id=game_element['ge_id']) }}">{{ game_element['consist_count'] }} elements</a></p>
                       {% else %}
                       <p/>
                       {% endif %}

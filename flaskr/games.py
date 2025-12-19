@@ -271,9 +271,22 @@ def view(id):
     """View a game if the current user is the author."""
     print('Viewing game id = ', id)
     game_data = get_game(id)
+    parent_id = request.args.get('parent_id')
+    print(f"230 parent_id = {parent_id}")
+    if parent_id:
+        game_elements_data = get_game_elements_of_the_parent(id, parent_id)
+        game_elements_parents = game_elements_data["game_elements_parents"]
+        game_elements = game_elements_data["game_elements"]
+        print("229 game_elements_data = ", game_elements_data)
+    else:
+        game_elements = game_data["game_elements"]
+        game_elements_parents = []
+    
     return render_template("games/view.html",
                            game=game_data["game"], 
-                           game_elements=game_data["game_elements"], 
+                           game_elements=game_elements,
+                           game_elements_parents=game_elements_parents,
+                           parent_id=parent_id,
                            tags=game_data["tags"], 
                            links=game_data["links"],
                            game_elements_hierarchy=game_data["game_elements_hierarchy"])

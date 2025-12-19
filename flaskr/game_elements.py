@@ -235,7 +235,6 @@ def get_game_data(game_id):
     return game_data
 
 @bp.route("/<int:ge_id>/view", methods=("GET",))
-@login_required
 def view(ge_id):
     """View an existing game element for the current user."""
     db = get_db()
