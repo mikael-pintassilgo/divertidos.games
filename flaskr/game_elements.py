@@ -219,4 +219,55 @@ def update(ge_id):
                            game_id=game_id,
                            game_element_tags=game_element_tags,
                            game_element_links=game_element_links)
+
+def get_game_data(game_id):
+    """Get game data by game id."""
+    db = get_db()
+    game_data = db.execute(
+        """
+        SELECT
+            g.title as title
+        FROM game g
+        WHERE g.id = ?
+        """,
+        (game_id,),
+    ).fetchone()
+    return game_data
+
+@bp.route("/<int:ge_id>/view", methods=("GET",))
+@login_required
+def view(ge_id):
+    """View an existing game element for the current user."""
+    db = get_db()
+    game_element = db.execute(
+        """
+        SELECT
+            CASE WHEN type_of_id = 'element' THEN element_id
+                 ELSE game_element_id
+            END AS e_or_ge_id,
+            *
+        FROM game_and_element 
+        WHERE id = ?
+        """,
+        (ge_id,),
+    ).fetchone()
+
+    if game_element is None:
+        abort(404)
+
+    game_element_tags = get_game_element_tags(ge_id)
+    game_element_links = get_game_element_links(ge_id)
+                
+    game_id = request.args.get("game_id")
+    game_data = get_game_data(game_id)
+    
+    print(f'2 game_id = {game_id}')
+    print(f'ge_id = {ge_id}')
+    return render_template("game_elements/view.html", 
+                           ge_id=ge_id, 
+                           game_element=game_element, 
+                           game_id=game_id,
+                            game_title=game_data['title'],
+                           game_element_tags=game_element_tags,
+                           game_element_links=game_element_links)
 # End Game Elements

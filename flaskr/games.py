@@ -269,6 +269,7 @@ def update(id):
 @bp.route("/<int:id>/view", methods=("GET", "POST"))
 def view(id):
     """View a game if the current user is the author."""
+    print('Viewing game id = ', id)
     game_data = get_game(id)
     return render_template("games/view.html",
                            game=game_data["game"], 

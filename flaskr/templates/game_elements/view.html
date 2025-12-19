@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block breadcrumb %}
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('games.index') }}">Games</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('games.view', id=game_id) }}">{{ game_title }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ game_element['description'] }}</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+
+<div class='row mt-3'>
+  <div class='col-12'>
+  
+    <div class="card" style="">
+      <div class="card-body">
+        <fieldset class="">
+
+          <label for="description" class="form-label">Description</label>
+          <p class="mb-3" name="description" id="description">{{ game_element['description'] }}</p>
+          
+        </fieldset>
+      </div>
+    </div>
+
+    <ul class="nav nav-tabs mt-3" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">Links</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">Tags</button>
+      </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+        <!-- Game Element Links -->
+        <div class='row'>
+          <div class='col-12'>
+
+              <table class="table table-hover">
+                <caption class="caption-top">Links</caption>
+                <tbody>
+                  <thead>
+                    <tr>
+                      <th scope="col">link</th>
+                      <th scope="col">title</th>
+                      <th scope="col">comment</th>
+                    </tr>
+                  </thead>
+
+                  {% for ge_link in game_element_links %}
+                  <tr>
+                      <td>
+                        <p><a href='{{ ge_link['link'] }}' target="_blank">{{ ge_link['link'] }}</a></p>
+                      </td>
+                      <td>
+                        <p>{{ ge_link['title'] }}</p>
+                      </td>
+                      <td>
+                        <p>{{ ge_link['comment'] }}</p>
+                      </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- End Game Element Links -->
+
+      </div>
+      <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+        <!-- Game Element Tags -->
+        <div class='row'>
+          <div class='col-12'>
+
+              <table class="table table-hover">
+                <caption class="caption-top">Tags</caption>
+                <tbody>
+                  <thead>
+                    <tr>
+                      <th scope="col">tag</th>
+                    </tr>
+                  </thead>
+
+                  {% for ge_tag in game_element_tags %}
+                  <tr>
+                      <td>
+                        <p>{{ ge_tag['tag_title'] }}</p>
+                      </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- End of Game Element Tags -->
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+
+
+{% endblock %}
