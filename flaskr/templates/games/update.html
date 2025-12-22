@@ -187,10 +187,20 @@
             <table class="table table-hover">
               <caption class="caption-top">Links</caption>
               <tbody>
+                <thead>
+                  <tr>
+                    <th scope="col">link</th>
+                    <th scope="col">comment</th>
+                    <th scope="col">action</th>
+                  </tr>
+                </thead>
                 {% for link in links %}
                 <tr>
                     <td>
                       <p><a href="{{ link['title'] }}" target="_blank">{{ link['title'] }}</a></p>
+                    </td>
+                    <td>
+                      <p>{{ link['comment'] }}</p>
                     </td>
                     <td>
                       <form action="{{ url_for('games.delete_link', id=link['id'], game_id=game['id']) }}" method="post">
@@ -202,10 +212,13 @@
                 <tr>
                   <form action="{{ url_for('games.create_link', id=game['id']) }}" method="post">
                     <td>
-                      <input class="uk-input" placeholder="Enter new link here..." name="link_title" id="link_title" value="{{ request.form['link_title'] }}" required>
+                      <input class="" placeholder="" name="link_title" id="link_title" value="{{ request.form['link_title'] }}" required>
                     </td>
                     <td>
-                      <input class="uk-button uk-button-secondary" type="submit" value="Add Link">
+                      <input class="" placeholder="" name="comment" id="comment" value="{{ request.form['comment'] }}" required>
+                    </td>
+                    <td>
+                      <input class="btn btn-primary" type="submit" value="Add Link">
                     </td>
                   </form>
                 </tr>

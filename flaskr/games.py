@@ -471,6 +471,7 @@ def create_link(id):
     """Create a new link for the current user."""
     if request.method == "POST":
         title = request.form["link_title"]
+        comment = request.form["comment"]
         error = None
 
         if not title:
@@ -485,8 +486,8 @@ def create_link(id):
             
             db = get_db()
             db.execute(
-                "INSERT INTO game_link (title, author_id, game_id) VALUES (?, ?, ?)",
-                (title, g.user["id"], id),
+                "INSERT INTO game_link (title, author_id, game_id, comment) VALUES (?, ?, ?, ?)",
+                (title, g.user["id"], id, comment),
             )
             
             db.commit()

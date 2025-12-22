@@ -2,3 +2,6 @@
 - as the user I can use a weight to sort game elements.
 - as the user I can output the description of the elements
     with its weights to pass this description to LLM for game code generation.
+- list of games for user with the ability to get the full description of all the games from the list.
+    it can be used to make a new game using an LLM-model compile all selected games together.
+    it can be payeble feature.
