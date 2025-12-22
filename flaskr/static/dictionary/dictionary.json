@@ -1,0 +1,154 @@
+{
+  "game": "Root object containing all data required to describe the game for design, documentation, and implementation purposes.",
+
+  "title": "The official name of the game.",
+  "releaseYear": "The original year the game was released.",
+  "developer": "The studio or individual that created the game.",
+  "publisher": "The company responsible for publishing the game.",
+  "platform": "The primary hardware platform the game was designed for.",
+  "genre": "The primary gameplay genre classification.",
+  "perspective": "The camera or viewpoint used during gameplay.",
+
+  "vision": {
+    "description": "High-level design intent describing what experience the game aims to deliver.",
+    "designGoals": "Key principles guiding all design decisions.",
+    "playerFantasy": "The emotional role or fantasy the player inhabits.",
+    "targetExperience": "The intended emotional and gameplay feel.",
+    "successMetrics": "Measures used to evaluate whether the design goals are met."
+  },
+
+  "targetAudience": {
+    "description": "Information about who the game is designed for.",
+    "playerTypes": "Categories of players the game targets.",
+    "skillLevel": "Expected player learning curve.",
+    "ageRatingTarget": "Intended content rating."
+  },
+
+  "platformConstraints": {
+    "description": "Technical and usability limitations imposed by the target platform.",
+    "inputDevices": "Supported control methods.",
+    "sessionLengthMinutes": "Expected minimum and maximum play session length.",
+    "performanceTargetFPS": "Desired frame rate for optimal gameplay."
+  },
+
+  "setting": {
+    "description": "Narrative context in which the game takes place.",
+    "year": "In-universe year of the game.",
+    "theme": "Primary narrative and aesthetic theme.",
+    "descriptionText": "Short explanation of the world state and conflict."
+  },
+
+  "narrative": {
+    "description": "Story elements that provide meaning and context to gameplay.",
+    "premise": "The core story setup.",
+    "playerRole": "Who the player is in the narrative.",
+    "conflict": "The main opposing force or problem.",
+    "humans": "Narrative role of civilians and their mechanical meaning.",
+    "themes": "Abstract ideas explored by the game.",
+    "tone": "Overall emotional mood.",
+    "storytellingMethod": "How the story is delivered to the player.",
+    "endingPhilosophy": "Narrative approach to game completion."
+  },
+
+  "player": {
+    "description": "Definition of player-controlled character capabilities.",
+    "lives": "How many attempts the player has before game over.",
+    "hitPoints": "Amount of damage the player can take.",
+    "movement": "How the player moves in the game world.",
+    "shooting": "How the player attacks enemies.",
+    "invincibilityOnSpawnSeconds": "Temporary immunity after respawning."
+  },
+
+  "controls": {
+    "description": "Mapping of player inputs to actions.",
+    "movement": "Input method for player movement.",
+    "shooting": "Input method for aiming and firing."
+  },
+
+  "systems": {
+    "description": "High-level breakdown of the game’s core interactive systems.",
+    "combatSystem": "Rules governing damage, weapons, and combat flow.",
+    "movementSystem": "Rules defining player movement behavior.",
+    "enemyAI": "Logic and behaviors controlling enemy actions."
+  },
+
+  "enemies": "List of enemy types with their behaviors and relative threat levels.",
+
+  "humans": {
+    "description": "Rules governing civilian characters.",
+    "canBeKilledByEnemies": "Whether enemies can kill civilians.",
+    "canBeKilledByPlayer": "Whether the player can harm civilians.",
+    "rescueBonusPoints": "Score awarded for saving civilians."
+  },
+
+  "mechanics": {
+    "description": "Concrete gameplay rules and loops.",
+    "coreLoop": "Repeated sequence of actions defining gameplay.",
+    "enemySpawning": "How and when enemies appear.",
+    "difficulty": "How challenge increases over time.",
+    "failureState": "Conditions that end a play session."
+  },
+
+  "difficultyDesign": {
+    "description": "Philosophy and structure behind difficulty progression.",
+    "playerCatchUpMechanics": "Systems that help players recover.",
+    "caps": "Whether difficulty has upper limits."
+  },
+
+  "ui": {
+    "description": "User interface elements and feedback systems.",
+    "hud": "On-screen informational elements.",
+    "feedback": "Visual and audio responses to player actions."
+  },
+
+  "artDirection": {
+    "description": "Visual design rules and aesthetic principles.",
+    "visualStyle": "Overall art style.",
+    "readabilityRules": "Guidelines ensuring gameplay clarity.",
+    "animationPrinciples": "Rules governing animation behavior."
+  },
+
+  "audioDesign": {
+    "description": "Sound and music design approach.",
+    "music": "Rules governing background music.",
+    "soundDesignRules": "Guidelines for sound effect usage."
+  },
+
+  "accessibility": {
+    "description": "Support for diverse player needs.",
+    "colorBlindSupport": "Whether colorblind options exist.",
+    "inputRemapping": "Whether controls can be customized.",
+    "difficultyAssist": "Whether difficulty aids are present.",
+    "rationale": "Design reasoning behind accessibility decisions."
+  },
+
+  "replayability": {
+    "description": "Systems encouraging repeated play.",
+    "primaryDriver": "Main reason players replay the game.",
+    "secondaryDrivers": "Additional replay incentives.",
+    "metaProgression": "Progression outside a single run."
+  },
+
+  "gameFlow": {
+    "description": "High-level state machine of the game.",
+    "states": "Distinct phases of the game experience."
+  },
+
+  "technicalNotes": {
+    "description": "Engineering and implementation considerations.",
+    "engineAgnostic": "Whether the design depends on a specific engine.",
+    "logicUpdateRate": "How often game logic updates.",
+    "determinism": "Consistency of game behavior.",
+    "knownRisks": "Potential technical challenges."
+  },
+
+  "references": {
+    "description": "Design inspirations and guiding principles.",
+    "inspirations": "Games or works influencing the design.",
+    "designPillars": "Core values guiding development."
+  },
+
+  "openQuestions": "Unresolved design topics requiring future decisions.",
+
+  "iterationHistory": "Record of major design changes over time."
+}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <div uk-grid class="">
+    <h1 class="">{% block title %}Services{% endblock %}</h1>
+    {% if g.user %}
+    <form action="{{ url_for('blog.load_dictionary', service_name='load_dictionary') }}" method="post">
+      <input class="btn btn-warning" type="submit" value="Load dictionary" onclick="return confirm('Are you sure?');">
+    </form>
+    {% endif %}
+  </div>
+{% endblock %}
+
+<div class="uk-container-expand"></div>
+{% block menu_items %}
+{% endblock %}
+{% block elements_active %}active{% endblock %}
+
+{% block content %}
+{% for message in messages %}
+  <div class="">{{ message }}</div>
+{% endfor %}
+{% endblock %}
+

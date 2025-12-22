@@ -1,4 +1,7 @@
 import json
+import os
+import re
+
 from flask import Blueprint, jsonify
 from flask import flash
 from flask import g
@@ -90,6 +93,40 @@ def index():
         
     return render_template("blog/index.html", posts=posts, tag=tag_title, tags=tags_list, currentPage=currentPage)
 
+@bp.route("/services", methods=("GET",))
+@login_required
+def services():
+    return render_template("blog/services.html", messages=[])
+
+def clean_key(text):
+    # Adds space between camelCase and capitalizes
+    return re.sub(r'([a-z])([A-Z])', r'\1 \2', text).title()
+
+@bp.route("/services/<path:service_name>", methods=("POST",))
+@login_required
+def load_dictionary(service_name):
+    if service_name == 'load_dictionary':
+        # Load dictionary logic here
+        dict_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../flaskr/static/dictionary/dictionary.json'))
+        with open(dict_path, 'r') as f:
+            dict_data = json.load(f)
+
+        messages = []
+        for key, value in dict_data.items():
+            #body = item.get('description', item.get('body', ''))
+            if isinstance(value, str):
+                messages.append({'key': clean_key(key), 'value': value})
+            elif isinstance(value, dict):
+                messages.append({'key': clean_key(key), 'value': value.get('description', 'No description available')})
+                for sub_key, sub_value in value.items():
+                    if sub_key != 'description':
+                        messages.append({'sub_key': clean_key(sub_key), 'sub_value': sub_value})
+            else:
+                messages.append({'key': clean_key(key), 'value': 'Unsupported data type'})
+            
+        return render_template("blog/services.html", messages=messages)
+    else:
+        return render_template("blog/services.html", messages=['Unknown service requested: ' + service_name])
 
 @bp.route("/get_elements_for_selection", methods=("GET", "POST"))
 @login_required
