@@ -5,3 +5,4 @@
 - list of games for user with the ability to get the full description of all the games from the list.
     it can be used to make a new game using an LLM-model compile all selected games together.
     it can be payeble feature.
+- Give users the ability to rate individual game elements. This will allow game developers to evaluate what features from each game perform well.

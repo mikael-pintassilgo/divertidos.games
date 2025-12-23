@@ -11,6 +11,12 @@
 
 {% block header %}
   <h1 class="breadcrumb-item active">{% block title %}{{ post['title'] }}{% endblock %}</h1>
+  {% if post['parent_id'] %}
+    The part of:
+    <a href="{{ url_for('blog.view', id=post['parent_id']) }}">
+      {{ post['parent_title'] }}
+    </a>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -26,6 +32,23 @@
   
   <br/>
   
+  <!-- Sub Elements -->
+  <br/>
+  <h3>Consist of</h3>
+  <hr>
+  {% for sub_element in sub_elements %}
+    <article class="">
+      <header>
+        <div>
+          <a href="{{ url_for('blog.view', id=sub_element['id']) }}">
+            <p class="fs-4">{{ sub_element['title'] }}</p>
+          </a>
+        </div>
+      </header>
+    </article>
+  {% endfor %}
+  
+  <br/>
   <!-- Tags -->
   <br/>
   <h3>Hashtags</h3>

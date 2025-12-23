@@ -1,2 +1,2 @@
-
-
+ALTER TABLE element
+ADD COLUMN parent_id INTEGER REFERENCES element (id) ON DELETE SET NULL;

@@ -48,7 +48,7 @@ def get_elements(_page, tags_list):
             posts = []
         else:        
             posts = db.execute(
-                "SELECT e.id, e.title, substr(e.body, 1, 150) as body, e.created, e.author_id, u.username, e.tags"
+                "SELECT e.id, e.parent_id, e.title, substr(e.body, 1, 150) as body, e.created, e.author_id, u.username, e.tags"
                 "  FROM element e"
                 "  JOIN user u ON e.author_id = u.id"
                 " WHERE e.id in (SELECT value FROM json_each(?))"
@@ -62,9 +62,11 @@ def get_elements(_page, tags_list):
         #tags_list = []
         """Show all the posts, most recent first."""
         posts = db.execute(
-            "SELECT e.id, title, substr(e.body, 1, 170) as body, created, author_id, username, e.tags"
-            "  FROM element e JOIN user u ON e.author_id = u.id"
-            " ORDER BY created DESC"
+            "SELECT e.id, e.parent_id, e.title as title, parent.title as parent_title, substr(e.body, 1, 170) as body, e.created, e.author_id, u.username, e.tags"
+            "  FROM element e"
+            "  JOIN user u ON e.author_id = u.id"
+            "  LEFT JOIN element parent ON e.parent_id = parent.id"
+            " ORDER BY e.created DESC"
             " LIMIT " + str(offset) + "," + str(limit)
         ).fetchall()
         
@@ -156,12 +158,25 @@ def get_post(id, check_author=True):
     element = (
         db
         .execute(
-            "SELECT p.id, title, body, comment, created, author_id, username, p.tags"
-            "  FROM element p JOIN user u ON p.author_id = u.id"
-            " WHERE p.id = ?",
+            "SELECT e.id, e.title as title, e.parent_id, parent.title as parent_title, e.body, e.comment, e.created, e.author_id, u.username, e.tags"
+            "  FROM element e"
+            "  JOIN user u ON e.author_id = u.id"
+            "  LEFT JOIN element parent ON e.parent_id = parent.id"
+            " WHERE e.id = ?",
             (id,),
         )
         .fetchone()
+    )
+    sub_elements = (
+        db
+        .execute(
+            "SELECT e.id, e.title as title, e.body, e.comment, e.created, e.author_id, u.username"
+            "  FROM element e"
+            "  JOIN user u ON e.author_id = u.id"
+            " WHERE e.parent_id = ?",
+            (id,),
+        )
+        .fetchall()
     )
     tags = (
         db
@@ -200,6 +215,7 @@ def get_post(id, check_author=True):
 
     post = {
         "element": element,
+        "sub_elements": sub_elements,
         "tags": tags,
         "links": links,
         "games": games,
@@ -215,6 +231,7 @@ def create():
         title = request.form["title"]
         body = request.form["body"]
         comment = request.form["comment"]
+        parent_id = request.form["parent_id"]
         tags = "" #request.form["tags"]
         error = None
 
@@ -226,8 +243,8 @@ def create():
         else:
             db = get_db()
             db.execute(
-                "INSERT INTO element (title, body, author_id, comment, tags) VALUES (?, ?, ?, ?, ?)",
-                (title, body, g.user["id"], comment, tags),
+                "INSERT INTO element (parent_id, title, body, author_id, comment, tags) VALUES (?, ?, ?, ?, ?, ?)",
+                (parent_id, title, body, g.user["id"], comment, tags),
             )
             db.commit()
             return redirect(url_for("blog.index"))
@@ -307,6 +324,7 @@ def update(id):
     post = get_post(id)
 
     if request.method == "POST":
+        parent_id = request.form["parent_id"]
         title = request.form["title"]
         body = request.form["body"]
         comment = request.form["comment"]
@@ -322,7 +340,7 @@ def update(id):
         else:
             db = get_db()
             db.execute(
-                "UPDATE element SET title = ?, body = ?, comment = ?, tags = ? WHERE id = ?", (title, body, comment, tags, id)
+                "UPDATE element SET parent_id = ?, title = ?, body = ?, comment = ?, tags = ? WHERE id = ?", (parent_id, title, body, comment, tags, id)
             )
             db.commit()
             return redirect(url_for("blog.index"))
@@ -333,7 +351,7 @@ def update(id):
 def view(id):
     """View a post if the current user is the author."""
     post = get_post(id)
-    return render_template("blog/view.html", post=post["element"], tags=post["tags"], links=post["links"], games=post["games"])
+    return render_template("blog/view.html", post=post["element"], tags=post["tags"], links=post["links"], games=post["games"], sub_elements=post["sub_elements"])
 
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required

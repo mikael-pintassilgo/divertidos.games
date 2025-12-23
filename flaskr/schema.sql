@@ -26,6 +26,7 @@ CREATE TABLE element (
   body TEXT NOT NULL,
   comment TEXT,
   tags TEXT,
+  FOREIGN KEY (parent_id) REFERENCES element (id) ON DELETE SET NULL,
   FOREIGN KEY (author_id) REFERENCES user (id)
 );
 

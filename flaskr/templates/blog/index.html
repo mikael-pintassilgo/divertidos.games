@@ -9,7 +9,7 @@
   </div>
 {% endblock %}
 
-<div class="uk-container-expand"></div>
+<div class=""></div>
 {% block menu_items %}
 <!-- li class="uk-active"><a href="{{ url_for('index') }}">Elements</a></li>
 <li><a href="{{ url_for('tags.index') }}">#Tags</a></li -->
@@ -37,11 +37,17 @@
       <div class="card-body">
         <h5 class="card-title"><a class="" href="{{ url_for('blog.view', id=post['id']) }}">{{ post['title'] }}</a></h5>
         <p class="card-text">{{ post['body'] }}</p>
+        {% if post['parent_id'] %}
+          The part of:
+          <a href="{{ url_for('blog.view', id=post['parent_id']) }}">
+            {{ post['parent_title'] }}
+          </a>
+        {% endif %}
       </div>
       <ul class="list-group list-group-flush">
         <li class="list-group-item">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</li>
       </ul>
-      
+
       {% if post["tags"] != None and post["tags"] != "" %}
       <div class="card-body">
         {% for tag in post["tags"].split(';') %}

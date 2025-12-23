@@ -2,58 +2,44 @@
 
 {% block content %}
   <form method="post">
-    <fieldset class="uk-fieldset">
+    <fieldset class="">
 
-      <legend class="uk-legend">Edit "{{ post['title'] }}</legend>
+      <legend class="">Edit "{{ post['title'] }}</legend>
+      <div class="">
+        <label for="parent_id"><span class="">Parent ID</span></label>
+        <input class="form-control" name="parent_id" id="parent_id" value="{{ request.form['parent_id'] or post['parent_id'] }}">
+      </div>
+      
       <div class="uk-margin">
         <label for="title"><span class="uk-label">Title</span></label>
-        <input class="uk-input" name="title" id="title" value="{{ request.form['title'] or post['title'] }}" required>
+        <input class="form-control" name="title" id="title" value="{{ request.form['title'] or post['title'] }}" required>
       </div>
       
-      <div class="uk-margin">
+      <div class="">
         <label for="body"><span class="uk-label">Body</span></label>
-        <textarea class="uk-textarea" name="body" id="body">{{ request.form['body'] or post['body'] }}</textarea>
+        <textarea class="form-control" name="body" id="body">{{ request.form['body'] or post['body'] }}</textarea>
       </div>
       
-      <div class="uk-margin">
+      <div class="">
         <label for="comment"><span class="uk-label">Comment</span></label>
-        <textarea class="uk-textarea" name="comment" id="comment">{{ request.form['comment'] or post['comment'] }}</textarea>
+        <textarea class="form-control" name="comment" id="comment">{{ request.form['comment'] or post['comment'] }}</textarea>
       </div>
       
-      <div class="uk-margin">
+      <div class="">
         <label for="tags"><span class="uk-label">Tags (keep it the same as the tag items below)</span></label>
-        <textarea class="uk-textarea" name="tags" id="tags">{{ request.form['tags'] or post['tags'] }}</textarea>
+        <textarea class="form-control" name="tags" id="tags">{{ request.form['tags'] or post['tags'] }}</textarea>
       </div>
 
-      <div class="uk-margin">
-        <input class="uk-button uk-button-primary" type="submit" value="Save Element">
+      <div class="m-3">
+        <input class="btn btn-primary" type="submit" value="Save Element">
       </div>
     </div>
   </form>
   <form action="{{ url_for('blog.delete', id=post['id']) }}" method="post">
-    <input class="uk-button uk-button-default" type="submit" value="Delete Element" onclick="return confirm('Are you sure?');">
+    <input class="btn btn-danger" type="submit" value="Delete Element" onclick="return confirm('Are you sure?');">
   </form>
-  
-  <!-- Tags -->
-  <!-- label>Tags</label>
-  {% for tag in tags %}
-    <article class="">
-      <header>
-        <div>
-          <h3>{{ tag['title'] }}</h3>
-          <form action="{{ url_for('blog.delete_element_tag', id=tag['id'], element_id=post['id']) }}" method="post">
-            <input class="danger uk-button uk-button-default" type="submit" value="Delete Tag" onclick="return confirm('Are you sure?');">
-          </form>
-        </div>
-      </header>
-    </article>
-    {% if not loop.last %}
-      <hr>
-    {% endif %}
-  {% endfor %}
--->
 
-  <table class="uk-table  uk-table-divider">
+  <table class="">
     <caption>Tags</caption>
     <tbody>
       {% for tag in tags %}
@@ -63,7 +49,7 @@
           </td>
           <td>
             <form action="{{ url_for('blog.delete_element_tag', id=tag['id'], element_id=post['id']) }}" method="post">
-              <input class="danger uk-button uk-button-default" type="submit" value="Delete Tag" onclick="return confirm('Are you sure?');">
+              <input class="btn btn-danger" type="submit" value="Delete Tag" onclick="return confirm('Are you sure?');">
             </form>
           </td>
       </tr>
@@ -71,31 +57,18 @@
       <tr>
         <form action="{{ url_for('blog.create_tag', id=post['id']) }}" method="post">
           <td>
-            <input class="uk-input" placeholder="Enter new tag here..." name="tag_title" id="tag_title" value="{{ request.form['tag_title'] }}" required>
+            <input class="form-control" placeholder="Enter new tag here..." name="tag_title" id="tag_title" value="{{ request.form['tag_title'] }}" required>
           </td>
           <td>
-            <input class="uk-button uk-button-secondary" type="submit" value="Add Tag">
+            <input class="btn btn-secondary" type="submit" value="Add Tag">
           </td>
         </form>
       </tr>
     </tbody>
 </table>
 
-  <!-- form action="{{ url_for('blog.create_tag', id=post['id']) }}" method="post">
-    <fieldset class="uk-fieldset">
-      <div class="uk-margin">
-        <label for="tag_title"><span class="uk-label">New tag</span></label>
-        <input class="uk-input" name="tag_title" id="tag_title" value="{{ request.form['tag_title'] }}" required>
-      </div>
-      
-      <div class="uk-margin">
-        <input class="uk-button uk-button-default" type="submit" value="Add tag">
-      </div>
-    </fieldset>
-  </form -->
-
   <!-- Links -->
-  <table class="uk-table  uk-table-divider">
+  <table class="">
     <caption>Links</caption>
     <tbody>
       {% for link in links %}
@@ -105,7 +78,7 @@
           </td>
           <td>
             <form action="{{ url_for('blog.delete_element_link', id=link['id'], element_id=post['id']) }}" method="post">
-              <input class="danger uk-button uk-button-default" type="submit" value="Delete link" onclick="return confirm('Are you sure?');">
+              <input class="btn btn-danger" type="submit" value="Delete link" onclick="return confirm('Are you sure?');">
             </form>
           </td>
       </tr>
@@ -113,51 +86,14 @@
       <tr>
         <form action="{{ url_for('blog.create_link', id=post['id']) }}" method="post">
           <td>
-            <input class="uk-input" placeholder="Enter new link here..." name="link_title" id="link_title" value="{{ request.form['link_title'] }}" required>
+            <input class="form-control" placeholder="Enter new link here..." name="link_title" id="link_title" value="{{ request.form['link_title'] }}" required>
           </td>
           <td>
-            <input class="uk-button uk-button-secondary" type="submit" value="Add Link">
+            <input class="btn btn-secondary" type="submit" value="Add Link">
           </td>
         </form>
       </tr>
     </tbody>
 </table>
 
-
-  <!-- label>Links</label>
-  {% for link in links %}
-    <article class="">
-      <header>
-        <div>
-          <a href="{{ link['title'] }}" target="_blank">{{ link['title'] }}</a>
-          <form action="{{ url_for('blog.delete_element_link', id=link['id'], element_id=post['id']) }}" method="post">
-            <input class="danger" type="submit" value="Delete link" onclick="return confirm('Are you sure?');">
-          </form>
-        </div>
-      </header>
-    </article>
-    {% if not loop.last %}
-      <hr>
-    {% endif %}
-  {% endfor %}
-
-  <form action="{{ url_for('blog.create_link', id=post['id']) }}" method="post">
-    <fieldset class="uk-fieldset">
-      <div class="uk-margin">
-        <div uk-grid>
-          <div class="uk-width-5-6">
-            <label for="link_title"><span class="uk-label">New link</span></label>
-            <input class="uk-input" name="link_title" id="link_title" value="{{ request.form['link_title'] }}" required>
-          </div>
-          <div class="uk-width-1-6">
-            <input class="uk-inline uk-button uk-button-default" type="submit" value="Add link">
-          </div>
-        </div>
-      </div>
-    </fieldset>
-
-    <div class="uk-margin">
-      
-    </div>
-  </form-->
 {% endblock %}

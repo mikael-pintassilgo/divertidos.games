@@ -8,9 +8,14 @@
 
         <legend class="">New Element</legend>
         
+        <div class="">
+          <label for="parent_id"><span class="uk-label">Parent ID</span></label>
+          <input class="form-control" name="parent_id" id="parent_id" value="{{ request.form['parent_id'] }}">
+        </div>
+
         <div class="uk-margin">
           <label for="title"><span class="uk-label">Title</span></label>
-          <input class="uk-input" name="title" id="title" value="{{ request.form['title'] }}" required>
+          <input class="form-control" name="title" id="title" value="{{ request.form['title'] }}" required>
         </div>
 
         <div class="mb-3">
