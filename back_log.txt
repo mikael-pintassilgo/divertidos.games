@@ -6,3 +6,11 @@
     it can be used to make a new game using an LLM-model compile all selected games together.
     it can be payeble feature.
 - Give users the ability to rate individual game elements. This will allow game developers to evaluate what features from each game perform well.
+- The user sycle:
+    1. Take a template for ChatGPT with the structure and the prompt.
+    2. Ask chat GPT to give you description of the particular game using this template in JSON-format.
+    3. Load the answer of the chat GPT on the site.
+    4. Repeat several time for each game you are intereste in.
+    5. Make you own game concept using data from this games.
+    6. Export you game data and ask chat GPT to conver in using promt from the site.
+    7. Use this concept document to comunicate with you team or investors or audience.

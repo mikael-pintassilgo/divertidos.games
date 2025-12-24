@@ -104,10 +104,32 @@ def clean_key(text):
     # Adds space between camelCase and capitalizes
     return re.sub(r'([a-z])([A-Z])', r'\1 \2', text).title()
 
+def add_element_from_dict(db, title, body, parent_id=None):
+    if body.strip() == '' or title.strip() == '':
+        return
+                
+    # Check if element already exists
+    existing_element = db.execute(
+        "SELECT id FROM element WHERE title = ?",
+        (title,)
+    ).fetchone()
+
+    if not existing_element:
+        cursor = db.execute(
+            "INSERT INTO element (title, body, parent_id, author_id) VALUES (?, ?, ?, ?)",
+            (title, body, parent_id, g.user["id"])
+        )
+        db.commit()
+        return cursor.lastrowid
+    
+    return existing_element['id']
+
 @bp.route("/services/<path:service_name>", methods=("POST",))
 @login_required
 def load_dictionary(service_name):
     if service_name == 'load_dictionary':
+        db = get_db()
+        
         # Load dictionary logic here
         dict_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../flaskr/static/dictionary/dictionary.json'))
         with open(dict_path, 'r') as f:
@@ -117,12 +139,18 @@ def load_dictionary(service_name):
         for key, value in dict_data.items():
             #body = item.get('description', item.get('body', ''))
             if isinstance(value, str):
-                messages.append({'key': clean_key(key), 'value': value})
+                id = add_element_from_dict(db, clean_key(key), value)
+                messages.append({'key': clean_key(key), 'value': value, 'id': id})
             elif isinstance(value, dict):
-                messages.append({'key': clean_key(key), 'value': value.get('description', 'No description available')})
+                description = value.get('description', '')
+                parent_id = add_element_from_dict(db, clean_key(key), description)
+                messages.append({'key': clean_key(key), 'value': description, 'id': parent_id})
+                
                 for sub_key, sub_value in value.items():
                     if sub_key != 'description':
-                        messages.append({'sub_key': clean_key(sub_key), 'sub_value': sub_value})
+                        id = add_element_from_dict(db, clean_key(sub_key), sub_value, parent_id)
+                        messages.append({'sub_key': clean_key(sub_key), 'sub_value': sub_value, 'id': id})
+                        
             else:
                 messages.append({'key': clean_key(key), 'value': 'Unsupported data type'})
             
