@@ -43,7 +43,12 @@
     "premise": "The core story setup.",
     "playerRole": "Who the player is in the narrative.",
     "conflict": "The main opposing force or problem.",
-    "humans": "Narrative role of civilians and their mechanical meaning.",
+    "humans": {
+      "description": "Narrative role of civilians and their mechanical meaning.",  
+      "role": "Narrative function of the humans in the story.",
+      "mechanicalMeaning": "Meaning in gameplay terms.",
+      "canDie": "can the humans be killed by enemies"
+    },
     "themes": "Abstract ideas explored by the game.",
     "tone": "Overall emotional mood.",
     "storytellingMethod": "How the story is delivered to the player.",
@@ -52,7 +57,11 @@
 
   "player": {
     "description": "Definition of player-controlled character capabilities.",
-    "lives": "How many attempts the player has before game over.",
+    "lives": {
+        "description": "How many attempts the player has before game over.",
+        "initial": "the initial number of lives",
+        "extraLifeScoreThreshold": "the score threshold for earning an extra life"
+      },
     "hitPoints": "Amount of damage the player can take.",
     "movement": "How the player moves in the game world.",
     "shooting": "How the player attacks enemies.",
@@ -67,12 +76,32 @@
 
   "systems": {
     "description": "High-level breakdown of the game’s core interactive systems.",
-    "combatSystem": "Rules governing damage, weapons, and combat flow.",
-    "movementSystem": "Rules defining player movement behavior.",
-    "enemyAI": "Logic and behaviors controlling enemy actions."
+    "combatSystem": {
+        "description": "Rules governing damage, weapons, and combat flow.",
+        "designIntent": "How combat is meant to feel and function.",
+        "damageModel": "How damage is calculated and applied.",
+        "fireRate": "Speed of player attacks.",
+        "reload": "Whether weapons require reloading."
+      },
+    "movementSystem": {
+        "description": "Rules defining player movement behavior.",
+        "designIntent": "How movement is meant to feel and function.",
+        "precisionRequirement": "Level of accuracy needed for effective movement.",
+        "momentum": "Whether movement has inertia or is instant."
+      },
+    "enemyAI": {
+        "description": "Logic and behaviors controlling enemy actions.",
+        "designIntent": "How enemy behavior is meant to challenge the player.",
+        "aiStates": "Different behavioral modes enemies can be in."
+      }
   },
 
-  "enemies": "List of enemy types with their behaviors and relative threat levels.",
+  "enemies": {
+    "description": "List of enemy types with their behaviors and relative threat levels.",
+    "anamyType": "Name of the enemy type.",
+    "anamyBehavior": "Primary action pattern of the enemy.",
+    "threatLevel": "Relative danger posed to the player."
+  },
 
   "humans": {
     "description": "Rules governing civilian characters.",

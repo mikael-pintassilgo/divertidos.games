@@ -4,19 +4,20 @@
   <div uk-grid class="">
     <h1 class="">{% block title %}Games{% endblock %}</h1>
     {% if g.user %}
-    <a class="" href="{{ url_for('games.create') }}">add game</a>
+    <a class="btn btn-secondary" href="{{ url_for('games.create') }}">add game</a>
+    <a class="btn btn-secondary" href="{{ url_for('games.import_game') }}">import game</a>
     {% endif %}
   </div>
 {% endblock %}
 
-<div class="uk-container-expand"></div>
+<div class=""></div>
 {% block menu_items %}
 {% endblock %}
 {% block games_active %}active{% endblock %}
 
 {% block content %}
   
-<div class="row row-cols-auto">
+<div class="row row-cols-auto mt-3">
 {% for game in games %}
   <div class="col">
     <div class="card mb-2" style="width: 18rem;">

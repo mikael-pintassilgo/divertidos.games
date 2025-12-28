@@ -104,6 +104,13 @@ def clean_key(text):
     # Adds space between camelCase and capitalizes
     return re.sub(r'([a-z])([A-Z])', r'\1 \2', text).title()
 
+def get_element_by_title(db, title):
+    element = db.execute(
+        "SELECT id FROM element WHERE title = ?",
+        (clean_key(title),),
+    ).fetchone()
+    return element
+
 def add_element_from_dict(db, title, body, parent_id=None):
     if body.strip() == '' or title.strip() == '':
         return

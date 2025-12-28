@@ -10,6 +10,7 @@ from werkzeug.exceptions import abort
 
 from .auth import login_required
 from .db import get_db
+from .blog import get_element_by_title
 
 bp = Blueprint("games", __name__, url_prefix="/games")
 
@@ -141,6 +142,26 @@ def get_game(id, check_author=True):
         ).fetchall()
     )
 
+    # Check if game exists before processing
+    if game is None:
+        abort(404, f"Game id {id} doesn't exist.")
+
+    # Build a tree structure for game_elements
+    def build_element_tree(elements, parent_id=None):
+        tree = []
+        for element in elements:
+            if (element['parent_element_id'] == parent_id or 
+                (element['parent_element_id'] is None and parent_id is None) or
+                (element['parent_element_id'] == '' and parent_id is None)):
+                print("Building tree for element: ", element['title'])
+                children = build_element_tree(elements, element['ge_id'])
+                element['children'] = children
+                tree.append(element)
+        return tree
+
+    game_elements_tree = build_element_tree([dict(element) for element in game_elements])
+    print("game_elements_tree = ", game_elements_tree)
+
     # Map consist_count from game_elements_hierarchy to game_elements by ge_id
     consist_count_map = {row['ge_id']: row['consist_count'] for row in game_elements_hierarchy}
     # Convert sqlite3.Row to dict and add consist_count
@@ -148,7 +169,7 @@ def get_game(id, check_author=True):
         dict(element, consist_count=consist_count_map.get(element['ge_id'], 0))
         for element in game_elements
     ]
-    print("game_elements = ", game_elements)
+    #print("game_elements = ", game_elements)
     #print("element id = " + str(game_elements[0]['e_id']))
     
     if game is None:
@@ -160,6 +181,7 @@ def get_game(id, check_author=True):
         "links": links,
         "game_elements": game_elements,
         "game_elements_hierarchy": game_elements_hierarchy,
+        "game_elements_tree": game_elements_tree,
     }
     return game_data
 
@@ -189,6 +211,102 @@ def create():
             return redirect(url_for("games.index"))
 
     return render_template("games/create.html")
+
+# Recursively insert game elements
+def insert_elements(db, game_id, data, parent_ge_id=None):
+        
+    def insert_simple_value(key, value, _parent_ge_id=parent_ge_id):
+        # Try to find element by title
+        row = get_element_by_title(db, key)
+        if row is None:
+            # element not found: skip inserting into game_and_element
+            return
+        element_id = row["id"]
+        
+        cursor = db.execute(
+            "INSERT INTO game_and_element (type_of_id, element_id, parent_element_id, author_id, game_id, description) VALUES (?, ?, ?, ?, ?, ?)",
+            ("element", element_id, _parent_ge_id, g.user["id"], game_id, str(value)),
+        )
+        current_ge_id = cursor.lastrowid
+        return current_ge_id
+        
+    def insert_dict(key, value):
+        current_ge_id = insert_simple_value(key, '') # Create a parent game_element for the dict
+        
+        # Recursively insert nested elements
+        insert_elements(db, game_id, value, current_ge_id)
+    
+    for key, value in data.items():
+        if key in ["title"]:
+            continue
+        
+        if isinstance(value, dict):
+            insert_dict(key, value)
+            
+        elif isinstance(value, list):
+            current_ge_id = insert_simple_value(key, '') # Create a parent game_element for the list
+            
+            # Create game_element for list items
+            list_description = ""
+            for idx, item in enumerate(value):
+                if isinstance(item, dict):
+                    insert_elements(db, game_id, item, current_ge_id)
+                else:
+                    insert_simple_value(key, item, current_ge_id)
+                    if list_description:
+                        list_description += f" - {str(item).strip()}\n"
+                    else:
+                        list_description = str(item)
+                    
+            # Update the parent game_element description with the list items
+            if list_description:
+                db.execute(
+                    "UPDATE game_and_element SET description = ? WHERE id = ?",
+                    (list_description.strip(), current_ge_id),
+                )
+        else:
+            insert_simple_value(key, value)
+    
+def import_game_data(game_data_json):
+    """Import a new game for the current user."""
+    db = get_db()
+    
+    game_info = game_data_json.get("game", {})
+    title = game_info.get("title", "")
+    
+    if not title:
+        abort(400, "Game title is required.")
+    
+    # Insert main game
+    cursor = db.execute(
+        "INSERT INTO game (title, body, author_id, comment) VALUES (?, ?, ?, ?)",
+        (title, "", g.user["id"], ""),
+    )
+    game_id = cursor.lastrowid
+
+    insert_elements(db, game_id, game_info)
+    db.commit()
+    return game_id
+
+@bp.route("/import-game", methods=("GET", "POST"))
+@login_required
+def import_game():
+    """Import a new game for the current user."""
+    if request.method == "POST":
+        game_json = request.form["json_input"]
+        error = None
+
+        if not game_json:
+            error = "Game JSON is required."
+
+        if error is not None:
+            flash(error)
+        else:
+            game_data_json = json.loads(game_json)
+            game_id = import_game_data(game_data_json)
+            return redirect(url_for("games.view", id=game_id))
+
+    return render_template("games/import_game.html")
 
 def get_only_game_elements_of_the_parent(game_elements, parent_element_id):
     if parent_element_id == None:
@@ -289,7 +407,8 @@ def view(id):
                            parent_id=parent_id,
                            tags=game_data["tags"], 
                            links=game_data["links"],
-                           game_elements_hierarchy=game_data["game_elements_hierarchy"])
+                           game_elements_hierarchy=game_data["game_elements_hierarchy"],
+                           game_elements_tree=game_data["game_elements_tree"],)
 
 def get_sql_for_elements_of_the_parent():
     return ("SELECT 0 AS consist_count,"
@@ -459,8 +578,12 @@ def delete(id):
     """
     get_game(id)
     db = get_db()
+    db.execute("DELETE FROM game_and_element WHERE game_id = ?", (id,))
+    db.execute("DELETE FROM game_link WHERE game_id = ?", (id,))
+    db.execute("DELETE FROM game_tag WHERE game_id = ?", (id,))
     db.execute("DELETE FROM game WHERE id = ?", (id,))
     db.commit()
+    
     return redirect(url_for("games.index"))
 
 # Links

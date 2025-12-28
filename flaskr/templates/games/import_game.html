@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="">  
+  <div class="">
+    <form method="post">
+      <fieldset class="">
+        <div class="mb-3">
+          <label for="json_input" class="form-label">Game data in JSON format</label>
+          <textarea class="form-control" name="json_input" id="json_input" rows="10" placeholder="Paste your game data in JSON format..."></textarea>
+          <div class="form-text">You can paste your game data in JSON format here.</div>
+        </div>
+
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">Import new game</button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
+{% endblock %}
