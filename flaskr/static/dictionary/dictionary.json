@@ -98,8 +98,8 @@
 
   "enemies": {
     "description": "List of enemy types with their behaviors and relative threat levels.",
-    "anamyType": "Name of the enemy type.",
-    "anamyBehavior": "Primary action pattern of the enemy.",
+    "enemyType": "Name of the enemy type.",
+    "enemyBehavior": "Primary action pattern of the enemy.",
     "threatLevel": "Relative danger posed to the player."
   },
 
@@ -113,9 +113,22 @@
   "mechanics": {
     "description": "Concrete gameplay rules and loops.",
     "coreLoop": "Repeated sequence of actions defining gameplay.",
-    "enemySpawning": "How and when enemies appear.",
-    "difficulty": "How challenge increases over time.",
-    "failureState": "Conditions that end a play session."
+    "enemySpawning": {
+      "description": "How and when enemies appear.",  
+      "spawnType": "Type of spawning system used.",
+      "scalingFactors": "Parameters that influence spawn rates and types."
+      },
+      "difficulty": {
+        "description": "How challenge increases over time.",
+        "philosophy": "Approach to balancing challenge and player skill.",
+        "scalingModel": "Method used to increase difficulty.",
+        "noDifficultySelection": "Whether players can choose difficulty levels."
+      },
+      "failureState": {
+        "description": "Conditions that end a play session.",
+        "condition": "Player loses all lives",
+        "result": "What happens when the failure state is reached."
+      }
   },
 
   "difficultyDesign": {
@@ -126,8 +139,19 @@
 
   "ui": {
     "description": "User interface elements and feedback systems.",
-    "hud": "On-screen informational elements.",
-    "feedback": "Visual and audio responses to player actions."
+    "hud": {
+      "description": "On-screen informational elements.",
+      "hudElements": {
+        "description": "List of HUD components with their screen positions.",
+        "hudElementName": "Name of the HUD element.",
+        "hudElementPosition": "Position of the HUD element on the screen."
+      }
+    },
+    "feedback": {
+      "description": "Visual and audio responses to player actions.",  
+      "visual": "Screen effects and indicators",
+      "audio": "Sound effects and musical cues"
+    }
   },
 
   "artDirection": {
@@ -139,7 +163,11 @@
 
   "audioDesign": {
     "description": "Sound and music design approach.",
-    "music": "Rules governing background music.",
+    "music": {
+      "description": "Rules governing background music.",
+      "tempo": "Desired music speed and energy level.",
+      "adaptive": "Whether music changes based on gameplay."
+    },
     "soundDesignRules": "Guidelines for sound effect usage."
   },
 

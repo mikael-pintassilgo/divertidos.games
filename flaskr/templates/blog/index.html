@@ -2,7 +2,20 @@
 
 {% block header %}
   <div uk-grid class="">
-    <h1 class="">{% block title %}Elements{% endblock %}</h1>
+    <div class="row g-3 align-items-center">
+      <div class="col-auto">
+      <h1 class="">{% block title %}Elements{% endblock %}</h1>
+      </div>
+      <div class="col-auto">
+      <input type="text" class="form-control" id="search_term" placeholder="Text to search..." name="search_term" value="{{ search_term }}">
+      </div>
+      <div class="col-auto">
+      <button type="button" class="btn btn-primary" onclick="window.location.href='{{ url_for('index') }}' + '?search=' + document.getElementById('search_term').value">Search</button>
+      </div>
+      <div class="col-auto">
+      <button type="button" class="btn btn-secondary" onclick="window.location.href='{{ url_for('index') }}'">Clear</button>
+      </div>
+    </div>
     {% if g.user %}
     <a class="" href="{{ url_for('blog.create') }}">add element</a>
     {% endif %}
@@ -73,10 +86,10 @@
   <nav aria-label="Pagination">
     <ul class="pagination">
       {% if currentPage > 1 %}
-      <li class="page-item"><a class="page-link" href="{{ url_for('index') + '?page='+(currentPage-1)|string }}">Previous</a></li>
+      <li class="page-item"><a class="page-link" href="{{ url_for('index') + '?page='+(currentPage-1)|string+ '&search=' + search_term }}">Previous</a></li>
       {% else %}
       {% endif %}
-      <li class="page-item"><a class="page-link" href="{{ url_for('index') + '?page='+(currentPage+1)|string }}">Next</a></li>
+      <li class="page-item"><a class="page-link" href="{{ url_for('index') + '?page='+(currentPage+1)|string+ '&search=' + search_term }}">Next</a></li>
     </ul>
   </nav>
 </div>

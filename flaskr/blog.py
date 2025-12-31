@@ -16,7 +16,7 @@ from .db import get_db
 
 bp = Blueprint("blog", __name__)
 
-def get_elements(_page, tags_list):
+def get_elements(_page, tags_list, search_term=''):
     db = get_db()
     
     if (_page == None):
@@ -56,7 +56,19 @@ def get_elements(_page, tags_list):
                 " LIMIT " + str(offset) + "," + str(limit),
                 (json.dumps([row[0] for row in elements_ids]),),
             ).fetchall()        
-        
+    
+    elif (search_term != '' and search_term is not None):
+        search_pattern = f"%{search_term}%"
+        posts = db.execute(
+            "SELECT e.id, e.parent_id, e.title as title, parent.title as parent_title, substr(e.body, 1, 170) as body, e.created, e.author_id, u.username, e.tags"
+            "  FROM element e"
+            "  JOIN user u ON e.author_id = u.id"
+            "  LEFT JOIN element parent ON e.parent_id = parent.id"
+            " WHERE e.title LIKE ? OR e.body LIKE ? OR e.comment LIKE ?"
+            " ORDER BY e.created DESC"
+            " LIMIT " + str(offset) + "," + str(limit),
+            (search_pattern, search_pattern, search_pattern),
+        ).fetchall()    
     else:
         #tag_title = ""
         #tags_list = []
@@ -75,6 +87,9 @@ def get_elements(_page, tags_list):
 @bp.route("/")
 def index():
     tag_title = request.args.get('tag')
+    print('rquest.method = ' + str(request.method))
+    search_term = request.args.get('search', '')
+    print('search_term = ' + str(search_term))
     coockie_tags = request.cookies.get('tags')
     
     if (tag_title):
@@ -91,14 +106,14 @@ def index():
     # end tags in coockie
     
     _page = request.args.get('page')
-    posts, currentPage = get_elements(_page, tags_list)
+    posts, currentPage = get_elements(_page, tags_list, search_term=search_term)
         
-    return render_template("blog/index.html", posts=posts, tag=tag_title, tags=tags_list, currentPage=currentPage)
+    return render_template("blog/index.html", posts=posts, tag=tag_title, tags=tags_list, currentPage=currentPage, search_term=search_term)
 
 @bp.route("/services", methods=("GET",))
 @login_required
 def services():
-    return render_template("blog/services.html", messages=[])
+    return render_template("services/services.html", messages=[])
 
 def clean_key(text):
     # Adds space between camelCase and capitalizes
@@ -131,6 +146,29 @@ def add_element_from_dict(db, title, body, parent_id=None):
     
     return existing_element['id']
 
+def load_dictionary_recursive(db, dict_data, parent_id=None):
+    for key, value in dict_data.items():
+            #body = item.get('description', item.get('body', ''))
+            if isinstance(value, str):
+                id = add_element_from_dict(db, clean_key(key), value, parent_id)
+                #messages.append({'key': clean_key(key), 'value': value, 'id': id})
+            elif isinstance(value, dict):
+                description = value.get('description', '')
+                parent_id = add_element_from_dict(db, clean_key(key), description, parent_id)
+                #messages.append({'key': clean_key(key), 'value': description, 'id': parent_id})
+                
+                for sub_key, sub_value in value.items():
+                    if sub_key != 'description':
+                        if isinstance(sub_value, str):
+                            id = add_element_from_dict(db, clean_key(sub_key), sub_value, parent_id)
+                        elif isinstance(sub_value, dict):
+                            load_dictionary_recursive(db, sub_value, parent_id=parent_id)
+                        #messages.append({'sub_key': clean_key(sub_key), 'sub_value': sub_value, 'id': id})
+                        
+            else:
+                pass
+                #messages.append({'key': clean_key(key), 'value': 'Unsupported data type'})
+
 @bp.route("/services/<path:service_name>", methods=("POST",))
 @login_required
 def load_dictionary(service_name):
@@ -143,27 +181,15 @@ def load_dictionary(service_name):
             dict_data = json.load(f)
 
         messages = []
-        for key, value in dict_data.items():
-            #body = item.get('description', item.get('body', ''))
-            if isinstance(value, str):
-                id = add_element_from_dict(db, clean_key(key), value)
-                messages.append({'key': clean_key(key), 'value': value, 'id': id})
-            elif isinstance(value, dict):
-                description = value.get('description', '')
-                parent_id = add_element_from_dict(db, clean_key(key), description)
-                messages.append({'key': clean_key(key), 'value': description, 'id': parent_id})
-                
-                for sub_key, sub_value in value.items():
-                    if sub_key != 'description':
-                        id = add_element_from_dict(db, clean_key(sub_key), sub_value, parent_id)
-                        messages.append({'sub_key': clean_key(sub_key), 'sub_value': sub_value, 'id': id})
-                        
-            else:
-                messages.append({'key': clean_key(key), 'value': 'Unsupported data type'})
+        try:
+            load_dictionary_recursive(db, dict_data)
+            messages.append('Dictionary loaded successfully.')
+        except Exception as e:
+            messages.append('Error loading dictionary: ' + str(e))
             
-        return render_template("blog/services.html", messages=messages)
+        return render_template("services/services.html", messages=messages)
     else:
-        return render_template("blog/services.html", messages=['Unknown service requested: ' + service_name])
+        return render_template("services/services.html", messages=['Unknown service requested: ' + service_name])
 
 @bp.route("/get_elements_for_selection", methods=("GET", "POST"))
 @login_required

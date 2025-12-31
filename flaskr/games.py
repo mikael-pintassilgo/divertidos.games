@@ -230,27 +230,37 @@ def insert_elements(db, game_id, data, parent_ge_id=None):
         current_ge_id = cursor.lastrowid
         return current_ge_id
         
-    def insert_dict(key, value):
-        current_ge_id = insert_simple_value(key, '') # Create a parent game_element for the dict
+    def insert_dict(key, value, p_parent_ge_id):
+        current_ge_id = insert_simple_value(key, '', p_parent_ge_id) # Create a parent game_element for the dict
         
         # Recursively insert nested elements
-        insert_elements(db, game_id, value, current_ge_id)
+        dict_description = insert_elements(db, game_id, value, current_ge_id)
+        if dict_description:
+            db.execute(
+                "UPDATE game_and_element SET description = ? WHERE id = ?",
+                (dict_description.strip(), current_ge_id),
+            )
     
+    simple_values_as_one_string = ''
+    only_simiple_values = True
     for key, value in data.items():
         if key in ["title"]:
             continue
         
         if isinstance(value, dict):
-            insert_dict(key, value)
+            insert_dict(key, value, parent_ge_id)
+            only_simiple_values = False
             
         elif isinstance(value, list):
+            only_simiple_values = False
             current_ge_id = insert_simple_value(key, '') # Create a parent game_element for the list
             
             # Create game_element for list items
             list_description = ""
             for idx, item in enumerate(value):
                 if isinstance(item, dict):
-                    insert_elements(db, game_id, item, current_ge_id)
+                    #insert_elements(db, game_id, item, current_ge_id)
+                    insert_dict(key, item, current_ge_id)
                 else:
                     insert_simple_value(key, item, current_ge_id)
                     if list_description:
@@ -265,8 +275,17 @@ def insert_elements(db, game_id, data, parent_ge_id=None):
                     (list_description.strip(), current_ge_id),
                 )
         else:
+            if simple_values_as_one_string:
+                simple_values_as_one_string += f" - {str(value).strip()}"
+            else:
+                simple_values_as_one_string = str(value).strip()
             insert_simple_value(key, value)
-    
+            
+    if only_simiple_values:
+        return simple_values_as_one_string
+    else:
+        return ''
+
 def import_game_data(game_data_json):
     """Import a new game for the current user."""
     db = get_db()
