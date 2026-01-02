@@ -17,32 +17,7 @@
 <div class='row mt-3'>
   <div class='col-12'>
   
-    <div class="card" style="">
-      <div class="card-header">Game Details</div>
-      <div class="card-body">
-        <h5 class="card-title">{{ game['title'] }}
-        </h5>
-        
-        <div name="body" id="body">
-          <p class="fs-4">{{ request.form['body'] or game['body'] }}</p>
-        </div>
-        
-        <br/>
-        <div class= "text-body-secondary" name="comment" id="comment">
-          <p class="fs-4">{{ request.form['comment'] or game['comment'] }}</p>
-        </div>
-  
-      </div>
-      <div class="card-body">
-        {% if g.user['id'] == game['author_id'] %}
-        <a class="card-link" aria-current="page" href="{{ url_for('games.update', id=game['id']) }}">edit</a>
-        <a class="card-link" href="{{ url_for('games.get_full_description', id=game['id']) }}">get full description</a>
-        {% else %}
-        <a class="card-link" href="{{ url_for('games.get_full_description', id=game['id']) }}">get full description</a>
-        {% endif %}  
-      </div>
-
-    </div>
+    <h5 class="title">{{ game['title'] }}
   
   </div>
 </div>
@@ -52,27 +27,90 @@
 
     <ul class="nav nav-tabs" id="myTab" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">Elements</button>
+        <button class="nav-link {{'active' if request.args.get('tab') != 'elements' else ''}}" id="general-tab" data-bs-toggle="tab" data-bs-target="#general-tab-pane" type="button" role="tab" aria-controls="general-tab-pane" aria-selected="true">Game Info</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">Links</button>
+        <button class="nav-link {{'active' if request.args.get('tab') == 'elements' else ''}}" id="elements-tab" data-bs-toggle="tab" data-bs-target="#elements-tab-pane" type="button" role="tab" aria-controls="elements-tab-pane" aria-selected="false">
+          Elements
+          {% if game_elements_tree %}
+            <span class="badge bg-secondary">filled</span>
+          {% endif %}
+        </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">Tags</button>
+        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">
+          Link
+          {% if links %}
+            <span class="badge bg-secondary">filled</span>
+          {% endif %}
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">
+          Tags
+          {% if tags %}
+            <span class="badge bg-secondary">filled</span>
+          {% endif %}
+        </button>
       </li>
     </ul>
-    
+
     <div class="tab-content" id="myTabContent">
-      <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
-        {% if parent_id != None and parent_id != '' %}
+      <div class="tab-pane fade {{'show active' if request.args.get('tab') != 'elements' else ''}}" id="general-tab-pane" role="tabpanel" aria-labelledby="general-tab" tabindex="0">
+
+        <div class="mt-3" name="body" id="body">
+          <p class="fs-4">{{ request.form['body'] or game['body'] }}</p>
+        </div>
+        
+        <div class="text-body-secondary mt-1" name="comment" id="comment">
+          <p class="fs-4">{{ request.form['comment'] or game['comment'] }}</p>
+        </div>
+    
+        <div class="row mt-3">
+          <div class="col-12">
+            {% if g.user['id'] == game['author_id'] %}
+            <a class="card-link" aria-current="page" href="{{ url_for('games.update', id=game['id']) }}">edit</a>
+            <a class="card-link" href="{{ url_for('games.get_full_description', id=game['id']) }}">get full description</a>
+            {% else %}
+            <a class="card-link" href="{{ url_for('games.get_full_description', id=game['id']) }}">get full description</a>
+            {% endif %}  
+          </div>
+        </div>
+
+      </div>
+
+      <div class="tab-pane fade {{'show active' if request.args.get('tab') == 'elements' else ''}}" id="elements-tab-pane" role="tabpanel" aria-labelledby="elements-tab" tabindex="0">
+          
+        <div class="input-group mb-1 mt-3">
+          <div class="d-flex gap-3 mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="varitanOfElementsVeiw" id="listView" value="all"
+              {% if request.args.get('varitanOfElementsVeiw') == 'all' or request.args.get('varitanOfElementsVeiw') == None %}checked{% endif %}
+              onchange="window.location.href='{{ url_for('games.view', id=game['id'], parent_id=parent_id, varitanOfElementsVeiw='all', tab='elements') }}'">
+              <label class="form-check-label" for="listView">
+                All elements
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="varitanOfElementsVeiw" id="oneLevelView" value="oneLevel"
+              {% if request.args.get('varitanOfElementsVeiw') == 'oneLevel' %}checked{% endif %}
+              onchange="window.location.href='{{ url_for('games.view', id=game['id'], parent_id=parent_id, varitanOfElementsVeiw='oneLevel', tab='elements') }}'">
+              <label class="form-check-label" for="oneLevelView">
+                Elements of the same level
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {% if parent_id != None and parent_id != '' and request.args.get('varitanOfElementsVeiw') == 'oneLevel' %}
           <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
             <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a href="{{ url_for('games.view', id=game['id']) }}">Top elements</a></li>
+              <li class="breadcrumb-item"><a href="{{ url_for('games.view', id=game['id'], varitanOfElementsVeiw='oneLevel', tab='elements') }}">1st level elements</a></li>
               {% for parent in game_elements_parents %}
                 {% if loop.last %}
                 <li class="breadcrumb-item active" aria-current="page">{{ parent.description }}</li>
                 {% else %}
-                <li class="breadcrumb-item"><a href="{{ url_for('games.view', id=game['id'], parent_id=parent.id) }}">{{ parent.description }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('games.view', id=game['id'], parent_id=parent.id, varitanOfElementsVeiw='oneLevel', tab='elements') }}">{{ parent.description }}</a></li>
                 {% endif %}
               {% endfor %}
               <!-- <li class="breadcrumb-item active" aria-current="page">{{ parent }}</li> -->
@@ -86,64 +124,62 @@
               <tr>
                 <th scope="col">Title</th>
                 <th scope="col">Description</th>
-                <!-- <th scope="col">Consist of</th> -->
+                {% if request.args.get('varitanOfElementsVeiw') == 'oneLevel' %}<th scope="col">Consist of</th> {% endif %}
                 <th scope="col">More...</th>          
               </tr>
             </thead>
             
-            {% macro render_elements(elements, level=0) %}
-              {% for element in elements %}
-                <tr>
-                  <td style="padding-left: {{ level * 20 }}px;">
-                    <p><a href="{{ url_for('blog.view', id=element['e_id']) }}">{{ element['title'] }}</a></p>
-                  </td>
-                  <td style="padding-left: {{ level * 20 }}px;">
-                    <p>{{ element['description'] }}</p>
-                  </td>
-                  <td>
-                    <a class="btn btn-primary btn-sm" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">more...</a>
-                  </td>
-                </tr>
-                {% if element.children %}
-                  {{ render_elements(element.children, level + 1) }}
+            {% if request.args.get('varitanOfElementsVeiw') != 'oneLevel' %}
+              {% macro render_elements(elements, level=0) %}
+                {% for element in elements %}
+                  <tr>
+                    <td style="padding-left: {{ level * 20 }}px;">
+                      <p><a href="{{ url_for('blog.view', id=element['e_id']) }}">{{ element['title'] }}</a></p>
+                    </td>
+                    <td style="padding-left: {{ level * 20 }}px;">
+                      <p>{{ element['description'] }}</p>
+                    </td>
+                    <td>
+                      <a class="btn btn-primary btn-sm" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">more...</a>
+                    </td>
+                  </tr>
+                  {% if element.children %}
+                    {{ render_elements(element.children, level + 1) }}
+                  {% endif %}
+                {% endfor %}
+              {% endmacro %}
+              {{ render_elements(game_elements_tree) }}
+
+            {% else %}
+            
+              {% for game_element in game_elements %}
+                {% if (game_element['parent_element_id'] == None or game_element['parent_element_id'] == '') or parent_id|string == game_element['parent_element_id']|string %}
+                  <tr>
+                      <td>
+                        <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}">{{ game_element['title'] }}</a></p>
+                      </td>
+                      <td>
+                        <p>{{ game_element['description'] }}</p>
+                      </td>
+                      
+                      <td>
+                        {% if game_element['consist_count'] == 1 %}
+                        <p><a href="{{ url_for('games.view', id=game['id'], parent_id=game_element['ge_id'], varitanOfElementsVeiw='oneLevel', tab='elements') }}">1 element</a></p>
+                        {% elif game_element['consist_count'] > 1 %}
+                        <p><a href="{{ url_for('games.view', id=game['id'], parent_id=game_element['ge_id'], varitanOfElementsVeiw='oneLevel', tab='elements') }}">{{ game_element['consist_count'] }} elements</a></p>
+                        {% else %}
+                        <p/>
+                        {% endif %}
+                        
+                      </td>
+                      <td class="">
+                        <a class="btn btn-primary btn-sm" href="{{ url_for('game_elements.view', ge_id=game_element['ge_id'], game_id=game['id']) }}">more...</a>
+                      </td>
+                      
+                  </tr>
                 {% endif %}
               {% endfor %}
-            {% endmacro %}
-            {{ render_elements(game_elements_tree) }}
-            <!--
-            {% for game_element in game_elements %}
-              {% if (game_element['parent_element_id'] == None or game_element['parent_element_id'] == '') or parent_id|string == game_element['parent_element_id']|string %}
-                <tr>
-                    <td>
-                      {% if game_element['previous_ge_description'] is not none %}
-                      <p>{{ game_element['previous_ge_description'] }}</p>
-                      {% endif %}
-                    </td>
-                    <td>
-                      <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}">{{ game_element['title'] }}</a></p>
-                    </td>
-                    <td>
-                      <p>{{ game_element['description'] }}</p>
-                    </td>
-                    
-                    <td>
-                      {% if game_element['consist_count'] == 1 %}
-                      <p><a href="{{ url_for('games.view', id=game['id'], parent_id=game_element['ge_id']) }}">1 element</a></p>
-                      {% elif game_element['consist_count'] > 1 %}
-                      <p><a href="{{ url_for('games.view', id=game['id'], parent_id=game_element['ge_id']) }}">{{ game_element['consist_count'] }} elements</a></p>
-                      {% else %}
-                      <p/>
-                      {% endif %}
-                      
-                    </td>
-                    <td class="">
-                      <a class="btn btn-primary btn-sm" href="{{ url_for('game_elements.view', ge_id=game_element['ge_id'], game_id=game['id']) }}">more...</a>
-                    </td>
-                    
-                </tr>
-              {% endif %}
-            {% endfor %}
-            -->
+            {% endif %}
           </tbody>
           
         </table>
@@ -199,6 +235,14 @@
   /*el = document.getElementById("body");
   el.innerHTML = "{{ (request.form['body'] or game['body']) }}";
   console.log("{{ (request.form['body'] or game['body']) }}");*/
+</script>
+<script>
+  const TAB_STORAGE_KEY = 'games_view_active_tab';
+  
+  // Save active tab on change
+  document.getElementById('myTab').addEventListener('shown.bs.tab', (e) => {
+    localStorage.setItem(TAB_STORAGE_KEY, e.target.id);
+  });
 </script>
 
 {% endblock %}

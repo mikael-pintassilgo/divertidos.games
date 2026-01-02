@@ -35,10 +35,12 @@
             <a class="nav-link {% block tags_active %}{% endblock %}" href="{{ url_for('tags.index') }}">Hashtags</a>
           </li>
         </ul>
+        <!--
         <form class="d-flex" role="search">
           <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
           <button class="btn btn-outline-info" type="submit">Search</button>
         </form>
+        -->
         {% if g.user %}
         <ul class="navbar-nav d-flex justify-content-end ms-2">
           <li class="navbar-text ml-2">{{ g.user['username'] }}</li>
