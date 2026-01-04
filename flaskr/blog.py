@@ -126,7 +126,7 @@ def get_element_by_title(db, title):
     ).fetchone()
     return element
 
-def add_element_from_dict(db, title, body, parent_id=None):
+def add_element_from_dict(just_check_flag, db, title, body, parent_id=None):
     if body.strip() == '' or title.strip() == '':
         return
                 
@@ -137,35 +137,39 @@ def add_element_from_dict(db, title, body, parent_id=None):
     ).fetchone()
 
     if not existing_element:
-        cursor = db.execute(
-            "INSERT INTO element (title, body, parent_id, author_id) VALUES (?, ?, ?, ?)",
-            (title, body, parent_id, g.user["id"])
-        )
-        db.commit()
-        return cursor.lastrowid
+        if just_check_flag:
+            return None
+        else:
+            cursor = db.execute(
+                "INSERT INTO element (title, body, parent_id, author_id) VALUES (?, ?, ?, ?)",
+                (title, body, parent_id, g.user["id"])
+            )
+            db.commit()
+            return cursor.lastrowid
     
     return existing_element['id']
 
-def load_dictionary_recursive(ids, db, dict_data, parent_id=None):
+def load_dictionary_recursive(just_check_flag, ids, db, dict_data, parent_id=None):
     for key, value in dict_data.items():
             #body = item.get('description', item.get('body', ''))
-            if isinstance(value, str):
-                id = add_element_from_dict(db, clean_key(key), value, parent_id)
+            if isinstance(value, str): # or isinstance(value, int) or isinstance(value, float):
+                id = add_element_from_dict(just_check_flag, db, clean_key(key), value, parent_id)
                 ids.append({ 'id': id, 'title': clean_key(key), 'body': value })
+                print('Added element: ' + str(clean_key(key)) + ' with id: ' + str(id))
                 #messages.append({'key': clean_key(key), 'value': value, 'id': id})
             elif isinstance(value, dict):
                 description = value.get('description', '')
-                parent_id = add_element_from_dict(db, clean_key(key), description, parent_id)
+                parent_id = add_element_from_dict(just_check_flag, db, clean_key(key), description, parent_id)
                 ids.append({ 'id': parent_id, 'title': clean_key(key), 'body': description })
                 #messages.append({'key': clean_key(key), 'value': description, 'id': parent_id})
                 
                 for sub_key, sub_value in value.items():
                     if clean_key(sub_key) != 'Description':
                         if isinstance(sub_value, str):
-                            id = add_element_from_dict(db, clean_key(sub_key), sub_value, parent_id)
+                            id = add_element_from_dict(just_check_flag, db, clean_key(sub_key), sub_value, parent_id)
                             ids.append({ 'id': id, 'title': clean_key(sub_key), 'body': sub_value })
                         elif isinstance(sub_value, dict):
-                            load_dictionary_recursive(ids, db, sub_value, parent_id=parent_id)
+                            load_dictionary_recursive(just_check_flag, ids, db, sub_value, parent_id=parent_id)
                         #messages.append({'sub_key': clean_key(sub_key), 'sub_value': sub_value, 'id': id})
                         
             else:
@@ -178,6 +182,9 @@ def load_dictionary(service_name):
     if service_name == 'load_dictionary':
         db = get_db()
         json_input = request.form.get('json_input')
+        just_check_flag = True if request.form.get('just_check_flag') else False
+        print('just_check_flag = ' + str(just_check_flag))
+        
         if not json_input:
             # Load dictionary logic here
             dict_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../flaskr/static/dictionary/dictionary.json'))
@@ -193,7 +200,7 @@ def load_dictionary(service_name):
         messages = []
         ids = []
         try:
-            load_dictionary_recursive(ids, db, dict_data)
+            load_dictionary_recursive(just_check_flag, ids, db, dict_data)
             messages.append('Dictionary loaded successfully.')
         except Exception as e:
             messages.append('Error loading dictionary: ' + str(e))

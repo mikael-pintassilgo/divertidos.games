@@ -11,7 +11,13 @@
           <div class="form-text">You can paste your game data in JSON format here.</div>
         </div>
 
+        <div class="form-check mb-1">          
+          <input class="form-check-input" type="checkbox" name="just_check_flag" id="just_check_flag" value="True" checked></input>
+          <label class="form-check-label" for="just_check_flag">Just check</label>
+        </div>
+        
         <input class="btn btn-warning" type="submit" value="Load dictionary" onclick="return confirm('Are you sure?');">
+        
     </form>
     {% endif %}
   </div>
@@ -31,7 +37,11 @@
   <h2>Added Element IDs:</h2>
   <ul>
     {% for id_data in ids %}
+      {% if id_data.id %}
       <li>{{id_data.id}}: <a href="{{ url_for('blog.view', id=id_data.id) }}">{{ id_data.title }} - {{ id_data.body }}</a></li>
+      {% else %}
+      <li>{{ id_data.title }} - {{ id_data.body }}</li>
+      {% endif %}
     {% endfor %}
   </ul>
 {% endif %}

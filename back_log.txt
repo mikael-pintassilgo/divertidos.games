@@ -14,3 +14,4 @@
     5. Make you own game concept using data from this games.
     6. Export you game data and ask chat GPT to conver in using promt from the site.
     7. Use this concept document to comunicate with you team or investors or audience.
+- Export to Google Spreadsheet or to Exel, for following competitors analysis.
