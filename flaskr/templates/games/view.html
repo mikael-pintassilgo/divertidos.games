@@ -80,7 +80,16 @@
       </div>
 
       <div class="tab-pane fade {{'show active' if request.args.get('tab') == 'elements' else ''}}" id="elements-tab-pane" role="tabpanel" aria-labelledby="elements-tab" tabindex="0">
-          
+        
+        {% if not_existed_items %}
+          <h2>Did not added elements (not exist):</h2>
+          <ul>
+            {% for title in not_existed_items %}
+              <li>{{title}}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
         <div class="input-group mb-1 mt-3">
           <div class="d-flex gap-3 mb-3">
             <div class="form-check">

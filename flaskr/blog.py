@@ -52,7 +52,7 @@ def get_elements(_page, tags_list, search_term=''):
                 "  FROM element e"
                 "  JOIN user u ON e.author_id = u.id"
                 " WHERE e.id in (SELECT value FROM json_each(?))"
-                " ORDER BY e.created DESC"
+                " ORDER BY e.title ASC"
                 " LIMIT " + str(offset) + "," + str(limit),
                 (json.dumps([row[0] for row in elements_ids]),),
             ).fetchall()        
@@ -65,7 +65,7 @@ def get_elements(_page, tags_list, search_term=''):
             "  JOIN user u ON e.author_id = u.id"
             "  LEFT JOIN element parent ON e.parent_id = parent.id"
             " WHERE e.title LIKE ? OR e.body LIKE ? OR e.comment LIKE ?"
-            " ORDER BY e.created DESC"
+            " ORDER BY e.title ASC"
             " LIMIT " + str(offset) + "," + str(limit),
             (search_pattern, search_pattern, search_pattern),
         ).fetchall()    
@@ -78,7 +78,7 @@ def get_elements(_page, tags_list, search_term=''):
             "  FROM element e"
             "  JOIN user u ON e.author_id = u.id"
             "  LEFT JOIN element parent ON e.parent_id = parent.id"
-            " ORDER BY e.created DESC"
+            " ORDER BY e.title ASC"
             " LIMIT " + str(offset) + "," + str(limit)
         ).fetchall()
         
@@ -146,23 +146,26 @@ def add_element_from_dict(db, title, body, parent_id=None):
     
     return existing_element['id']
 
-def load_dictionary_recursive(db, dict_data, parent_id=None):
+def load_dictionary_recursive(ids, db, dict_data, parent_id=None):
     for key, value in dict_data.items():
             #body = item.get('description', item.get('body', ''))
             if isinstance(value, str):
                 id = add_element_from_dict(db, clean_key(key), value, parent_id)
+                ids.append({ 'id': id, 'title': clean_key(key), 'body': value })
                 #messages.append({'key': clean_key(key), 'value': value, 'id': id})
             elif isinstance(value, dict):
                 description = value.get('description', '')
                 parent_id = add_element_from_dict(db, clean_key(key), description, parent_id)
+                ids.append({ 'id': parent_id, 'title': clean_key(key), 'body': description })
                 #messages.append({'key': clean_key(key), 'value': description, 'id': parent_id})
                 
                 for sub_key, sub_value in value.items():
-                    if sub_key != 'description':
+                    if clean_key(sub_key) != 'Description':
                         if isinstance(sub_value, str):
                             id = add_element_from_dict(db, clean_key(sub_key), sub_value, parent_id)
+                            ids.append({ 'id': id, 'title': clean_key(sub_key), 'body': sub_value })
                         elif isinstance(sub_value, dict):
-                            load_dictionary_recursive(db, sub_value, parent_id=parent_id)
+                            load_dictionary_recursive(ids, db, sub_value, parent_id=parent_id)
                         #messages.append({'sub_key': clean_key(sub_key), 'sub_value': sub_value, 'id': id})
                         
             else:
@@ -174,20 +177,28 @@ def load_dictionary_recursive(db, dict_data, parent_id=None):
 def load_dictionary(service_name):
     if service_name == 'load_dictionary':
         db = get_db()
-        
-        # Load dictionary logic here
-        dict_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../flaskr/static/dictionary/dictionary.json'))
-        with open(dict_path, 'r') as f:
-            dict_data = json.load(f)
+        json_input = request.form.get('json_input')
+        if not json_input:
+            # Load dictionary logic here
+            dict_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../flaskr/static/dictionary/dictionary.json'))
+            with open(dict_path, 'r') as f:
+                dict_data = json.load(f)
+        else:
+            try:
+                dict_data = json.loads(json_input)
+            except json.JSONDecodeError as e:
+                messages = ['Invalid JSON input: ' + str(e)]
+                return render_template("services/services.html", messages=messages)
 
         messages = []
+        ids = []
         try:
-            load_dictionary_recursive(db, dict_data)
+            load_dictionary_recursive(ids, db, dict_data)
             messages.append('Dictionary loaded successfully.')
         except Exception as e:
             messages.append('Error loading dictionary: ' + str(e))
             
-        return render_template("services/services.html", messages=messages)
+        return render_template("services/services.html", messages=messages, ids=ids)
     else:
         return render_template("services/services.html", messages=['Unknown service requested: ' + service_name])
 

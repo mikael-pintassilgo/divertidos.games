@@ -213,14 +213,15 @@ def create():
     return render_template("games/create.html")
 
 # Recursively insert game elements
-def insert_elements(db, game_id, data, parent_ge_id=None):
+def insert_elements(not_existed_items, db, game_id, data, parent_ge_id=None):
         
     def insert_simple_value(key, value, _parent_ge_id=parent_ge_id):
         # Try to find element by title
         row = get_element_by_title(db, key)
         if row is None:
             # element not found: skip inserting into game_and_element
-            return
+            not_existed_items.append(key)
+            return None
         element_id = row["id"]
         
         cursor = db.execute(
@@ -233,8 +234,11 @@ def insert_elements(db, game_id, data, parent_ge_id=None):
     def insert_dict(key, value, p_parent_ge_id):
         current_ge_id = insert_simple_value(key, '', p_parent_ge_id) # Create a parent game_element for the dict
         
+        if current_ge_id is None:
+            return None
+
         # Recursively insert nested elements
-        dict_description = insert_elements(db, game_id, value, current_ge_id)
+        dict_description = insert_elements(not_existed_items,db, game_id, value, current_ge_id)
         if dict_description:
             db.execute(
                 "UPDATE game_and_element SET description = ? WHERE id = ?",
@@ -254,12 +258,13 @@ def insert_elements(db, game_id, data, parent_ge_id=None):
         elif isinstance(value, list):
             only_simiple_values = False
             current_ge_id = insert_simple_value(key, '') # Create a parent game_element for the list
+            if current_ge_id is None:
+                continue
             
             # Create game_element for list items
             list_description = ""
             for idx, item in enumerate(value):
                 if isinstance(item, dict):
-                    #insert_elements(db, game_id, item, current_ge_id)
                     insert_dict(key, item, current_ge_id)
                 else:
                     insert_simple_value(key, item, current_ge_id)
@@ -286,7 +291,7 @@ def insert_elements(db, game_id, data, parent_ge_id=None):
     else:
         return ''
 
-def import_game_data(game_data_json):
+def import_game_data(game_data_json, is_checking=False):
     """Import a new game for the current user."""
     db = get_db()
     
@@ -303,9 +308,10 @@ def import_game_data(game_data_json):
     )
     game_id = cursor.lastrowid
 
-    insert_elements(db, game_id, game_info)
+    not_existed_items = []
+    insert_elements(not_existed_items, db, game_id, game_info)
     db.commit()
-    return game_id
+    return game_id, not_existed_items
 
 @bp.route("/import-game", methods=("GET", "POST"))
 @login_required
@@ -322,7 +328,8 @@ def import_game():
             flash(error)
         else:
             game_data_json = json.loads(game_json)
-            game_id = import_game_data(game_data_json)
+            game_id, not_existed_items = import_game_data(game_data_json)
+            print("not_existed_items: ", not_existed_items)
             return redirect(url_for("games.view", id=game_id))
 
     return render_template("games/import_game.html")

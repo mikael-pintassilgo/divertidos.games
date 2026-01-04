@@ -5,7 +5,13 @@
     <h1 class="">{% block title %}Services{% endblock %}</h1>
     {% if g.user %}
     <form action="{{ url_for('blog.load_dictionary', service_name='load_dictionary') }}" method="post">
-      <input class="btn btn-warning" type="submit" value="Load dictionary" onclick="return confirm('Are you sure?');">
+      <div class="mb-3">
+          <label for="json_input" class="form-label">Elements data in JSON format</label>
+          <textarea class="form-control" name="json_input" id="json_input" rows="10" placeholder="Paste your elements data in JSON format here ..."></textarea>
+          <div class="form-text">You can paste your game data in JSON format here.</div>
+        </div>
+
+        <input class="btn btn-warning" type="submit" value="Load dictionary" onclick="return confirm('Are you sure?');">
     </form>
     {% endif %}
   </div>
@@ -20,5 +26,14 @@
 {% for message in messages %}
   <div class="">{{ message }}</div>
 {% endfor %}
+<br>
+{% if ids %}
+  <h2>Added Element IDs:</h2>
+  <ul>
+    {% for id_data in ids %}
+      <li>{{id_data.id}}: <a href="{{ url_for('blog.view', id=id_data.id) }}">{{ id_data.title }} - {{ id_data.body }}</a></li>
+    {% endfor %}
+  </ul>
+{% endif %}
 {% endblock %}
 
