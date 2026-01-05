@@ -10,7 +10,7 @@ from werkzeug.exceptions import abort
 
 from .auth import login_required
 from .db import get_db
-from .blog import get_element_by_title
+from .blog import get_element_by_title, clean_key
 
 bp = Blueprint("games", __name__, url_prefix="/games")
 
@@ -213,23 +213,26 @@ def create():
     return render_template("games/create.html")
 
 # Recursively insert game elements
-def insert_elements(not_existed_items, db, game_id, data, parent_ge_id=None):
+def insert_elements(just_check_flag, not_existed_items, db, game_id, data, parent_ge_id=None):
         
     def insert_simple_value(key, value, _parent_ge_id=parent_ge_id):
         # Try to find element by title
         row = get_element_by_title(db, key)
         if row is None:
             # element not found: skip inserting into game_and_element
-            not_existed_items.append(key)
+            not_existed_items.append(clean_key(key))
             return None
         element_id = row["id"]
         
-        cursor = db.execute(
-            "INSERT INTO game_and_element (type_of_id, element_id, parent_element_id, author_id, game_id, description) VALUES (?, ?, ?, ?, ?, ?)",
-            ("element", element_id, _parent_ge_id, g.user["id"], game_id, str(value)),
-        )
-        current_ge_id = cursor.lastrowid
-        return current_ge_id
+        if not just_check_flag:
+            cursor = db.execute(
+                "INSERT INTO game_and_element (type_of_id, element_id, parent_element_id, author_id, game_id, description) VALUES (?, ?, ?, ?, ?, ?)",
+                ("element", element_id, _parent_ge_id, g.user["id"], game_id, str(value)),
+            )
+            current_ge_id = cursor.lastrowid
+            return current_ge_id
+        else:
+            return -1  # Dummy ge_id for just checking
         
     def insert_dict(key, value, p_parent_ge_id):
         current_ge_id = insert_simple_value(key, '', p_parent_ge_id) # Create a parent game_element for the dict
@@ -238,8 +241,8 @@ def insert_elements(not_existed_items, db, game_id, data, parent_ge_id=None):
             return None
 
         # Recursively insert nested elements
-        dict_description = insert_elements(not_existed_items,db, game_id, value, current_ge_id)
-        if dict_description:
+        dict_description = insert_elements(just_check_flag, not_existed_items, db, game_id, value, current_ge_id)
+        if dict_description and not just_check_flag:
             db.execute(
                 "UPDATE game_and_element SET description = ? WHERE id = ?",
                 (dict_description.strip(), current_ge_id),
@@ -248,7 +251,7 @@ def insert_elements(not_existed_items, db, game_id, data, parent_ge_id=None):
     simple_values_as_one_string = ''
     only_simiple_values = True
     for key, value in data.items():
-        if key in ["title"]:
+        if key in ["title", "gameDescription"]:
             continue
         
         if isinstance(value, dict):
@@ -274,7 +277,7 @@ def insert_elements(not_existed_items, db, game_id, data, parent_ge_id=None):
                         list_description = str(item)
                     
             # Update the parent game_element description with the list items
-            if list_description:
+            if list_description and not just_check_flag:
                 db.execute(
                     "UPDATE game_and_element SET description = ? WHERE id = ?",
                     (list_description.strip(), current_ge_id),
@@ -291,25 +294,29 @@ def insert_elements(not_existed_items, db, game_id, data, parent_ge_id=None):
     else:
         return ''
 
-def import_game_data(game_data_json, is_checking=False):
+def import_game_data(just_check_flag, game_data_json):
     """Import a new game for the current user."""
     db = get_db()
     
     game_info = game_data_json.get("game", {})
     title = game_info.get("title", "")
+    body = game_info.get("gameDescription", "")
     
     if not title:
         abort(400, "Game title is required.")
     
     # Insert main game
-    cursor = db.execute(
-        "INSERT INTO game (title, body, author_id, comment) VALUES (?, ?, ?, ?)",
-        (title, "", g.user["id"], ""),
-    )
-    game_id = cursor.lastrowid
+    if not just_check_flag:
+        cursor = db.execute(
+            "INSERT INTO game (title, body, author_id, comment) VALUES (?, ?, ?, ?)",
+            (title, body, g.user["id"], ""),
+        )
+        game_id = cursor.lastrowid
+    else:
+        game_id = -1  # Dummy game_id for just checking
 
     not_existed_items = []
-    insert_elements(not_existed_items, db, game_id, game_info)
+    insert_elements(just_check_flag, not_existed_items, db, game_id, game_info)
     db.commit()
     return game_id, not_existed_items
 
@@ -319,6 +326,9 @@ def import_game():
     """Import a new game for the current user."""
     if request.method == "POST":
         game_json = request.form["json_input"]
+        just_check_flag = True if request.form.get('just_check_flag') else False
+        print('just_check_flag = ' + str(just_check_flag))
+        
         error = None
 
         if not game_json:
@@ -328,9 +338,13 @@ def import_game():
             flash(error)
         else:
             game_data_json = json.loads(game_json)
-            game_id, not_existed_items = import_game_data(game_data_json)
+            game_id, not_existed_items = import_game_data(just_check_flag, game_data_json)
             print("not_existed_items: ", not_existed_items)
-            return redirect(url_for("games.view", id=game_id))
+            
+            if just_check_flag:
+                return render_template("games/import_game.html", not_existed_items=not_existed_items, game_json=game_json)
+            else:
+                return redirect(url_for("games.view", id=game_id))
 
     return render_template("games/import_game.html")
 

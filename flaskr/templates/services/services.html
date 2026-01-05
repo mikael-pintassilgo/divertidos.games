@@ -40,7 +40,7 @@
       {% if id_data.id %}
       <li>{{id_data.id}}: <a href="{{ url_for('blog.view', id=id_data.id) }}">{{ id_data.title }} - {{ id_data.body }}</a></li>
       {% else %}
-      <li>{{ id_data.title }} - {{ id_data.body }}</li>
+      <li class="bg-warning">{{ id_data.title }} - {{ id_data.body }}</li>
       {% endif %}
     {% endfor %}
   </ul>

@@ -7,13 +7,18 @@
       <fieldset class="">
         <div class="mb-3">
           <label for="json_input" class="form-label">Game data in JSON format</label>
-          <textarea class="form-control" name="json_input" id="json_input" rows="10" placeholder="Paste your game data in JSON format..."></textarea>
+          <textarea class="form-control" name="json_input" id="json_input" rows="10" placeholder="Paste your game data in JSON format...">{{ game_json }}</textarea>
           <div class="form-text">You can paste your game data in JSON format here.</div>
         </div>
-
+        
+        <div class="form-check mb-1">          
+          <input class="form-check-input" type="checkbox" name="just_check_flag" id="just_check_flag" value="True" checked></input>
+          <label class="form-check-label" for="just_check_flag">Just check</label>
+        </div>
+        
+        
         <div class="col-12">
 
-          <button type="button" class="btn btn-primary">Check before import</button>
           <button type="submit" class="btn btn-primary">Import new game</button>
           
         </div>
@@ -21,4 +26,14 @@
     </form>
   </div>
 </div>
+
+{% if not_existed_items %}
+  <h2>Not existed items:</h2>
+  <ul>
+    {% for not_existed_item in not_existed_items %}
+      <li class="bg-warning">{{ not_existed_item }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
 {% endblock %}

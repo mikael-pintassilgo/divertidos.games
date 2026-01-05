@@ -2,6 +2,7 @@
   "game": "Root object containing all data required to describe the game for design, documentation, and implementation purposes.",
 
   "title": "The official name of the game.",
+  "gameDescription": "A brief summary of the game's concept and experience.",
   "releaseYear": "The original year the game was released.",
   "developer": "The studio or individual that created the game.",
   "publisher": "The company responsible for publishing the game.",
