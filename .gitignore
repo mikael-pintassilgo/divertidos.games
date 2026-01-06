@@ -13,3 +13,4 @@ build/
 *~
 instance/
 config.py
+games_json/

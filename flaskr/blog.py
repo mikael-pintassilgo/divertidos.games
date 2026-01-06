@@ -121,7 +121,7 @@ def clean_key(text):
 
 def get_element_by_title(db, title):
     element = db.execute(
-        "SELECT id FROM element WHERE title = ?",
+        "SELECT id FROM element WHERE LOWER(title) = LOWER(?)",
         (clean_key(title),),
     ).fetchone()
     return element
@@ -149,7 +149,7 @@ def add_element_from_dict(just_check_flag, db, title, body, parent_id=None):
     
     return existing_element['id']
 
-def load_dictionary_recursive(just_check_flag, ids, db, dict_data, parent_id=None):
+def load_elements_recursive(just_check_flag, ids, db, dict_data, parent_id=None):
     for key, value in dict_data.items():
             #body = item.get('description', item.get('body', ''))
             if isinstance(value, str): # or isinstance(value, int) or isinstance(value, float):
@@ -169,45 +169,69 @@ def load_dictionary_recursive(just_check_flag, ids, db, dict_data, parent_id=Non
                             id = add_element_from_dict(just_check_flag, db, clean_key(sub_key), sub_value, parent_id)
                             ids.append({ 'id': id, 'title': clean_key(sub_key), 'body': sub_value })
                         elif isinstance(sub_value, dict):
-                            load_dictionary_recursive(just_check_flag, ids, db, sub_value, parent_id=parent_id)
+                            load_elements_recursive(just_check_flag, ids, db, sub_value, parent_id=parent_id)
                         #messages.append({'sub_key': clean_key(sub_key), 'sub_value': sub_value, 'id': id})
                         
             else:
                 pass
                 #messages.append({'key': clean_key(key), 'value': 'Unsupported data type'})
 
-@bp.route("/services/<path:service_name>", methods=("POST",))
+@bp.route("/services/load-elements", methods=("POST",))
 @login_required
-def load_dictionary(service_name):
-    if service_name == 'load_dictionary':
-        db = get_db()
-        json_input = request.form.get('json_input')
-        just_check_flag = True if request.form.get('just_check_flag') else False
-        print('just_check_flag = ' + str(just_check_flag))
-        
-        if not json_input:
-            # Load dictionary logic here
-            dict_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../flaskr/static/dictionary/dictionary.json'))
-            with open(dict_path, 'r') as f:
-                dict_data = json.load(f)
-        else:
-            try:
-                dict_data = json.loads(json_input)
-            except json.JSONDecodeError as e:
-                messages = ['Invalid JSON input: ' + str(e)]
-                return render_template("services/services.html", messages=messages)
-
-        messages = []
-        ids = []
-        try:
-            load_dictionary_recursive(just_check_flag, ids, db, dict_data)
-            messages.append('Dictionary loaded successfully.')
-        except Exception as e:
-            messages.append('Error loading dictionary: ' + str(e))
-            
-        return render_template("services/services.html", messages=messages, ids=ids)
+def load_elements():
+    db = get_db()
+    json_input = request.form.get('json_input')
+    just_check_flag = True if request.form.get('just_check_flag') else False
+    print('just_check_flag = ' + str(just_check_flag))
+    
+    if not json_input:
+        # Load dictionary logic here
+        dict_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../flaskr/static//dictionary.json'))
+        with open(dict_path, 'r') as f:
+            dict_data = json.load(f)
     else:
-        return render_template("services/services.html", messages=['Unknown service requested: ' + service_name])
+        try:
+            dict_data = json.loads(json_input)
+        except json.JSONDecodeError as e:
+            messages = ['Invalid JSON input: ' + str(e)]
+            return render_template("services/load-elements.html", messages=messages)
+
+    messages = []
+    ids = []
+    try:
+        load_elements_recursive(just_check_flag, ids, db, dict_data)
+        messages.append('Elements loaded successfully.')
+    except Exception as e:
+        messages.append('Error loading elements: ' + str(e))
+        
+    return render_template("services/load-elements.html", messages=messages, ids=ids)
+
+@bp.route("/services/delete-elements", methods=("POST",))
+@login_required
+def delete_elements():
+    db = get_db()
+    just_check_flag = True if request.form.get('just_check_flag') else False
+    print('just_check_flag = ' + str(just_check_flag))
+    
+    messages = []
+    ids = []
+    try:
+        all_elements = db.execute(
+            "SELECT id FROM element WHERE id NOT IN (SELECT DISTINCT element_id FROM game_and_element)"
+        ).fetchall()
+
+        for element in all_elements:
+            if not just_check_flag:
+                db.execute("DELETE FROM element WHERE id = ?", (element['id'],))
+            ids.append({'id': element['id'], 'title': 'Deleted'})
+
+        if not just_check_flag:
+            db.commit()
+        messages.append('Elements deleted successfully.')
+    except Exception as e:
+        messages.append('Error deleting elements: ' + str(e))
+        
+    return render_template("services/delete-elements.html", messages=messages, ids=ids)
 
 @bp.route("/get_elements_for_selection", methods=("GET", "POST"))
 @login_required
