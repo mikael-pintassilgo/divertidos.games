@@ -251,7 +251,7 @@ def insert_elements(just_check_flag, not_existed_items, db, game_id, data, paren
     simple_values_as_one_string = ''
     only_simiple_values = True
     for key, value in data.items():
-        if key in ["title", "gameDescription"]:
+        if key in ["title", "gameDescription", "description"]:
             continue
         
         if isinstance(value, dict):

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <div uk-grid class="">
+    <h1 class="">{% block title %}Services{% endblock %}</h1>
+    {% if g.user %}
+    {% endif %}
+  </div>
+{% endblock %}
+
+<div class=""></div>
+{% block menu_items %}
+{% endblock %}
+{% block elements_active %}active{% endblock %}
+
+{% block content %}
+{% for message in messages %}
+  <div class="">{{ message }}</div>
+{% endfor %}
+<br>
+{% endblock %}
+

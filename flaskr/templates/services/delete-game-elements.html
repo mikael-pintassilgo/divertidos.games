@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <div uk-grid class="">
+    <h1 class="">{% block title %}Delete game elements of deleted games{% endblock %}</h1>
+    {% if g.user %}
+    <form action="{{ url_for('services.delete_game_elements') }}" method="post">
+      <div class="form-check mb-1">          
+        <input class="form-check-input" type="checkbox" name="just_check_flag" id="just_check_flag" value="True" checked></input>
+        <label class="form-check-label" for="just_check_flag">Just check</label>
+      </div>
+      
+        <input class="btn btn-warning" type="submit" value="Delete game elements of deleted games" onclick="return confirm('Are you sure?');">
+        
+    </form>
+    {% endif %}
+  </div>
+{% endblock %}
+
+<div class=""></div>
+{% block menu_items %}
+{% endblock %}
+{% block elements_active %}active{% endblock %}
+
+{% block content %}
+{% for message in messages %}
+  <div class="">{{ message }}</div>
+{% endfor %}
+<br>
+{% if ids %}
+  <h2>Deleted Game Element IDs:</h2>
+  <ul>
+    {% for id_data in ids %}
+      {% if id_data.id %}
+      <li>{{id_data.id}}: <a href="{{ url_for('blog.view', id=id_data.id) }}">{{ id_data.title }} - {{ id_data.body }}</a></li>
+      {% else %}
+      <li class="bg-warning">{{ id_data.title }} - {{ id_data.body }}</li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+{% endif %}
+{% endblock %}
+

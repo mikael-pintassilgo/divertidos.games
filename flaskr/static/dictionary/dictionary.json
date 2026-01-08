@@ -1,202 +1,203 @@
 {
-  "game": "Root object containing all data required to describe the game for design, documentation, and implementation purposes.",
+  "game": {
 
-  "title": "The official name of the game.",
-  "gameDescription": "A brief summary of the game's concept and experience.",
-  "releaseYear": "The original year the game was released.",
-  "developer": "The studio or individual that created the game.",
-  "publisher": "The company responsible for publishing the game.",
-  "platform": "The primary hardware platform the game was designed for.",
-  "genre": "The primary gameplay genre classification.",
-  "perspective": "The camera or viewpoint used during gameplay.",
+    "title": "The official name of the game.",
+    "gameDescription": "A brief summary of the game's concept and experience.",
+    "releaseYear": "The original year the game was released.",
+    "developer": "The studio or individual that created the game.",
+    "publisher": "The company responsible for publishing the game.",
+    "platform": "The primary hardware platform the game was designed for.",
+    "genre": "The primary gameplay genre classification.",
+    "perspective": "The camera or viewpoint used during gameplay.",
 
-  "vision": {
-    "description": "High-level design intent describing what experience the game aims to deliver.",
-    "designGoals": "Key principles guiding all design decisions.",
-    "playerFantasy": "The emotional role or fantasy the player inhabits.",
-    "targetExperience": "The intended emotional and gameplay feel.",
-    "successMetrics": "Measures used to evaluate whether the design goals are met."
-  },
+    "vision": {
+      "description": "High-level design intent describing what experience the game aims to deliver.",
+      "designGoals": "Key principles guiding all design decisions.",
+      "playerFantasy": "The emotional role or fantasy the player inhabits.",
+      "targetExperience": "The intended emotional and gameplay feel.",
+      "successMetrics": "Measures used to evaluate whether the design goals are met."
+    },
 
-  "targetAudience": {
-    "description": "Information about who the game is designed for.",
-    "playerTypes": "Categories of players the game targets.",
-    "skillLevel": "Expected player learning curve.",
-    "ageRatingTarget": "Intended content rating."
-  },
+    "targetAudience": {
+      "description": "Information about who the game is designed for.",
+      "playerTypes": "Categories of players the game targets.",
+      "skillLevel": "Expected player learning curve.",
+      "ageRatingTarget": "Intended content rating."
+    },
 
-  "platformConstraints": {
-    "description": "Technical and usability limitations imposed by the target platform.",
-    "inputDevices": "Supported control methods.",
-    "sessionLengthMinutes": "Expected minimum and maximum play session length.",
-    "performanceTargetFPS": "Desired frame rate for optimal gameplay."
-  },
+    "platformConstraints": {
+      "description": "Technical and usability limitations imposed by the target platform.",
+      "inputDevices": "Supported control methods.",
+      "sessionLengthMinutes": "Expected minimum and maximum play session length.",
+      "performanceTargetFPS": "Desired frame rate for optimal gameplay."
+    },
 
-  "setting": {
-    "description": "Narrative context in which the game takes place.",
-    "year": "In-universe year of the game.",
-    "theme": "Primary narrative and aesthetic theme.",
-    "settingDescription": "Short explanation of the world state and conflict."
-  },
+    "setting": {
+      "description": "Narrative context in which the game takes place.",
+      "year": "In-universe year of the game.",
+      "theme": "Primary narrative and aesthetic theme.",
+      "settingDescription": "Short explanation of the world state and conflict."
+    },
 
-  "narrative": {
-    "description": "Story elements that provide meaning and context to gameplay.",
-    "narrativePremise": "The core story setup.",
-    "playerRole": "Who the player is in the narrative.",
-    "conflict": "The main opposing force or problem.",
-    "themes": "Abstract ideas explored by the game.",
-    "tone": "Overall emotional mood.",
-    "storytellingMethod": "How the story is delivered to the player.",
-    "endingPhilosophy": "Narrative approach to game completion."
-  },
+    "narrative": {
+      "description": "Story elements that provide meaning and context to gameplay.",
+      "narrativePremise": "The core story setup.",
+      "playerRole": "Who the player is in the narrative.",
+      "conflict": "The main opposing force or problem.",
+      "themes": "Abstract ideas explored by the game.",
+      "tone": "Overall emotional mood.",
+      "storytellingMethod": "How the story is delivered to the player.",
+      "endingPhilosophy": "Narrative approach to game completion."
+    },
 
-  "player": {
-    "description": "Definition of player-controlled character capabilities.",
-    "lives": {
-        "description": "How many attempts the player has before game over.",
-        "initialNumberOfLives": "the initial number of lives",
-        "extraLifeScoreThreshold": "the score threshold for earning an extra life"
+    "player": {
+      "description": "Definition of player-controlled character capabilities.",
+      "lives": {
+          "description": "How many attempts the player has before game over.",
+          "initialNumberOfLives": "the initial number of lives",
+          "extraLifeScoreThreshold": "the score threshold for earning an extra life"
+        },
+      "hitPoints": "Amount of damage the player can take.",
+      "movement": "How the player moves in the game world.",
+      "shooting": "How the player attacks enemies.",
+      "invincibilityOnSpawnSeconds": "Temporary immunity after respawning."
+    },
+
+    "controls": {
+      "description": "Mapping of player inputs to actions.",
+      "movement": "Input method for player movement.",
+      "shooting": "Input method for aiming and firing."
+    },
+
+    "systems": {
+      "description": "High-level breakdown of the game’s core interactive systems.",
+      "combatSystem": {
+          "description": "Rules governing damage, weapons, and combat flow.",
+          "designIntentOfCombat": "How combat is meant to feel and function.",
+          "damageModel": "How damage is calculated and applied.",
+          "fireRate": "Speed of player attacks.",
+          "weaponReload": "Whether weapons require reloading."
+        },
+      "movementSystem": {
+          "description": "Rules defining player movement behavior.",
+          "designIntent": "How movement is meant to feel and function.",
+          "precisionRequirement": "Level of accuracy needed for effective movement.",
+          "momentum": "Whether movement has inertia or is instant."
+        },
+      "enemyAI": {
+          "description": "Logic and behaviors controlling enemy actions.",
+          "designIntentOfEnemyBehavior": "How enemy behavior is meant to challenge the player.",
+          "aiStates": "Different behavioral modes enemies can be in."
+        }
+    },
+
+    "enemies": {
+      "description": "List of enemy types with their behaviors and relative threat levels.",
+      "enemyType": "Name of the enemy type.",
+      "enemyBehavior": "Primary action pattern of the enemy.",
+      "enemyThreatLevel": "Relative danger posed to the player."
+    },
+
+    "civilianCharacters": {
+      "description": "Rules governing civilian characters.",
+      "canCiviliansBeKilledByEnemies": "Whether enemies can kill civilians.",
+      "canCiviliansBeKilledByPlayer": "Whether the player can harm civilians.",
+      "rescueBonusPoints": "Score awarded for saving civilians."
+    },
+
+    "mechanics": {
+      "description": "Concrete gameplay rules and loops.",
+      "coreLoop": "Repeated sequence of actions defining gameplay.",
+      "enemySpawning": {
+        "description": "How and when enemies appear.",  
+        "spawnType": "Type of spawning system used.",
+        "spawnScalingFactors": "Parameters that influence spawn rates and types."
+        },
+        "difficulty": {
+          "description": "How challenge increases over time.",
+          "difficultyPhilosophy": "Approach to balancing challenge and player skill.",
+          "difficultyScalingModel": "Method used to increase difficulty.",
+          "noDifficultySelection": "Whether players can choose difficulty levels."
+        },
+        "failureState": {
+          "description": "Conditions that end a play session.",
+          "failureCondition": "Player loses all lives",
+          "failureResult": "What happens when the failure state is reached."
+        }
+    },
+
+    "difficultyDesign": {
+      "description": "Philosophy and structure behind difficulty progression.",
+      "playerCatchUpMechanics": "Systems that help players recover.",
+      "difficultyCaps": "Whether difficulty has upper limits."
+    },
+
+    "ui": {
+      "description": "User interface elements and feedback systems.",
+      "hud": {
+        "description": "On-screen informational elements.",
+        "hudElements": {
+          "description": "List of HUD components with their screen positions.",
+          "hudElementName": "Name of the HUD element.",
+          "hudElementPosition": "Position of the HUD element on the screen."
+        }
       },
-    "hitPoints": "Amount of damage the player can take.",
-    "movement": "How the player moves in the game world.",
-    "shooting": "How the player attacks enemies.",
-    "invincibilityOnSpawnSeconds": "Temporary immunity after respawning."
-  },
-
-  "controls": {
-    "description": "Mapping of player inputs to actions.",
-    "movement": "Input method for player movement.",
-    "shooting": "Input method for aiming and firing."
-  },
-
-  "systems": {
-    "description": "High-level breakdown of the game’s core interactive systems.",
-    "combatSystem": {
-        "description": "Rules governing damage, weapons, and combat flow.",
-        "designIntentOfCombat": "How combat is meant to feel and function.",
-        "damageModel": "How damage is calculated and applied.",
-        "fireRate": "Speed of player attacks.",
-        "weaponReload": "Whether weapons require reloading."
-      },
-    "movementSystem": {
-        "description": "Rules defining player movement behavior.",
-        "designIntent": "How movement is meant to feel and function.",
-        "precisionRequirement": "Level of accuracy needed for effective movement.",
-        "momentum": "Whether movement has inertia or is instant."
-      },
-    "enemyAI": {
-        "description": "Logic and behaviors controlling enemy actions.",
-        "designIntentOfEnemyBehavior": "How enemy behavior is meant to challenge the player.",
-        "aiStates": "Different behavioral modes enemies can be in."
-      }
-  },
-
-  "enemies": {
-    "description": "List of enemy types with their behaviors and relative threat levels.",
-    "enemyType": "Name of the enemy type.",
-    "enemyBehavior": "Primary action pattern of the enemy.",
-    "enemyThreatLevel": "Relative danger posed to the player."
-  },
-
-  "civilianCharacters": {
-    "description": "Rules governing civilian characters.",
-    "canCiviliansBeKilledByEnemies": "Whether enemies can kill civilians.",
-    "canCiviliansBeKilledByPlayer": "Whether the player can harm civilians.",
-    "rescueBonusPoints": "Score awarded for saving civilians."
-  },
-
-  "mechanics": {
-    "description": "Concrete gameplay rules and loops.",
-    "coreLoop": "Repeated sequence of actions defining gameplay.",
-    "enemySpawning": {
-      "description": "How and when enemies appear.",  
-      "spawnType": "Type of spawning system used.",
-      "spawnScalingFactors": "Parameters that influence spawn rates and types."
-      },
-      "difficulty": {
-        "description": "How challenge increases over time.",
-        "difficultyPhilosophy": "Approach to balancing challenge and player skill.",
-        "difficultyScalingModel": "Method used to increase difficulty.",
-        "noDifficultySelection": "Whether players can choose difficulty levels."
-      },
-      "failureState": {
-        "description": "Conditions that end a play session.",
-        "failureCondition": "Player loses all lives",
-        "failureResult": "What happens when the failure state is reached."
-      }
-  },
-
-  "difficultyDesign": {
-    "description": "Philosophy and structure behind difficulty progression.",
-    "playerCatchUpMechanics": "Systems that help players recover.",
-    "difficultyCaps": "Whether difficulty has upper limits."
-  },
-
-  "ui": {
-    "description": "User interface elements and feedback systems.",
-    "hud": {
-      "description": "On-screen informational elements.",
-      "hudElements": {
-        "description": "List of HUD components with their screen positions.",
-        "hudElementName": "Name of the HUD element.",
-        "hudElementPosition": "Position of the HUD element on the screen."
+      "VisualAndAudioFeedback": {
+        "description": "Visual and audio responses to player actions.",  
+        "visual": "Screen effects and indicators",
+        "audio": "Sound effects and musical cues"
       }
     },
-    "VisualAndAudioFeedback": {
-      "description": "Visual and audio responses to player actions.",  
-      "visual": "Screen effects and indicators",
-      "audio": "Sound effects and musical cues"
+
+    "artDirection": {
+      "description": "Visual design rules and aesthetic principles.",
+      "visualStyle": "Overall art style.",
+      "readabilityRules": "Guidelines ensuring gameplay clarity.",
+      "animationPrinciples": "Rules governing animation behavior."
+    },
+
+    "audioDesign": {
+      "description": "Sound and music design approach.",
+      "musicDesign": {
+        "description": "Rules governing background music.",
+        "tempo": "Desired music speed and energy level.",
+        "adaptive": "Whether music changes based on gameplay."
+      },
+      "soundDesignRules": "Guidelines for sound effect usage."
+    },
+
+    "accessibility": {
+      "description": "Support for diverse player needs.",
+      "colorBlindSupport": "Whether colorblind options exist.",
+      "inputRemapping": "Whether controls can be customized.",
+      "difficultyAssist": "Whether difficulty aids are present.",
+      "accessibilityRationale": "Design reasoning behind accessibility decisions."
+    },
+
+    "replayability": {
+      "description": "Systems encouraging repeated play.",
+      "primaryDriver": "Main reason players replay the game.",
+      "secondaryDrivers": "Additional replay incentives.",
+      "metaProgression": "Progression outside a single run."
+    },
+
+    "gameFlow": {
+      "description": "High-level state machine of the game.",
+      "gameFlowStates": "Distinct phases of the game experience."
+    },
+
+    "technicalNotes": {
+      "description": "Engineering and implementation considerations.",
+      "engineAgnostic": "Whether the design depends on a specific engine.",
+      "logicUpdateRate": "How often game logic updates.",
+      "determinism": "Consistency of game behavior.",
+      "knownTechnicalRisks": "Potential technical challenges."
+    },
+
+    "references": {
+      "description": "Design inspirations and guiding principles.",
+      "inspirations": "Games or works influencing the design.",
+      "designPillars": "Core values guiding development."
     }
-  },
-
-  "artDirection": {
-    "description": "Visual design rules and aesthetic principles.",
-    "visualStyle": "Overall art style.",
-    "readabilityRules": "Guidelines ensuring gameplay clarity.",
-    "animationPrinciples": "Rules governing animation behavior."
-  },
-
-  "audioDesign": {
-    "description": "Sound and music design approach.",
-    "musicDesign": {
-      "description": "Rules governing background music.",
-      "tempo": "Desired music speed and energy level.",
-      "adaptive": "Whether music changes based on gameplay."
-    },
-    "soundDesignRules": "Guidelines for sound effect usage."
-  },
-
-  "accessibility": {
-    "description": "Support for diverse player needs.",
-    "colorBlindSupport": "Whether colorblind options exist.",
-    "inputRemapping": "Whether controls can be customized.",
-    "difficultyAssist": "Whether difficulty aids are present.",
-    "accessibilityRationale": "Design reasoning behind accessibility decisions."
-  },
-
-  "replayability": {
-    "description": "Systems encouraging repeated play.",
-    "primaryDriver": "Main reason players replay the game.",
-    "secondaryDrivers": "Additional replay incentives.",
-    "metaProgression": "Progression outside a single run."
-  },
-
-  "gameFlow": {
-    "description": "High-level state machine of the game.",
-    "gameFlowStates": "Distinct phases of the game experience."
-  },
-
-  "technicalNotes": {
-    "description": "Engineering and implementation considerations.",
-    "engineAgnostic": "Whether the design depends on a specific engine.",
-    "logicUpdateRate": "How often game logic updates.",
-    "determinism": "Consistency of game behavior.",
-    "knownTechnicalRisks": "Potential technical challenges."
-  },
-
-  "references": {
-    "description": "Design inspirations and guiding principles.",
-    "inspirations": "Games or works influencing the design.",
-    "designPillars": "Core values guiding development."
   }
 }

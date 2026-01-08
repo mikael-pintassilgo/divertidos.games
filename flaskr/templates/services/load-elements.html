@@ -2,9 +2,9 @@
 
 {% block header %}
   <div uk-grid class="">
-    <h1 class="">{% block title %}Services{% endblock %}</h1>
+    <h1 class="">{% block title %}Load Elements{% endblock %}</h1>
     {% if g.user %}
-    <form action="{{ url_for('blog.load_dictionary', service_name='load_dictionary') }}" method="post">
+    <form action="{{ url_for('services.load_elements') }}" method="post">
       <div class="mb-3">
           <label for="json_input" class="form-label">Elements data in JSON format</label>
           <textarea class="form-control" name="json_input" id="json_input" rows="10" placeholder="Paste your elements data in JSON format here ..."></textarea>
@@ -16,7 +16,7 @@
           <label class="form-check-label" for="just_check_flag">Just check</label>
         </div>
         
-        <input class="btn btn-warning" type="submit" value="Load dictionary" onclick="return confirm('Are you sure?');">
+        <input class="btn btn-warning" type="submit" value="Load elements" onclick="return confirm('Are you sure?');">
         
     </form>
     {% endif %}

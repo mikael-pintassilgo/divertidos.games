@@ -1,0 +1,221 @@
+{
+  "game": {
+
+  "title": "Robotron: 2084",
+  "gameDescription": "A fast-paced, twin-stick arcade shooter where the player must survive endless waves of hostile robots while rescuing the last remaining humans.",
+  "releaseYear": 1982,
+  "developer": "Williams Electronics",
+  "publisher": "Williams Electronics",
+  "platform": "Arcade",
+  "genre": "Shoot 'em up",
+  "perspective": "Top-down, single-screen",
+
+  "vision": {
+    "description": "Deliver an intense, chaotic, reflex-driven arcade experience that constantly pressures the player.",
+    "designGoals": "Immediate responsiveness, overwhelming enemy density, simple rules with extreme challenge.",
+    "playerFantasy": "A lone superhuman defender fighting against a machine apocalypse.",
+    "targetExperience": "Adrenaline-fueled panic, mastery through skill, and sensory overload.",
+    "successMetrics": "High replay frequency, short sessions, score-chasing behavior."
+  },
+
+  "targetAudience": {
+    "description": "Players seeking challenging, skill-based arcade gameplay.",
+    "playerTypes": "Hardcore, competitive, score-driven players.",
+    "skillLevel": "Easy to learn, extremely difficult to master.",
+    "ageRatingTarget": "All ages (arcade era equivalent)."
+  },
+
+  "platformConstraints": {
+    "description": "Designed for early 1980s arcade hardware with limited memory and processing power.",
+    "inputDevices": "Dual 8-way joysticks (movement and shooting).",
+    "sessionLengthMinutes": "1–10",
+    "performanceTargetFPS": 60
+  },
+
+  "setting": {
+    "description": "A dystopian future where intelligent machines have turned on humanity.",
+    "year": 2084,
+    "theme": "Man vs. machine, technological apocalypse.",
+    "settingDescription": "Robots have exterminated nearly all humans; the player fights to save the survivors."
+  },
+
+  "narrative": {
+    "description": "Minimalist narrative used primarily as thematic framing.",
+    "narrativePremise": "Evil robots seek to destroy the last humans.",
+    "playerRole": "A lone warrior defending humanity.",
+    "conflict": "Human survival versus rogue artificial intelligence.",
+    "themes": "Extinction, chaos, technological fear.",
+    "tone": "Relentless, frantic, oppressive.",
+    "storytellingMethod": "Gameplay-driven with brief text and visual cues.",
+    "endingPhilosophy": "No true ending; play continues until inevitable defeat."
+  },
+
+  "player": {
+    "description": "A highly mobile, fragile character optimized for rapid movement and firing.",
+    "lives": {
+      "description": "Limited attempts before game over.",
+      "initialNumberOfLives": 3,
+      "extraLifeScoreThreshold": 25000
+    },
+    "hitPoints": 1,
+    "movement": "Instant, omnidirectional movement with no inertia.",
+    "shooting": "Independent directional shooting in eight directions.",
+    "invincibilityOnSpawnSeconds": 0
+  },
+
+  "controls": {
+    "description": "Twin-stick control scheme enabling independent movement and shooting.",
+    "movement": "Left joystick controls movement direction.",
+    "shooting": "Right joystick controls firing direction."
+  },
+
+  "systems": {
+    "description": "Core systems that drive moment-to-moment gameplay.",
+    "combatSystem": {
+      "description": "High-volume projectile combat against swarming enemies.",
+      "designIntentOfCombat": "Overwhelm the player while rewarding precision and positioning.",
+      "damageModel": "One-hit kill for both player and most enemies.",
+      "fireRate": "Continuous while joystick is held.",
+      "weaponReload": "No reloading."
+    },
+    "movementSystem": {
+      "description": "Highly responsive movement system.",
+      "designIntent": "Enable rapid evasion and fine positional control.",
+      "precisionRequirement": "Very high.",
+      "momentum": "None; instant start and stop."
+    },
+    "enemyAI": {
+      "description": "Simple but aggressive enemy behaviors.",
+      "designIntentOfEnemyBehavior": "Create constant pressure through numbers and varied movement patterns.",
+      "aiStates": "Chasing, wandering, spawning, charging."
+    }
+  },
+
+  "enemies":
+    [
+      {
+        "enemyType": "Grunt",
+        "enemyBehavior": "Slowly moves toward the player.",
+        "enemyThreatLevel": "Low"
+      },
+      {
+        "enemyType": "Hulk",
+        "enemyBehavior": "Indestructible enemy that chases the player.",
+        "enemyThreatLevel": "High"
+      },
+      {
+        "enemyType": "Brain",
+        "enemyBehavior": "Attempts to convert humans into enemies.",
+        "enemyThreatLevel": "Very High"
+      }
+    ]
+  ,
+
+  "civilianCharacters": {
+    "description": "Non-combatant humans that must be rescued.",
+    "canCiviliansBeKilledByEnemies": true,
+    "canCiviliansBeKilledByPlayer": false,
+    "rescueBonusPoints": "Varies by human type"
+  },
+
+  "mechanics": {
+    "description": "Fundamental gameplay rules.",
+    "coreLoop": "Move → Shoot → Rescue humans → Survive escalating waves.",
+    "enemySpawning": {
+      "description": "Enemies spawn continuously around the arena.",
+      "spawnType": "Wave-based with random elements.",
+      "spawnScalingFactors": "Time survived, score, wave number."
+    },
+    "difficulty": {
+      "description": "Difficulty increases relentlessly over time.",
+      "difficultyPhilosophy": "Overwhelm through escalation, not complexity.",
+      "difficultyScalingModel": "Enemy count, speed, and behavior density increase.",
+      "noDifficultySelection": true
+    },
+    "failureState": {
+      "description": "Ends the current run.",
+      "failureCondition": "Player loses all lives",
+      "failureResult": "Game over and score display."
+    }
+  },
+
+  "difficultyDesign": {
+    "description": "Designed to be brutally difficult with no safety nets.",
+    "playerCatchUpMechanics": "Extra lives awarded via score thresholds.",
+    "difficultyCaps": "No practical upper limit."
+  },
+
+  "ui": {
+    "description": "Minimalist arcade UI focused on clarity.",
+    "hud": {
+      "description": "Displays essential information only.",
+      "hudElements": [
+        {
+          "hudElementName": "Score",
+          "hudElementPosition": "Top of screen"
+        },
+        {
+          "hudElementName": "Lives",
+          "hudElementPosition": "Top of screen"
+        }
+      ]
+    },
+    "VisualAndAudioFeedback": {
+      "description": "Strong audiovisual cues for every action.",
+      "visual": "Bright flashes, explosions, high-contrast sprites.",
+      "audio": "Distinctive electronic sound effects and constant background noise."
+    }
+  },
+
+  "artDirection": {
+    "description": "Abstract, high-contrast sci-fi visuals.",
+    "visualStyle": "Neon-colored vector-inspired sprites on a dark background.",
+    "readabilityRules": "Enemies and bullets must remain clearly visible amid chaos.",
+    "animationPrinciples": "Simple, snappy, instantly readable animations."
+  },
+
+  "audioDesign": {
+    "description": "Audio reinforces intensity and urgency.",
+    "musicDesign": {
+      "description": "No traditional music; soundscape driven by effects.",
+      "tempo": "High-energy, relentless.",
+      "adaptive": false
+    },
+    "soundDesignRules": "Every action produces immediate audio feedback."
+  },
+
+  "accessibility": {
+    "description": "Limited accessibility due to era of design.",
+    "colorBlindSupport": false,
+    "inputRemapping": false,
+    "difficultyAssist": false,
+    "accessibilityRationale": "Arcade design prioritized challenge and simplicity over customization."
+  },
+
+  "replayability": {
+    "description": "Extremely high replay value.",
+    "primaryDriver": "Score chasing and mastery.",
+    "secondaryDrivers": "Short sessions and escalating challenge.",
+    "metaProgression": "None."
+  },
+
+  "gameFlow": {
+    "description": "Continuous loop until failure.",
+    "gameFlowStates": "Attract mode → Gameplay → Game over → High score entry."
+  },
+
+  "technicalNotes": {
+    "description": "Designed around deterministic, high-performance arcade hardware.",
+    "engineAgnostic": true,
+    "logicUpdateRate": "Tied to hardware refresh rate.",
+    "determinism": "Highly deterministic.",
+    "knownTechnicalRisks": "Sprite overload and performance under extreme enemy counts."
+  },
+
+  "references": {
+    "description": "Foundational arcade design influences.",
+    "inspirations": "Asteroids, Defender.",
+    "designPillars": "Intensity, clarity, skill supremacy."
+  }
+}
+}
