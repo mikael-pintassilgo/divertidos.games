@@ -284,9 +284,9 @@ def insert_elements(just_check_flag, not_existed_items, db, game_id, data, paren
                 )
         else:
             if simple_values_as_one_string:
-                simple_values_as_one_string += f" - {str(value).strip()}"
+                simple_values_as_one_string += f" ✦ {clean_key(key).strip()}: {str(value).strip()}"
             else:
-                simple_values_as_one_string = str(value).strip()
+                simple_values_as_one_string = f"{clean_key(key).strip()}: {str(value).strip()}"
             insert_simple_value(key, value)
             
     if only_simiple_values:
