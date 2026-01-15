@@ -1,8 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="">  
-  <div class="">
+<div class="row">  
+  <div class="col">
+    1. Prepare your game data dictionary in JSON format. It can be done here: <a href="{{ url_for('services.load_elements') }}">Load elements</a><br>
+    2. Prepare your game data in JSON format. <br>
+    4. Paste it into the text area below. <br>
+    5. Click "Import new game" button to import the game data. <br>
+    6. If you want to just check the data without importing, make sure the "Just check" checkbox is checked. <br>
+  </div>
+</div>
+<div class="row">  
+  <div class="col">
     <form method="post">
       <fieldset class="">
         <div class="mb-3">

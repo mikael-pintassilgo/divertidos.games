@@ -72,8 +72,10 @@
             <a class="card-link" aria-current="page" href="{{ url_for('games.update', id=game['id']) }}">edit</a>
             <a class="card-link" href="{{ url_for('games.get_full_description', id=game['id']) }}">get full description</a>
             {% else %}
+            
+            {% endif %} 
             <a class="card-link" href="{{ url_for('games.get_full_description', id=game['id']) }}">get full description</a>
-            {% endif %}  
+            <a class="card-link" href="{{ url_for('games.get_full_description', id=game['id']) }}">Get data to past into a Google Spreadsheet</a> 
           </div>
         </div>
 

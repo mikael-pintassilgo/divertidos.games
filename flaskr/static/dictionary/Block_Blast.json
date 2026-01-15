@@ -1,0 +1,133 @@
+{
+  "game": {
+    "title": "The official name of the game.",
+    "gameDescription": "A concise overview of the puzzle gameplay concept and overall player experience.",
+    "releaseYear": "The year the game was first released to the public.",
+    "developer": "The studio or individual responsible for developing the game.",
+    "publisher": "The company responsible for publishing and distributing the game.",
+    "platform": "Primary platforms the game is designed to run on (e.g., mobile).",
+    "genre": "Primary gameplay genre classification.",
+    "perspective": "The visual viewpoint used to present the game board to the player.",
+    "vision": {
+      "description": "High-level design intent describing the experience the game aims to deliver.",
+      "designGoals": "Core principles guiding all design decisions.",
+      "playerFantasy": "The role or mindset the player adopts while playing.",
+      "targetExperience": "Intended emotional and cognitive experience.",
+      "successMetrics": "Measures used to evaluate whether design goals are met."
+    },
+    "targetAudience": {
+      "description": "Intended player demographic and usage context.",
+      "playerTypes": "Categories of players the game targets.",
+      "skillLevel": "Expected learning curve and mastery depth.",
+      "ageRatingTarget": "Intended content rating."
+    },
+    "platformConstraints": {
+      "description": "Technical and usability limitations imposed by mobile platforms.",
+      "inputDevices": "Supported control methods.",
+      "sessionLengthMinutes": "Expected minimum and maximum play session duration.",
+      "performanceTargetFPS": "Desired frame rate for smooth gameplay."
+    },
+    "coreBoard": {
+      "description": "The primary puzzle playfield where all gameplay interactions occur.",
+      "gridType": "The structural layout of the board.",
+      "gridDimensions": "The size and shape of the playable grid.",
+      "cellRules": "Rules governing how grid cells can be occupied or cleared."
+    },
+    "blocks": {
+      "description": "Fundamental puzzle pieces placed by the player.",
+      "blockShapes": "Types of geometric configurations available.",
+      "blockOrientationRules": "Rules governing rotation or fixed orientation.",
+      "blockAvailability": "How blocks are presented to the player."
+    },
+    "placementRules": {
+      "description": "Rules that define how blocks can be placed on the board.",
+      "validPlacementConditions": "Conditions required for a successful placement.",
+      "invalidPlacementFeedback": "How the game communicates invalid actions."
+    },
+    "lineClearSystem": {
+      "description": "Rules governing the clearing of completed lines or areas.",
+      "clearConditions": "What constitutes a completed line or pattern.",
+      "clearEffects": "What happens when a clear condition is met."
+    },
+    "scoringSystem": {
+      "description": "Rules for calculating and awarding points.",
+      "baseScoring": "Points awarded for standard actions.",
+      "comboScoring": "Bonus scoring for chained or consecutive clears.",
+      "scoreMultipliers": "Factors that modify score output."
+    },
+    "progression": {
+      "description": "How player progress is tracked over time.",
+      "runBasedProgress": "Progress within a single play session.",
+      "metaProgress": "Progress retained between sessions."
+    },
+    "difficultyDesign": {
+      "description": "How challenge evolves during play.",
+      "difficultyScalingModel": "Method used to increase difficulty.",
+      "playerFailPressure": "How the game pushes the player toward failure."
+    },
+    "failureState": {
+      "description": "Conditions that end a play session.",
+      "failureCondition": "What causes the game to end.",
+      "failureFeedback": "How failure is communicated to the player."
+    },
+    "ui": {
+      "description": "User interface elements and visual communication systems.",
+      "hud": {
+        "description": "On-screen informational elements.",
+        "hudElements": "Types of information displayed during gameplay."
+      },
+      "feedback": {
+        "description": "Visual and audio responses to player actions.",
+        "visualFeedback": "Animations and visual effects.",
+        "audioFeedback": "Sound effects and musical cues."
+      }
+    },
+    "artDirection": {
+      "description": "Visual style and aesthetic rules.",
+      "visualStyle": "Overall look and feel of the game.",
+      "colorUsage": "Rules for color application and contrast.",
+      "animationPrinciples": "Guidelines governing motion and transitions."
+    },
+    "audioDesign": {
+      "description": "Sound and music design approach.",
+      "musicDesign": {
+        "description": "Rules governing background music behavior.",
+        "mood": "Intended emotional tone of music.",
+        "adaptive": "Whether music reacts to gameplay state."
+      },
+      "soundDesignRules": "Guidelines for sound effect clarity and feedback."
+    },
+    "monetization": {
+      "description": "Systems related to revenue generation.",
+      "adIntegration": "How advertisements are presented.",
+      "inAppPurchases": "Types of purchasable items or benefits.",
+      "monetizationEthics": "Design rules ensuring fair monetization."
+    },
+    "accessibility": {
+      "description": "Support for diverse player needs.",
+      "colorBlindSupport": "Availability of colorblind-friendly options.",
+      "inputSimplicity": "Ease of interaction and control clarity.",
+      "accessibilityRationale": "Reasoning behind accessibility decisions."
+    },
+    "replayability": {
+      "description": "Elements that encourage repeated play.",
+      "primaryDriver": "Main motivation for replaying.",
+      "secondaryDrivers": "Additional incentives for continued engagement."
+    },
+    "gameFlow": {
+      "description": "High-level structure of the game experience.",
+      "gameFlowStates": "Distinct phases from launch to game over."
+    },
+    "technicalNotes": {
+      "description": "Engineering and implementation considerations.",
+      "engineAgnostic": "Whether the design is tied to a specific engine.",
+      "logicUpdateRate": "Frequency of game logic updates.",
+      "knownTechnicalRisks": "Potential technical challenges."
+    },
+    "references": {
+      "description": "Inspirations and guiding design principles.",
+      "inspirations": "Games or works influencing the design.",
+      "designPillars": "Core values guiding development."
+    }
+  }
+}

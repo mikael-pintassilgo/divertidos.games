@@ -88,6 +88,11 @@
           "description": "Logic and behaviors controlling enemy actions.",
           "designIntentOfEnemyBehavior": "How enemy behavior is meant to challenge the player.",
           "aiStates": "Different behavioral modes enemies can be in."
+        },
+        "lootSystem": {
+            "description": "Non-functional items collected for score and thematic flavor.",
+            "prizeTypes": "List of various collectible items with original appearance.",
+            "collectionFeedback": "Visual and audio cues upon collection."
         }
     },
 
@@ -108,6 +113,20 @@
     "mechanics": {
       "description": "Concrete gameplay rules and loops.",
       "coreLoop": "Repeated sequence of actions defining gameplay.",
+      "navigation": {
+        "description": "How players move through game spaces.",
+        "exitMethod": "How players leave rooms or areas.",
+        "roomSpecialization": "The functional purpose of the various rooms the player enters, such as 'Bonus Prize Rooms', 'Weapon Crate Rooms', and 'Boss Arenas'."
+      },
+      "powerUps": {
+        "description": "Timed enhancements that replace the standard weapon.",
+        "powerUpsTypes": {
+            "description": "List of power-up types with their effects.",
+            "powerUpsName": "Name of the power-up.", 
+            "powerUpsEffect": "Effect of the power-up."
+        },
+        "powerUpsDurationLogic": "How long power-ups last and how duration is measured. For example, time-based or event-based, decays over time or until next power-up is collected."
+      },
       "enemySpawning": {
         "description": "How and when enemies appear.",  
         "spawnType": "Type of spawning system used.",
@@ -130,6 +149,13 @@
       "description": "Philosophy and structure behind difficulty progression.",
       "playerCatchUpMechanics": "Systems that help players recover.",
       "difficultyCaps": "Whether difficulty has upper limits."
+    },
+
+    "secrets": {
+      "description": "Hidden content and easter eggs within the game.",
+      "nameOfTheSecret": "The name or title of the secret.",
+      "typeOfTheSecret": "The category or nature of the secret (e.g., hidden level, cheat code, unlockable character).",
+      "methodOfDiscovery": "How players can find or unlock the secret."
     },
 
     "ui": {
@@ -163,7 +189,19 @@
         "tempo": "Desired music speed and energy level.",
         "adaptive": "Whether music changes based on gameplay."
       },
-      "soundDesignRules": "Guidelines for sound effect usage."
+      "soundDesignRules": "Guidelines for sound effect usage.",
+      "announcerSystem": {
+        "description": "Role and behavior of the in-game announcer.",
+        "announcerRole": "What is the purpose of the announcer in enhancing player experience.",
+        "keyTriggersOfTheAnnouncer": {
+          "description": "List of significant game events that prompt announcer commentary.",
+          "onStart": "The announcer's line at the beginning of the game.",
+          "onLargePrize": "The announcer's line when the player collects a large prize.",
+          "onPlayerDeath": "The announcer's line when the player loses a life.",
+          "onGameOver": "The announcer's line at game over.",
+          "onPowerUp": "The announcer's line when the player picks up a power-up."
+        }
+      }
     },
 
     "accessibility": {

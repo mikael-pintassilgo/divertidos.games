@@ -18,8 +18,39 @@ bp = Blueprint("services", __name__, url_prefix="/services")
 
 @bp.route("/", methods=("GET",))
 @login_required
-def services():
-    return render_template("services.html", messages=[])
+def index():
+    return render_template("services/services.html", messages=[])
+
+@bp.route("/get-prompt-to-compare-games", methods=("GET",))
+def get_prompt_to_compare_games():
+    return render_template("services/get-prompt-to-compare-games.html")
+
+@bp.route("/get-prompt-to-load-elements", methods=("GET",))
+def get_prompt_to_load_elements():
+    game_title = request.args.get('game_title', 'INPUT_HERE_THE_TITLE_OF_THE_GAME_YOU_ARE_INTERESTED_IN')
+    data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../flaskr/static/dictionary/dictionary.json'))
+    with open(data_path, 'r') as f:
+        game_data_json = json.load(f)
+        
+        prompt = """Generate a JSON dictionary structure for the """ + game_title + """ game. 
+        Use the example structure below as a guide: \n""" + json.dumps(game_data_json, indent=2) + """
+        \nAdd new elements that are relevant to the game but not present in the example structure.
+        \nDelete irrelevant elements that do not pertain to the game.
+        \nThe JSON structure should be nested appropriately to reflect relationships between elements (e.g., characters within locations, items associated with quests).
+        \nEnsure that each element type has a title and a description that provides sufficient detail about its role in the game.
+        \nThe final output should be a valid JSON dictionary that can be easily parsed and used for further processing.
+        \nAdd a description to each new type of element you add.
+        \nDo not include any explanations or additional text outside of the JSON structure.
+        \nJSON should contain only the descriptions of the types of elements of the game, not the actual elements.
+        \nIt means that I want to get the structure of the types of elements that the game contains, not the actual elements.
+        \nI will use this structure to prepare the actual elements data for the game later.
+        \nThen generate another the JSON data that following the structure that you generated and contains the actual elements.
+        \nThen generate the text with tab delimiter that contains the titles of the type of element and the value of element.
+        \nOne tab-delimited line per element type and value. Use the character unocode U+0009 as a delimiter.
+        \n"""
+        return prompt
+    
+    return "Error generating prompt."
 
 def add_element_from_dict(just_check_flag, db, title, body, parent_id=None):
     if body.strip() == '' or title.strip() == '':

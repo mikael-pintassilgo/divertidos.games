@@ -1,0 +1,232 @@
+{
+  "game": {
+    "title": "Smash TV",
+    "gameDescription": "A hyper-violent, fast-paced arcade twin-stick shooter set within a futuristic bloodsport game show where contestants fight waves of enemies for prizes and their lives.",
+    "releaseYear": "1990",
+    "developer": "Williams Electronics",
+    "publisher": "Williams / Midway",
+    "platform": "Arcade (Original)",
+    "genre": "Twin-Stick Shooter / Run and Gun",
+    "perspective": "Top-down / Bird's-eye view",
+
+    "vision": {
+      "description": "Create a high-adrenaline, quarter-eating arcade experience that satirizes consumerism and reality TV violence.",
+      "designGoals": "Maximum screen saturation, overwhelming odds, and visceral 'over-the-top' rewards.",
+      "playerFantasy": "The gladiator of the future; a contestant seeking fame and fortune through lethal combat.",
+      "targetExperience": "Frantic, stressful, and rewarding; a sense of being constantly outnumbered but heavily armed.",
+      "successMetrics": "High player throughput (arcade quarters), long-term high score chasing, and player satisfaction through 'total carnage'."
+    },
+
+    "targetAudience": {
+      "description": "Hardcore arcade gamers and fans of action-oriented shooters.",
+      "playerTypes": "Achievers (High Scores), Killers (Combat focused), Social (Co-op play).",
+      "skillLevel": "High; requires excellent spatial awareness and twitch reflexes.",
+      "ageRatingTarget": "Teen/Mature (due to pixelated gore and violence)."
+    },
+
+    "platformConstraints": {
+      "description": "Designed for dedicated arcade cabinets with unique control layouts.",
+      "inputDevices": "Dual 8-way joysticks (one for movement, one for firing).",
+      "sessionLengthMinutes": "3 to 15 minutes depending on player skill.",
+      "performanceTargetFPS": "60 FPS for fluid projectile tracking."
+    },
+
+    "setting": {
+      "description": "A dystopian future where the most popular TV show involves mass slaughter.",
+      "year": "1999 (as envisioned in 1990)",
+      "settingTheme": "Cyberpunk Dystopia / Dark Satire",
+      "settingDescription": "The 'Smash TV' studio, a series of interconnected arena rooms filled with traps, enemies, and luxury prizes."
+    },
+
+    "narrative": {
+      "description": "Minimalist story delivered through the game's announcer and environment.",
+      "narrativePremise": "Contestants enter a lethal game show to win toasters, VCRs, and cold hard cash.",
+      "playerRole": "A nameless contestant/gladiator.",
+      "conflict": "The Contestant vs. the Show Host and his endless legion of mutants and robots.",
+      "narrativeThemes": "Greed, media exploitation, and hyper-violence.",
+      "tone": "Manic, sarcastic, and violent.",
+      "storytellingMethod": "Environmental cues and iconic digitized voice lines (e.g., 'Big Money! Big Prizes! I love it!').",
+      "endingPhilosophy": "The 'Pleasure Dome'—a secret final reward for the most skilled players."
+    },
+
+    "player": {
+      "description": "A highly mobile soldier capable of 360-degree firing.",
+      "lives": {
+          "description": "The player has a limited pool of attempts to clear the show.",
+          "initialNumberOfLives": "3 (Standard arcade setting)",
+          "extraLifeScoreThreshold": "Every 100,000 points (Variable by dip switch)"
+        },
+      "hitPoints": "1 (One-hit death model).",
+      "movement": "8-way directional movement at a fixed speed.",
+      "shooting": "8-way directional independent fire (Twin-stick).",
+      "invincibilityOnSpawnSeconds": "Approximately 2 seconds of flashing invulnerability."
+    },
+
+    "controls": {
+      "description": "The 'Dual-Stick' setup pioneered by Robotron: 2084.",
+      "movement": "Left Joystick controls the character's position.",
+      "shooting": "Right Joystick controls the direction of the stream of bullets."
+    },
+
+    "systems": {
+      "description": "Interlocking systems of projectile management and crowd control.",
+      "combatSystem": {
+          "description": "Projectile-based combat against melee and ranged swarms.",
+          "designIntentOfCombat": "Overwhelm the player, forcing them to prioritize high-threat targets.",
+          "damageModel": "Instant death on contact with enemies or projectiles.",
+          "fireRate": "High default; increased with power-ups like the 'Spewer'.",
+          "weaponReload": "None; weapons are based on time-limited power-ups."
+        },
+      "movementSystem": {
+          "description": "Evasive maneuvering within a confined rectangular arena.",
+          "designIntent": "Provide enough agility to weave through 'bullet hell' and swarming mobs.",
+          "precisionRequirement": "High; pixel-perfect dodging is often required.",
+          "momentum": "Instant; zero inertia for maximum responsiveness."
+        },
+      "enemyAI": {
+          "description": "Simple but effective swarm logic.",
+          "designIntentOfEnemyBehavior": "To flush the player out of corners and force constant movement.",
+          "aiStates": "Aggressive Homing (Grunts), Pattern-based (Orbs), Patrol (Tank bots)."
+        }
+    },
+
+    "enemies": {
+      "description": "Diverse types ranging from fodder to mechanical behemoths.",
+      "enemyType": "Grunts, Club Men, Tank Bots, Shrapnel Bombs, Bosses (e.g., Mutoid Man).",
+      "enemyBehavior": "Swarming, exploding on death, or firing multi-directional beams.",
+      "enemyThreatLevel": "Variable; Grunts are low, Wall Turrets and Bosses are High."
+    },
+
+    "civilianCharacters": {
+      "description": "Non-combatants/Hosts present in the game world.",
+      "canCiviliansBeKilledByEnemies": "Not applicable (Civilians usually appear as prizes/escorts).",
+      "canCiviliansBeKilledByPlayer": "No.",
+      "rescueBonusPoints": "Points awarded for collecting 'Beautiful Assistants' or Hostages."
+    },
+
+    "lootSystem": {
+      "description": "Non-functional items collected for score and thematic flavor.",
+      "prizeTypes": ["Luxury Toasters", "VCRs", "Camcorders", "Microwaves", "Vacations", "Cold Hard Cash"],
+      "collectionFeedback": "Floating text showing point value and item name over the player."
+    },
+
+    "mechanics": {
+      "description": "Concrete gameplay rules and loops.",
+      "coreLoop": "Enter Room -> Kill Enemies -> Collect Prizes/Power-ups -> Choose Next Room Exit.",
+      "navigation": {
+        "description": "Non-linear progression through the studio wings.",
+        "exitMethod": "Directional doors (North, South, East, West) open upon clearing all enemies in a room.",
+        "roomSpecialization": ["Standard Arena", "Bonus Prize Room", "Weapon Crate Room", "Key Room", "Boss Arena"]
+      },
+      "powerUps": {
+        "description": "Temporary weapon enhancements that replace the standard gun.",
+        "powerUpsTypes": [
+          { "powerUpsName": "Spewer", "powerUpsEffect": "Extreme rapid fire" },
+          { "powerUpsName": "Rotating Discs", "powerUpsEffect": "Circular saw-blades that orbit the player" },
+          { "powerUpsName": "Grenades", "powerUpsEffect": "Lobbed explosives with high splash damage" },
+          { "powerUpsName": "Personal Shield", "powerUpsEffect": "Temporary invincibility to contact damage" }
+        ],
+        "powerUpsDurationLogic": "Power-ups are on a hidden timer and expire automatically."
+      },
+      "enemySpawning": {
+        "description": "Enemies emerge from four distinct doors in the arena corners.",  
+        "spawnType": "Infinite wave-based spawning until the room's quota is met.",
+        "spawnScalingFactors": "Room number, studio wing (difficulty level), and player score."
+        },
+        "difficulty": {
+          "description": "How challenge increases over time.",
+          "difficultyPhilosophy": "Unrelenting pressure and screen saturation.",
+          "difficultyScalingModel": "Static increase per room; global difficulty setting via arcade dip switches.",
+          "noDifficultySelection": "Standard arcade; no manual difficulty selection for players."
+        },
+        "failureState": {
+          "description": "Conditions that end a play session.",
+          "failureCondition": "Player loses all lives",
+          "failureResult": "Game Over; prompt to Insert Coin to continue."
+        }
+    },
+
+    "difficultyDesign": {
+      "description": "Philosophy and structure behind difficulty progression.",
+      "playerCatchUpMechanics": "Power-up crates spawn immediately upon player respawn.",
+      "difficultyCaps": "The final studio (The Pleasure Dome) represents the maximum possible difficulty."
+    },
+
+    "ui": {
+      "description": "User interface elements and feedback systems.",
+      "hud": {
+        "description": "On-screen informational elements.",
+        "hudElements": {
+          "description": "Score, Lives, and Room Progress.",
+          "hudElementName": "Broadcasting Scoreboard",
+          "hudElementPosition": "Top horizontal bar."
+        }
+      },
+      "VisualAndAudioFeedback": {
+        "description": "Visual and audio responses to player actions.",  
+        "visual": "Digitized gore explosions, screen shakes, and flashing 'Prize' indicators.",
+        "audio": "High-fidelity digitized speech and industrial synth tracks."
+      }
+    },
+
+    "artDirection": {
+      "description": "Visual design rules and aesthetic principles.",
+      "visualStyle": "Hyper-colored, gritty 16-bit sprite work.",
+      "readabilityRules": "Enemies and projectiles use bright, high-contrast palettes against darker arena floors.",
+      "animationPrinciples": "Exaggerated death animations for enemies (shrapnel and gore)."
+    },
+
+    "audioDesign": {
+      "description": "Sound and music design approach.",
+      "announcerSystem": {
+        "announcerRole": "The Show Host acts as the voice of the game's dark humor.",
+        "keyTriggersOfTheAnnouncer": {
+          "onStart": "Good luck! You'll need it!",
+          "onLargePrize": "Big Money! Big Prizes! I love it!",
+          "onPowerUp": "I'd buy that for a dollar!",
+          "onPlayerDeath": "Total Carnage!"
+        }
+      },
+      "musicDesign": {
+        "description": "Aggressive FM synthesis tracks.",
+        "tempo": "Fast and driving.",
+        "adaptive": "Music intensifies during Boss encounters."
+      },
+      "soundDesignRules": "Layered explosion sounds to emphasize power."
+    },
+
+    "accessibility": {
+      "description": "Support for diverse player needs.",
+      "colorBlindSupport": "None.",
+      "inputRemapping": "No.",
+      "difficultyAssist": "None.",
+      "accessibilityRationale": "Standard coin-op design focused on mechanical mastery."
+    },
+
+    "replayability": {
+      "description": "Systems encouraging repeated play.",
+      "primaryDriver": "Global High Score Leaderboards.",
+      "secondaryDrivers": "Unlocking the 'Pleasure Dome' and discovering hidden room paths.",
+      "metaProgression": "None."
+    },
+
+    "gameFlow": {
+      "description": "High-level state machine of the game.",
+      "gameFlowStates": "Intro/Attract -> Coin Insert -> Studio 1 -> Studio 2 -> Studio 3 -> The Pleasure Dome -> Ending/Credits."
+    },
+
+    "technicalNotes": {
+      "description": "Engineering and implementation considerations.",
+      "engineAgnostic": "Custom Williams Y-Unit hardware.",
+      "logicUpdateRate": "60Hz.",
+      "determinism": "High; room sequences and spawn counts are programmed.",
+      "knownTechnicalRisks": "Hardware limitations on the number of active sprites before flickering occurs."
+    },
+
+    "references": {
+      "description": "Design inspirations and guiding principles.",
+      "inspirations": "The Running Man (1987), Robocop (1987), Robotron: 2084.",
+      "designPillars": "Chaos, Greed, and Twitch-Precision."
+    }
+  }
+}
