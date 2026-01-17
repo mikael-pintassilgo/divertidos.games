@@ -10,20 +10,26 @@
     </div>
     <p>2. Select the way how to generate the prompt:</p>
     <div class="form-check">
-      <input class="form-check-input" type="radio" name="radioDefault" id="radioMyOwnList" checked onchange="toggleFields()">
+      <input class="form-check-input" type="radio" name="radioHowToGeneratePrompt" id="radioMyOwnList" value="myOwnList" checked onchange="toggleFields()">
       <label class="form-check-label" for="radioMyOwnList">
         Use my own list of element types (structure)
       </label>
     </div>
     <div class="form-check">
-      <input class="form-check-input" type="radio" name="radioDefault" id="radioExistGameStructure" onchange="toggleFields()">
+      <input class="form-check-input" type="radio" name="radioHowToGeneratePrompt" id="radioExistGameStructure" value="existGameStructure" onchange="toggleFields()">
       <label class="form-check-label" for="radioExistGameStructure">
-        Use the structure of a game from the database
+        Use the structure of a game from this site database
+      </label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="radioHowToGeneratePrompt" id="radioThereIsNoStructure" value="thereIsNoStructure" onchange="toggleFields()">
+      <label class="form-check-label" for="radioThereIsNoStructure">
+        There is no structure (make the prompt to make it from scratch)
       </label>
     </div>
 
     <div class="mb-3" id="typesOfElementsContainer">
-      <label for="typesOfElements" class="form-label">Types of elements (one per line)</label>
+      <label for="typesOfElements" class="form-label">3. Input types of elements (one per line)</label>
       <textarea class="form-control" id="typesOfElements" rows="10"></textarea>
     </div>
     <div class="mb-3" id="gameIdContainer">
@@ -31,38 +37,53 @@
       <input type="text" class="form-control" name="game_id" id="game_id" placeholder="Enter game ID">
     </div>
     <button type="button" id="copy-btn" class="btn btn-primary mb-3">4. Copy the prompt for ChatGPT, Gemini or similar services</button>
+    <p>5. Paste the prepared data to <a href="https://docs.google.com/spreadsheets" target="_blank">Google Sheets</a> or similar service.</p>
+    
     <script>
     (function(){
       const btn = document.getElementById('copy-btn');
       if (!btn) return;
-      const url = "{{ url_for('services.get_prompt_to_load_elements') }}";
+      const url = "{{ url_for('services.get_prompt_to_compare_games_for_clipboard') }}";
       btn.addEventListener('click', async (e) => {
       e.preventDefault();
+      
       const gameTitle = document.getElementById('game_title').value;
+      const howToGeneratePrompt = document.querySelector('input[name="radioHowToGeneratePrompt"]:checked').value;
+      const typesOfElements = document.getElementById('typesOfElements').value;
+      const gameId = document.getElementById('game_id').value;
+      
       if (!gameTitle.trim()) {
         alert('Please enter a game title');
         return;
       }
       try {
-        const res = await fetch(url + '?game_title=' + encodeURIComponent(gameTitle), {
-        method: 'GET',
-        credentials: 'same-origin',
-        headers: { 'Accept': 'text/plain' }
-        });
+        const res = await fetch(
+          url 
+          + '?game_title=' + encodeURIComponent(gameTitle) 
+          + '&how_to_generate_prompt=' + howToGeneratePrompt 
+          + '&game_id=' + encodeURIComponent(gameId) 
+          + '&types_of_elements=' + encodeURIComponent(typesOfElements),
+          {
+            method: 'GET',
+            credentials: 'same-origin',
+            headers: { 'Accept': 'text/plain' }
+          }
+        );
+        
         if (!res.ok) throw new Error('Network error: ' + res.status);
         const text = await res.text();
 
         if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(text);
+          await navigator.clipboard.writeText(text);
         } else {
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed';
-        ta.style.left = '-9999px';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
         }
 
         if (window.UIkit && UIkit.notification) UIkit.notification('Text copied to clipboard');
@@ -76,14 +97,16 @@
 
     function toggleFields() {
       const myOwnListChecked = document.getElementById('radioMyOwnList').checked;
+      const existGameStructureChecked = document.getElementById('radioExistGameStructure').checked;
+      const thereIsNoStructureChecked = document.getElementById('radioThereIsNoStructure').checked;
+
       document.getElementById('typesOfElementsContainer').style.display = myOwnListChecked ? 'block' : 'none';
-      document.getElementById('gameIdContainer').style.display = myOwnListChecked ? 'none' : 'block';
+      document.getElementById('gameIdContainer').style.display = existGameStructureChecked ? 'block' : 'none';      
     }
 
     // Initial call to set the correct visibility on page load
     toggleFields();
     </script>
-    <p>5. Paste the prepared data to <a href="https://docs.google.com/spreadsheets" target="_blank">Google Sheets</a> or similar service.</p>
     {% endif %}
   </div>
 {% endblock %}

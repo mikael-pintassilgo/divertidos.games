@@ -25,6 +25,50 @@ def index():
 def get_prompt_to_compare_games():
     return render_template("services/get-prompt-to-compare-games.html")
 
+@bp.route("/get-prompt-to-compare-games_for_clipboard", methods=("GET",))
+def get_prompt_to_compare_games_for_clipboard():
+    game_title = request.args.get('game_title', 'INPUT_HERE_THE_TITLE_OF_THE_GAME_YOU_ARE_INTERESTED_IN')
+    how_to_generate_prompt = request.args.get('how_to_generate_prompt', 'myOwnList')
+    types_of_elements = request.args.get('types_of_elements', '')
+    game_id = request.args.get('game_id', '')
+    
+    print('game_title = ' + str(game_title))
+    print('how_to_generate_prompt = ' + str(how_to_generate_prompt))
+    print('types_of_elements = ' + str(types_of_elements))
+    print('game_id = ' + str(game_id))
+    
+    if how_to_generate_prompt == 'myOwnList':
+        prompt = """Generate a tab-delimited text data for the following game titles:\n'""" + game_title + """'. 
+        \nThe data should include the list of element types that are in the end of the text.
+        \nFormat the output as a markdown table, with one line per an element type.
+        \nFor example, if the type of element is "Main Characters" and the value for first game title is "Alice, Bob, Charlie", and the value for second game title is "Minnie, Donald, Goofy",
+        \nthe output line should be:
+        \nMain Characters|Alice, Bob, Charlie|Minnie, Donald, Goofy
+        \nEnsure that the output is suitable for pasting into spreadsheet software like Google Sheets or Excel.
+        \nDo not include any explanations or additional text outside of the tab-delimited data.
+        \nShow the result as a table that can be copied and pasted into a spreadsheet.
+        \nMaintain the order and structure of the elements presented below in your answer.
+        \nThis is the list of element types that I want to get data for the game:\n """ + types_of_elements + """.
+        \n"""
+        return prompt
+    elif how_to_generate_prompt == 'existGameStructure':
+        return "This feature is under development. Please try again later."
+    elif how_to_generate_prompt == 'thereIsNoStructure':
+        prompt = """Generate a text data for the following game titles:\n'""" + game_title + """'. 
+        \nThe data should include common element types that are usually present in games of this genre.
+        \nThe structure of the elements should match the structure that are typically used in a game designer's document.
+        \nFormat the output as a markdown table, with one line per an element type.
+        \nFor example, if the type of element is "Main Characters" and the value for first game title is "Alice, Bob, Charlie", and the value for second game title is "Minnie, Donald, Goofy",
+        \nthe output line should be:
+        \nMain Characters|Alice, Bob, Charlie|Minnie, Donald, Goofy
+        \nEnsure that the output is suitable for pasting into spreadsheet software like Google Sheets or Excel.
+        \nDo not include any explanations or additional text outside of the tab-delimited data.
+        \nShow the result as a table that can be copied and pasted into a spreadsheet.
+        \n"""
+        return prompt
+    
+    return "Error generating prompt."
+    
 @bp.route("/get-prompt-to-load-elements", methods=("GET",))
 def get_prompt_to_load_elements():
     game_title = request.args.get('game_title', 'INPUT_HERE_THE_TITLE_OF_THE_GAME_YOU_ARE_INTERESTED_IN')
