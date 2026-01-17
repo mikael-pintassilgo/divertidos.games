@@ -1,8 +1,20 @@
 /*ALTER TABLE element
 ADD COLUMN parent_id INTEGER REFERENCES element (id) ON DELETE SET NULL;
-*/
+
 
 CREATE TABLE role (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT UNIQUE NOT NULL
+);
+*/
+
+CREATE TABLE feedback (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  author_id INTEGER REFERENCES user (id) ON DELETE SET NULL,
+  service_name TEXT NOT NULL,
+  feedback_text TEXT,
+  is_positive BOOLEAN,
+  is_negative BOOLEAN,
+  version TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -25,6 +25,61 @@ def index():
 def get_prompt_to_compare_games():
     return render_template("services/get-prompt-to-compare-games.html")
 
+@bp.route("/submit-feedback", methods=("POST",))
+def submit_feedback():
+    feedback_rating = request.form.get("feedback-rating", "").strip()
+    if feedback_rating == "like":
+        is_positive = True
+        is_negative = False
+    elif feedback_rating == "dislike":
+        is_positive = False
+        is_negative = True
+    else:
+        is_positive = False
+        is_negative = False
+    
+    print('feedback_rating = ' + str(feedback_rating))
+    
+    service_name = request.args.get("service_name", "unknown_service")
+    feedback_text = request.form.get("feedback-text", "").strip()
+    
+    print('service_name = ' + str(service_name))
+    print('feedback_text = ' + str(feedback_text))
+    
+    if service_name == "unknown_service":
+        flash("Service name is unknown.")
+        return redirect(url_for("services.index"))
+    
+    if not feedback_text and not (is_positive or is_negative):
+        flash("Feedback cannot be empty. Please fill in the text or click the like or dislike icon and Click the \"Submit\" button.")
+        if service_name == "get-prompt-to-compare-games":
+            return redirect(url_for("services.get_prompt_to_compare_games"))
+        else:
+            return redirect(url_for("services.index"))
+
+    try:
+        db = get_db()
+        cursor = db.cursor()
+
+        cursor.execute(
+            """
+            INSERT INTO feedback (service_name, feedback_text, author_id, is_positive, is_negative, version)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (service_name, feedback_text, g.user["id"], is_positive, is_negative, "1.0.0.1")
+        )
+
+        db.commit()
+        flash("Thank you for your feedback!")
+
+    except Exception as e:
+        db.rollback()
+        print('Error submitting feedback: ', str(e))
+        flash("An error occurred while submitting your feedback.")
+
+    return redirect(url_for("services.get_prompt_to_compare_games"))
+
+
 @bp.route("/get-prompt-to-compare-games_for_clipboard", methods=("GET",))
 def get_prompt_to_compare_games_for_clipboard():
     game_title = request.args.get('game_title', 'INPUT_HERE_THE_TITLE_OF_THE_GAME_YOU_ARE_INTERESTED_IN')

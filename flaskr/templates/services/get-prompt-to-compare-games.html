@@ -10,7 +10,13 @@
     </div>
     <p>2. Select the way how to generate the prompt:</p>
     <div class="form-check">
-      <input class="form-check-input" type="radio" name="radioHowToGeneratePrompt" id="radioMyOwnList" value="myOwnList" checked onchange="toggleFields()">
+      <input class="form-check-input" type="radio" name="radioHowToGeneratePrompt" id="radioThereIsNoStructure" value="thereIsNoStructure" checked onchange="toggleFields()">
+      <label class="form-check-label" for="radioThereIsNoStructure">
+        There is no structure (make the prompt to make it from scratch)
+      </label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="radioHowToGeneratePrompt" id="radioMyOwnList" value="myOwnList" onchange="toggleFields()">
       <label class="form-check-label" for="radioMyOwnList">
         Use my own list of element types (structure)
       </label>
@@ -36,12 +42,84 @@
       <label for="game_id" class="form-label">3. Select or enter game ID that near enough to your game (the structure of the Robotron 2084 will be used if the field is empty)</label>
       <input type="text" class="form-control" name="game_id" id="game_id" placeholder="Enter game ID">
     </div>
-    <button type="button" id="copy-btn" class="btn btn-primary mb-3">4. Copy the prompt for ChatGPT, Gemini or similar services</button>
-    <p>5. Paste the prepared data to <a href="https://docs.google.com/spreadsheets" target="_blank">Google Sheets</a> or similar service.</p>
-    
+    <button type="button" id="copy-prompt-btn" class="mt-3 btn btn-primary mb-3">4. Copy the prompt for ChatGPT, Gemini or similar services</button>
+    <p>5. Paste the prepared data to <a href="https://chat.openai.com" target="_blank">ChatGPT</a> or similar service.</p>
+
+    <div class="mb-3 mt-5">
+      <button type="button" id="share-btn" class="btn btn-outline-secondary">
+        <svg class="m-1" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share-fill" viewBox="0 0 16 16">
+          <path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5"/>
+        </svg>
+        Share this page
+      </button>
+    </div>
+
+    <form class="mb-3 mt-5 p-3 border rounded bg-light" action="{{ url_for('services.submit_feedback', service_name='get-prompt-to-compare-games') }}" method="post">
+      <label class="form-label">Did this service help you?</label>
+      <div class="row">
+        <div class="col">
+            <div class="btn-group mb-3" role="group">
+            <input type="radio" class="btn-check" name="feedback-rating" id="feedback-like" value="like">
+            <label class="btn btn-outline" for="feedback-like">👍 Like</label>
+            <input type="radio" class="btn-check" name="feedback-rating" id="feedback-dislike" value="dislike">
+            <label class="btn btn-outline" for="feedback-dislike">👎 Dislike</label>
+          </div>
+        </div>
+      </div>
+      
+      <br>
+      <label for="feedback-text" class="form-label">Additional comments (optional)</label>
+      <textarea class="form-control" id="feedback-text" name="feedback-text" rows="3" placeholder="Tell us what you think..."></textarea>
+      <button type="submit" id="submit-feedback-btn" class="btn btn-secondary mt-2">Send Feedback</button>
+    </form>
+
+    <script>
+      const shareBtn = document.getElementById('share-btn');
+      if (shareBtn) {
+        shareBtn.addEventListener('click', async () => {
+          const shareData = {
+            title: 'Get a Prompt to Compare Games',
+            text: 'Check out this tool to generate prompts for comparing games!',
+            url: window.location.href
+          };
+          
+          if (navigator.share) {
+            try {
+              await navigator.share(shareData);
+            } catch (err) {
+              if (err.name !== 'AbortError') console.error(err);
+            }
+          } else {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Share this page</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <input type="text" class="form-control" value="${window.location.href}" id="share-url" readonly>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('share-url').value); alert('Link copied!')">Copy Link</button>
+                  </div>
+                </div>
+              </div>
+            `;
+            document.body.appendChild(modal);
+            const bsModal = new bootstrap.Modal(modal);
+            bsModal.show();
+          }
+        });
+      }
+    </script>
+
     <script>
     (function(){
-      const btn = document.getElementById('copy-btn');
+      const btn = document.getElementById('copy-prompt-btn');
       if (!btn) return;
       const url = "{{ url_for('services.get_prompt_to_compare_games_for_clipboard') }}";
       btn.addEventListener('click', async (e) => {
