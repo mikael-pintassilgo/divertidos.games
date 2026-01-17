@@ -17,7 +17,6 @@ bp = Blueprint("services", __name__, url_prefix="/services")
 
 
 @bp.route("/", methods=("GET",))
-@login_required
 def index():
     return render_template("services/services.html", messages=[])
 
@@ -45,6 +44,7 @@ def submit_feedback():
     
     print('service_name = ' + str(service_name))
     print('feedback_text = ' + str(feedback_text))
+    print('g.user = ' + str(g.user))
     
     if service_name == "unknown_service":
         flash("Service name is unknown.")
@@ -66,7 +66,7 @@ def submit_feedback():
             INSERT INTO feedback (service_name, feedback_text, author_id, is_positive, is_negative, version)
             VALUES (?, ?, ?, ?, ?, ?)
             """,
-            (service_name, feedback_text, g.user["id"], is_positive, is_negative, "1.0.0.1")
+            (service_name, feedback_text, g.user["id"] if g.user else None, is_positive, is_negative, "1.0.0.1")
         )
 
         db.commit()

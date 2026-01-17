@@ -3,7 +3,6 @@
 {% block header %}
   <div uk-grid class="">
     <h1 class="">{% block title %}Get a Prompt to Compare Games{% endblock %}</h1>
-    {% if g.user %}
     <div class="mb-3">
       <label for="game_title" class="form-label">1. Enter the game titles (1 or more) that you want to load elements for (1 per line)</label>
       <textarea type="text" class="form-control" name="game_title" id="game_title" placeholder="" rows="4"></textarea>
@@ -185,7 +184,6 @@
     // Initial call to set the correct visibility on page load
     toggleFields();
     </script>
-    {% endif %}
   </div>
 {% endblock %}
 
