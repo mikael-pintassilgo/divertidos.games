@@ -79,6 +79,16 @@ def submit_feedback():
 
     return redirect(url_for("services.get_prompt_to_compare_games"))
 
+@bp.route("/feedback", methods=("GET",))
+@login_required
+def feedback():
+    db = get_db()
+    
+    feedback = db.execute(
+        "SELECT * FROM feedback"
+    ).fetchall()
+
+    return render_template("services/feedback.html", feedback=feedback)
 
 @bp.route("/get-prompt-to-compare-games_for_clipboard", methods=("GET",))
 def get_prompt_to_compare_games_for_clipboard():

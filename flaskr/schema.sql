@@ -154,3 +154,14 @@ CREATE TABLE quest_task (
   next_task_id INTEGER REFERENCES quest_task (id) ON DELETE SET NULL,
   quest_id INTEGER NOT NULL REFERENCES quest (id) ON DELETE CASCADE
 );
+
+CREATE TABLE feedback (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  author_id INTEGER REFERENCES user (id) ON DELETE SET NULL,
+  service_name TEXT NOT NULL,
+  feedback_text TEXT,
+  is_positive BOOLEAN,
+  is_negative BOOLEAN,
+  version TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
