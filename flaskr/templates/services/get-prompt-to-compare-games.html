@@ -28,11 +28,11 @@
     </div>
     
     <div class="mb-3" id="typesOfElementsContainer">
-      <label for="typesOfElements" class="form-label">3. Input types of elements (one per line)</label>
+      <label for="typesOfElements" class="form-label">3. Input element types (1 per line)</label>
       <textarea class="form-control" id="typesOfElements" rows="10"></textarea>
     </div>
     <div class="mb-3" id="gameIdContainer">
-      <label for="game_id" class="form-label">3. Select or enter game ID that near enough to your game (the structure of the Robotron 2084 will be used if the field is empty)</label>
+      <label for="game_id" class="form-label">3. Select or enter game ID that near enough to your game.</label>
       <input type="text" class="form-control" name="game_id" id="game_id" placeholder="Enter game ID">
     </div>
     <button type="button" id="copy-prompt-btn" class="mt-3 btn btn-primary mb-3">4. Copy the prompt for ChatGPT, Gemini or a similar service.</button>
@@ -40,7 +40,7 @@
     <p>6. Paste the table from ChatGPT into <a href="https://docs.google.com/spreadsheets" target="_blank">Google Spreadsheet</a> or a similar service.</p>
 
     <div class="mb-3 mt-5">
-      <button type="button" id="share-btn" class="btn btn-outline-secondary">
+      <button type="button" id="share-get-prompt-to-compare-games-btn" class="btn btn-outline-secondary">
         <svg class="m-1" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share-fill" viewBox="0 0 16 16">
           <path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5"/>
         </svg>
@@ -68,7 +68,7 @@
     </form>
 
     <script>
-      const shareBtn = document.getElementById('share-btn');
+      const shareBtn = document.getElementById('share-get-prompt-to-compare-games-btn');
       if (shareBtn) {
         shareBtn.addEventListener('click', async () => {
           const shareData = {
