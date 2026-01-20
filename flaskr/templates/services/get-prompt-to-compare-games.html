@@ -4,14 +4,14 @@
   <div uk-grid class="">
     <h1 class="">{% block title %}Get a Prompt to Compare Games{% endblock %}</h1>
     <div class="mb-3">
-      <label for="game_title" class="form-label">1. Enter the game titles (1 or more) that you want to load elements for (1 per line)</label>
+      <label for="game_title" class="form-label">1. Enter the game titles (1 or more) for which you want to load elements (1 per line)</label>
       <textarea type="text" class="form-control" name="game_title" id="game_title" placeholder="" rows="4"></textarea>
     </div>
-    <p>2. Select the way how to generate the prompt:</p>
+    <p>2. Select the method to generate the prompt:</p>
     <div class="form-check">
       <input class="form-check-input" type="radio" name="radioHowToGeneratePrompt" id="radioThereIsNoStructure" value="thereIsNoStructure" checked onchange="toggleFields()">
       <label class="form-check-label" for="radioThereIsNoStructure">
-        There is no structure (make the prompt to make it from scratch)
+        There is no structure (create the prompt to make it from scratch)
       </label>
     </div>
     <div class="form-check">
@@ -23,7 +23,7 @@
     <div class="form-check">
       <input class="form-check-input" type="radio" name="radioHowToGeneratePrompt" id="radioExistGameStructure" value="existGameStructure" onchange="toggleFields()">
       <label class="form-check-label" for="radioExistGameStructure">
-        Use the structure of a game from this site database
+        Use the structure of a game from this site's database
       </label>
     </div>
     
@@ -35,8 +35,9 @@
       <label for="game_id" class="form-label">3. Select or enter game ID that near enough to your game (the structure of the Robotron 2084 will be used if the field is empty)</label>
       <input type="text" class="form-control" name="game_id" id="game_id" placeholder="Enter game ID">
     </div>
-    <button type="button" id="copy-prompt-btn" class="mt-3 btn btn-primary mb-3">4. Copy the prompt for ChatGPT, Gemini or similar services</button>
+    <button type="button" id="copy-prompt-btn" class="mt-3 btn btn-primary mb-3">4. Copy the prompt for ChatGPT, Gemini or a similar service.</button>
     <p>5. Paste the prepared data to <a href="https://chat.openai.com" target="_blank">ChatGPT</a> or similar service.</p>
+    <p>6. Paste the table from ChatGPT into <a href="https://docs.google.com/spreadsheets" target="_blank">Google Spreadsheet</a> or a similar service.</p>
 
     <div class="mb-3 mt-5">
       <button type="button" id="share-btn" class="btn btn-outline-secondary">
