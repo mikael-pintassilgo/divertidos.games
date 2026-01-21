@@ -15,7 +15,7 @@
 
 {% block content %}
 <p>Here you can find various services to help you work with game elements.</p>
-<a href="{{ url_for('services.get_prompt_to_compare_games') }}">Get the prompt to compare games</a><br>
+<a href="{{ url_for('services.get_prompt_to_compare_games') }}">Get a prompt to compare games</a><br>
 {% if g.user %}
 <a href="{{ url_for('services.feedback') }}">Feedback</a><br>
 {% endif %}

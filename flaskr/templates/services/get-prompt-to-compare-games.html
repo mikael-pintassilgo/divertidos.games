@@ -3,191 +3,215 @@
 {% block header %}
   <div uk-grid class="">
     <h1 class="">{% block title %}Get a Prompt to Compare Games{% endblock %}</h1>
-    <div class="mb-3">
-      <label for="game_title" class="form-label">1. Enter the game titles (1 or more) for which you want to load elements (1 per line)</label>
-      <textarea type="text" class="form-control" name="game_title" id="game_title" placeholder="" rows="4"></textarea>
-    </div>
-    <p>2. Select the method to generate the prompt:</p>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="radioHowToGeneratePrompt" id="radioThereIsNoStructure" value="thereIsNoStructure" checked onchange="toggleFields()">
-      <label class="form-check-label" for="radioThereIsNoStructure">
-        There is no structure (create the prompt to make it from scratch)
-      </label>
-    </div>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="radioHowToGeneratePrompt" id="radioMyOwnList" value="myOwnList" onchange="toggleFields()">
-      <label class="form-check-label" for="radioMyOwnList">
-        Use my own list of element types (structure)
-      </label>
-    </div>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="radioHowToGeneratePrompt" id="radioExistGameStructure" value="existGameStructure" onchange="toggleFields()">
-      <label class="form-check-label" for="radioExistGameStructure">
-        Use the structure of a game from this site's database
-      </label>
-    </div>
-    
-    <div class="mb-3" id="typesOfElementsContainer">
-      <label for="typesOfElements" class="form-label">3. Input element types (1 per line)</label>
-      <textarea class="form-control" id="typesOfElements" rows="10"></textarea>
-    </div>
-    <div class="mb-3" id="gameIdContainer">
-      <label for="game_id" class="form-label">3. Select or enter game ID that near enough to your game.</label>
-      <input type="text" class="form-control" name="game_id" id="game_id" placeholder="Enter game ID">
-    </div>
-    <button type="button" id="copy-prompt-btn" class="mt-3 btn btn-primary mb-3">4. Copy the prompt for ChatGPT, Gemini or a similar service.</button>
-    <p>5. Paste the prepared data to <a href="https://chat.openai.com" target="_blank">ChatGPT</a> or similar service.</p>
-    <p>6. Paste the table from ChatGPT into <a href="https://docs.google.com/spreadsheets" target="_blank">Google Spreadsheet</a> or a similar service.</p>
-
-    <div class="mb-3 mt-5">
-      <button type="button" id="share-get-prompt-to-compare-games-btn" class="btn btn-outline-secondary">
-        <svg class="m-1" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share-fill" viewBox="0 0 16 16">
-          <path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5"/>
-        </svg>
-        Share this page
-      </button>
-    </div>
-
-    <form class="mb-3 mt-5 p-3 border rounded bg-light" action="{{ url_for('services.submit_feedback', service_name='get-prompt-to-compare-games') }}" method="post">
-      <label class="form-label">Did this service help you?</label>
-      <div class="row">
-        <div class="col">
-            <div class="btn-group mb-3" role="group">
-            <input type="radio" class="btn-check" name="feedback-rating" id="feedback-like" value="like">
-            <label class="btn btn-outline" for="feedback-like">👍 Like</label>
-            <input type="radio" class="btn-check" name="feedback-rating" id="feedback-dislike" value="dislike">
-            <label class="btn btn-outline" for="feedback-dislike">👎 Dislike</label>
-          </div>
-        </div>
-      </div>
-      
-      <br>
-      <label for="feedback-text" class="form-label">Additional comments (optional)</label>
-      <textarea class="form-control" id="feedback-text" name="feedback-text" rows="3" placeholder="Tell us what you think..."></textarea>
-      <button type="submit" id="submit-feedback-btn" class="btn btn-secondary mt-2">Send Feedback</button>
-    </form>
-
-    <script>
-      const shareBtn = document.getElementById('share-get-prompt-to-compare-games-btn');
-      if (shareBtn) {
-        shareBtn.addEventListener('click', async () => {
-          const shareData = {
-            title: 'Get a Prompt to Compare Games',
-            text: 'Check out this tool to generate prompts for comparing games!',
-            url: window.location.href
-          };
-          
-          if (navigator.share) {
-            try {
-              await navigator.share(shareData);
-            } catch (err) {
-              if (err.name !== 'AbortError') console.error(err);
-            }
-          } else {
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.innerHTML = `
-              <div class="modal-dialog">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title">Share this page</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                  </div>
-                  <div class="modal-body">
-                    <input type="text" class="form-control" value="${window.location.href}" id="share-url" readonly>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('share-url').value); alert('Link copied!')">Copy Link</button>
-                  </div>
-                </div>
-              </div>
-            `;
-            document.body.appendChild(modal);
-            const bsModal = new bootstrap.Modal(modal);
-            bsModal.show();
-          }
-        });
-      }
-    </script>
-
-    <script>
-    (function(){
-      const btn = document.getElementById('copy-prompt-btn');
-      if (!btn) return;
-      const url = "{{ url_for('services.get_prompt_to_compare_games_for_clipboard') }}";
-      btn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      
-      const gameTitle = document.getElementById('game_title').value;
-      const howToGeneratePrompt = document.querySelector('input[name="radioHowToGeneratePrompt"]:checked').value;
-      const typesOfElements = document.getElementById('typesOfElements').value;
-      const gameId = document.getElementById('game_id').value;
-      
-      if (!gameTitle.trim()) {
-        alert('Please enter a game title');
-        return;
-      }
-      try {
-        const res = await fetch(
-          url 
-          + '?game_title=' + encodeURIComponent(gameTitle) 
-          + '&how_to_generate_prompt=' + howToGeneratePrompt 
-          + '&game_id=' + encodeURIComponent(gameId) 
-          + '&types_of_elements=' + encodeURIComponent(typesOfElements),
-          {
-            method: 'GET',
-            credentials: 'same-origin',
-            headers: { 'Accept': 'text/plain' }
-          }
-        );
-        
-        if (!res.ok) throw new Error('Network error: ' + res.status);
-        const text = await res.text();
-
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(text);
-        } else {
-          const ta = document.createElement('textarea');
-          ta.value = text;
-          ta.style.position = 'fixed';
-          ta.style.left = '-9999px';
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
-        }
-
-        if (window.UIkit && UIkit.notification) UIkit.notification('Text copied to clipboard');
-        else alert('Text of the prompt copied to clipboard. Use it to prepare your elements data in JSON format by Gemini, ChatGPT or similar services.');
-      } catch (err) {
-        console.error(err);
-        alert('Failed to copy text: ' + (err.message || err));
-      }
-      });
-    })();
-
-    function toggleFields() {
-      const myOwnListChecked = document.getElementById('radioMyOwnList').checked;
-      const existGameStructureChecked = document.getElementById('radioExistGameStructure').checked;
-      const thereIsNoStructureChecked = document.getElementById('radioThereIsNoStructure').checked;
-
-      document.getElementById('typesOfElementsContainer').style.display = myOwnListChecked ? 'block' : 'none';
-      document.getElementById('gameIdContainer').style.display = existGameStructureChecked ? 'block' : 'none';      
-    }
-
-    // Initial call to set the correct visibility on page load
-    toggleFields();
-    </script>
-  </div>
 {% endblock %}
 
-<div class="uk-container-expand"></div>
+
 {% block menu_items %}
 {% endblock %}
-{% block elements_active %}active{% endblock %}
+{% block services_active %}active{% endblock %}
+
+{% block breadcrumb %}
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('services.index') }}">Services</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Get a Prompt to Compare Games</li>
+  </ol>
+</nav>
+{% endblock %}
 
 {% block content %}
+
+<div class="mt-3 mb-3">
+    <p>This service helps you generate a prompt for AI services like ChatGPT or Gemini to create a structured comparison of game elements in table format. You can then paste this data into Google Spreadsheets or similar tools for further analysis.</p>
+    <div>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-youtube" viewBox="0 0 16 16">
+        <path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z"/>
+      </svg>
+      
+      <a href="https://youtu.be/fjDoWcrCsag" target="_blank">
+        Watch a video tutorial on how to use this service
+      </a>
+    </div>
+    
+  </div>
+  <div class="mb-3">
+    <label for="game_title" class="form-label">1. Enter the game titles (1 or more) for which you want to load elements (1 per line)</label>
+    <textarea type="text" class="form-control" name="game_title" id="game_title" placeholder="" rows="4"></textarea>
+  </div>
+  <p>2. Select the method to generate the prompt:</p>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="radioHowToGeneratePrompt" id="radioThereIsNoStructure" value="thereIsNoStructure" checked onchange="toggleFields()">
+    <label class="form-check-label" for="radioThereIsNoStructure">
+      There is no structure (create the prompt to make it from scratch)
+    </label>
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="radioHowToGeneratePrompt" id="radioMyOwnList" value="myOwnList" onchange="toggleFields()">
+    <label class="form-check-label" for="radioMyOwnList">
+      Use my own list of element types (structure)
+    </label>
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="radioHowToGeneratePrompt" id="radioExistGameStructure" value="existGameStructure" onchange="toggleFields()">
+    <label class="form-check-label" for="radioExistGameStructure">
+      Use the structure of a game from this site's database
+    </label>
+  </div>
+  
+  <div class="mb-3 mt-1" id="typesOfElementsContainer">
+    <label for="typesOfElements" class="form-label">2.1. Input element types (1 per line)</label>
+    <textarea class="form-control" id="typesOfElements" rows="10"></textarea>
+  </div>
+  <div class="mb-3 mt-1" id="gameIdContainer">
+    <label for="game_id" class="form-label">2.1. Select or enter game ID that near enough to your game.</label>
+    <input type="text" class="form-control" name="game_id" id="game_id" placeholder="Enter game ID">
+  </div>
+  <button type="button" id="copy-prompt-btn" class="mt-3 btn btn-primary mb-3">3. Copy the prompt for ChatGPT, Gemini or a similar service.</button>
+  <p>4. Paste the prepared data to <a href="https://chat.openai.com" target="_blank">ChatGPT</a> or similar service.</p>
+  <p>5. Paste the table from ChatGPT into <a href="https://docs.google.com/spreadsheets" target="_blank">Google Spreadsheet</a> or a similar service.</p>
+
+  <div class="mb-3 mt-5">
+    <button type="button" id="share-get-prompt-to-compare-games-btn" class="btn btn-outline-secondary">
+      <svg class="m-1" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share-fill" viewBox="0 0 16 16">
+        <path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5"/>
+      </svg>
+      Share this page
+    </button>
+  </div>
+
+  <form class="mb-3 mt-5 p-3 border rounded bg-light" action="{{ url_for('services.submit_feedback', service_name='get-prompt-to-compare-games') }}" method="post">
+    <label class="form-label">Did this service help you?</label>
+    <div class="row">
+      <div class="col">
+          <div class="btn-group mb-3" role="group">
+          <input type="radio" class="btn-check" name="feedback-rating" id="feedback-like" value="like">
+          <label class="btn btn-outline" for="feedback-like">👍 Like</label>
+          <input type="radio" class="btn-check" name="feedback-rating" id="feedback-dislike" value="dislike">
+          <label class="btn btn-outline" for="feedback-dislike">👎 Dislike</label>
+        </div>
+      </div>
+    </div>
+    
+    <br>
+    <label for="feedback-text" class="form-label">Additional comments (optional)</label>
+    <textarea class="form-control" id="feedback-text" name="feedback-text" rows="3" placeholder="Tell us what you think..."></textarea>
+    <button type="submit" id="submit-feedback-btn" class="btn btn-secondary mt-2">Send Feedback</button>
+  </form>
+
+  <script>
+    const shareBtn = document.getElementById('share-get-prompt-to-compare-games-btn');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', async () => {
+        const shareData = {
+          title: 'Get a Prompt to Compare Games',
+          text: 'Check out this tool to generate prompts for comparing games!',
+          url: window.location.href
+        };
+        
+        if (navigator.share) {
+          try {
+            await navigator.share(shareData);
+          } catch (err) {
+            if (err.name !== 'AbortError') console.error(err);
+          }
+        } else {
+          const modal = document.createElement('div');
+          modal.className = 'modal';
+          modal.innerHTML = `
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Share this page</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <input type="text" class="form-control" value="${window.location.href}" id="share-url" readonly>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('share-url').value); alert('Link copied!')">Copy Link</button>
+                </div>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(modal);
+          const bsModal = new bootstrap.Modal(modal);
+          bsModal.show();
+        }
+      });
+    }
+  </script>
+
+  <script>
+  (function(){
+    const btn = document.getElementById('copy-prompt-btn');
+    if (!btn) return;
+    const url = "{{ url_for('services.get_prompt_to_compare_games_for_clipboard') }}";
+    btn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    
+    const gameTitle = document.getElementById('game_title').value;
+    const howToGeneratePrompt = document.querySelector('input[name="radioHowToGeneratePrompt"]:checked').value;
+    const typesOfElements = document.getElementById('typesOfElements').value;
+    const gameId = document.getElementById('game_id').value;
+    
+    if (!gameTitle.trim()) {
+      alert('Please enter a game title');
+      return;
+    }
+    try {
+      const res = await fetch(
+        url 
+        + '?game_title=' + encodeURIComponent(gameTitle) 
+        + '&how_to_generate_prompt=' + howToGeneratePrompt 
+        + '&game_id=' + encodeURIComponent(gameId) 
+        + '&types_of_elements=' + encodeURIComponent(typesOfElements),
+        {
+          method: 'GET',
+          credentials: 'same-origin',
+          headers: { 'Accept': 'text/plain' }
+        }
+      );
+      
+      if (!res.ok) throw new Error('Network error: ' + res.status);
+      const text = await res.text();
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+
+      if (window.UIkit && UIkit.notification) UIkit.notification('Text copied to clipboard');
+      else alert('Text of the prompt copied to clipboard. Use it to prepare your elements data in JSON format by Gemini, ChatGPT or similar services.');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to copy text: ' + (err.message || err));
+    }
+    });
+  })();
+
+  function toggleFields() {
+    const myOwnListChecked = document.getElementById('radioMyOwnList').checked;
+    const existGameStructureChecked = document.getElementById('radioExistGameStructure').checked;
+    const thereIsNoStructureChecked = document.getElementById('radioThereIsNoStructure').checked;
+
+    document.getElementById('typesOfElementsContainer').style.display = myOwnListChecked ? 'block' : 'none';
+    document.getElementById('gameIdContainer').style.display = existGameStructureChecked ? 'block' : 'none';      
+  }
+
+  // Initial call to set the correct visibility on page load
+  toggleFields();
+  </script>
+</div>
+
 {% for message in messages %}
   <div class="">{{ message }}</div>
 {% endfor %}
