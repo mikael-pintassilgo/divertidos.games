@@ -48,6 +48,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           <li class="nav-item">
             <a class="nav-link {% block services_active %}{% endblock %}" href="{{ url_for('services.index') }}">Services</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link {% block contacts_active %}{% endblock %}" href="{{ url_for('contacts.index') }}">Contacts</a>
+          </li>
         </ul>
         <!--
         <form class="d-flex" role="search">
