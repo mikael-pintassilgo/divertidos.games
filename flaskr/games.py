@@ -8,7 +8,7 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
-from .auth import login_required
+from .auth import login_required, user_has_role
 from .db import get_db
 from .blog import get_element_by_title, clean_key
 
@@ -30,13 +30,23 @@ def index():
     print('offset = ' + str(offset))
     print('limit = ' + str(limit))
     
+    user_id = g.user["id"] if g.user else None
+    user_is_admin = user_has_role(user_id, "admin") if user_id else False
+    
     """Show all the games, most recent first."""
     games = db.execute(
-        "SELECT g.id, title, body, created, author_id, username, comment"
-        "  FROM game g JOIN user u ON g.author_id = u.id"
+        "SELECT g.id, title, body, created, author_id, username, comment, status"
+        "  FROM game g"
+        "  JOIN user u ON g.author_id = u.id"
+        " WHERE status = 'public' OR ? OR g.author_id = ?"
         " ORDER BY created DESC"
-        " LIMIT " + str(offset) + "," + str(limit)
+        " LIMIT " + str(offset) + "," + str(limit),
+        (user_is_admin, user_id),
     ).fetchall()
+
+    print("user_is_admin: ", user_is_admin)
+    for game in games:
+        print("game id = " + str(game["id"]) + ", title = " + game["title"] + ", status = " + game["status"])
     
     return render_template("games/index.html", games=games, tag="", currentPage=currentPage)
 
@@ -58,7 +68,7 @@ def get_game(id, check_author=True):
     game = (
         db
         .execute(
-            "SELECT g.id, title, body, comment, created, author_id, username"
+            "SELECT g.id, title, body, comment, created, author_id, username, status"
             "  FROM game g JOIN user u ON g.author_id = u.id"
             " WHERE g.id = ?",
             (id,),
@@ -383,6 +393,11 @@ def get_full_description(id):
 def update(id):
     """Update a post if the current user is the author."""
     game_data = get_game(id)
+    
+    user_id = g.user["id"]
+    if game_data["game"]["author_id"] != user_id and not user_has_role(user_id, "admin"):
+        abort(403)
+    
     parent_id = request.args.get('parent_id')
     print(f"229 parent_id = {parent_id}")
     if parent_id:
@@ -399,6 +414,11 @@ def update(id):
         body = request.form["body"]
         comment = request.form["comment"]
         
+        if user_has_role(user_id, "admin"):
+            status = request.form["status"] or "private" # Admin can update status
+        else:
+            status = game_data["game"]["status"] # Non-admin cannot change status
+        
         error = None
 
         if not title:
@@ -409,9 +429,9 @@ def update(id):
         else:
             db = get_db()
             db.execute(
-                "UPDATE game SET title = ?, body = ?, comment = ?"
+                "UPDATE game SET title = ?, body = ?, comment = ?, status = ?"
                 "WHERE id = ?",
-                (title, body, comment, id)
+                (title, body, comment, status, id)
             )
             db.commit()
             return redirect(url_for("games.index"))
@@ -429,6 +449,10 @@ def view(id):
     """View a game if the current user is the author."""
     print('Viewing game id = ', id)
     game_data = get_game(id)
+    user_id = g.user["id"] if g.user else None
+    if game_data["game"]["status"] != "public" and game_data["game"]["author_id"] != user_id and not user_has_role(user_id, "admin"):
+        abort(403)
+    
     parent_id = request.args.get('parent_id')
     print(f"230 parent_id = {parent_id}")
     if parent_id:

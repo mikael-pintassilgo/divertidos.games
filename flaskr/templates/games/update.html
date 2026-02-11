@@ -22,6 +22,21 @@
           <textarea class="form-control" name="body" id="body" rows="3">{{ request.form['body'] or game['body'] }}</textarea>
         </div>
   
+        {% if "admin" in session.get("roles", []) %}
+        <div class="mb-3">
+          <label for="status" class="form-label">Status</label>
+          <select class="form-select" name="status" id="status">
+            <option value="private" {% if game['status'] == 'private' %}selected{% endif %}>Private</option>
+            <option value="pending_review" {% if game['status'] == 'pending_review' %}selected{% endif %}>Pending Review</option>
+            <option value="public" {% if game['status'] == 'public' %}selected{% endif %}>Public</option>
+          </select>
+        </div>
+        {% else %}
+        <div class="mb-3">
+          <p>Status: {{ game['status'] }}</p>
+        </div>
+        {% endif %}
+        
         <div class="mb-3">
           <label for="comment" class="form-label">Comment</label>
           <textarea class="form-control" name="comment" id="comment" rows="3">{{ request.form['comment'] or game['comment'] }}</textarea>

@@ -83,9 +83,10 @@ def load_logged_in_user():
 
 @bp.route("/register", methods=("GET", "POST"))
 def register():
-    error = 'Sorry, this function is under construction.'
+    """error = 'Sorry, this function is under construction.'
     flash(error)
     return render_template("auth/register.html")
+    """
     
     """Register a new user.
 
@@ -93,7 +94,7 @@ def register():
     password for security.
     """
     if request.method == "POST":
-        username = request.form["username"]
+        username = request.form["username"].strip().lower()
         password = request.form["password"]
         db = get_db()
         error = None
@@ -105,10 +106,18 @@ def register():
 
         if error is None:
             try:
-                db.execute(
+                cursor = db.execute(
                     "INSERT INTO user (username, password) VALUES (?, ?)",
                     (username, generate_password_hash(password)),
                 )
+                user_id = cursor.lastrowid
+
+                # assign default role "user"
+                db.execute("""
+                    INSERT OR IGNORE INTO user_role(user_id, role_id)
+                    SELECT ?, id FROM role WHERE name = 'user'
+                """, (user_id,))
+                
                 db.commit()
             except db.IntegrityError:
                 # The username was already taken, which caused the
@@ -127,7 +136,7 @@ def register():
 def login():
     """Log in a registered user by adding the user id to the session."""
     if request.method == "POST":
-        username = request.form["username"]
+        username = request.form["username"].strip().lower()
         password = request.form["password"]
         db = get_db()
         error = None

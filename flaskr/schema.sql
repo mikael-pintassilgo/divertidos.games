@@ -185,3 +185,16 @@ ON vote(target_type, target_id);
 
 CREATE INDEX IF NOT EXISTS idx_vote_user
 ON vote(user_id);
+
+-- user_role table --
+CREATE TABLE IF NOT EXISTS user_role (
+    user_id INTEGER NOT NULL,
+    role_id INTEGER NOT NULL,
+    PRIMARY KEY (user_id, role_id),
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+    FOREIGN KEY (role_id) REFERENCES role(id) ON DELETE CASCADE
+);
+
+INSERT OR IGNORE INTO role(name) VALUES ('admin');
+INSERT OR IGNORE INTO role(name) VALUES ('user');
+INSERT OR IGNORE INTO role(name) VALUES ('auditor');
