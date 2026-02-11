@@ -9,7 +9,7 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
-from .auth import login_required
+from .auth import login_required, role_required
 from .db import get_db
 from .blog import get_element_by_title, clean_key
 
@@ -81,6 +81,7 @@ def submit_feedback():
 
 @bp.route("/feedback", methods=("GET",))
 @login_required
+@role_required("admin")
 def feedback():
     db = get_db()
     
@@ -223,6 +224,7 @@ def load_elements_recursive(just_check_flag, ids, db, dict_data, parent_id=None)
 
 @bp.route("/load-elements", methods=("GET", "POST"))
 @login_required
+@role_required("admin")
 def load_elements():
     messages = []
     ids = []
@@ -256,6 +258,7 @@ def load_elements():
 
 @bp.route("/delete-elements", methods=("GET", "POST"))
 @login_required
+@role_required("admin")
 def delete_elements():
     messages = []
     ids = []
@@ -285,6 +288,7 @@ def delete_elements():
 
 @bp.route("/delete-game-elements", methods=("GET", "POST"))
 @login_required
+@role_required("admin")
 def delete_game_elements():
     messages = []
     ids = []

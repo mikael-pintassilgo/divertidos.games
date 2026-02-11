@@ -63,6 +63,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           <li class="navbar-text ml-2">{{ g.user['username'] }}</li>
           <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Log Out</a>
         </ul>
+        {% else %}
+        <ul class="navbar-nav d-flex justify-content-end ms-2">
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Log In</a>
+        </ul>
         {% endif %}
       </div>
     </div>

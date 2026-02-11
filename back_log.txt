@@ -6,6 +6,7 @@
     it can be used to make a new game using an LLM-model compile all selected games together.
     it can be payeble feature.
 - Give users the ability to rate individual game elements. This will allow game developers to evaluate what features from each game perform well.
+-- from 1 to 5 or only likes and dislikes?
 - The user sycle:
     1. Take a template for ChatGPT with the structure and the prompt.
     2. Ask chat GPT to give you description of the particular game using this template in JSON-format.
@@ -15,3 +16,5 @@
     6. Export you game data and ask chat GPT to conver in using promt from the site.
     7. Use this concept document to comunicate with you team or investors or audience.
 - Export to Google Spreadsheet or to Exel, for following competitors analysis.
+- Adding a possibility to change the order of the game elements.
+- Adding a comment system for games, elements and elements of games.

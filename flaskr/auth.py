@@ -1,6 +1,6 @@
 import functools
 
-from flask import Blueprint
+from flask import Blueprint, abort, app
 from flask import flash
 from flask import g
 from flask import redirect
@@ -28,6 +28,44 @@ def login_required(view):
 
     return wrapped_view
 
+def role_required(role_name):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            if "user_id" not in session:
+                return redirect(url_for("login"))
+
+            user_id = session["user_id"]
+
+            if not user_has_role(user_id, role_name):
+                abort(403)  # Forbidden
+
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+def get_user_roles(user_id):
+    db = get_db()
+    rows = db.execute("""
+        SELECT r.name
+        FROM role r
+        JOIN user_role ur ON ur.role_id = r.id
+        WHERE ur.user_id = ?
+    """, (user_id,)).fetchall()
+
+    return [row["name"] for row in rows]
+
+def user_has_role(user_id, role_name):
+    db = get_db()
+    row = db.execute("""
+        SELECT 1
+        FROM user_role ur
+        JOIN role r ON r.id = ur.role_id
+        WHERE ur.user_id = ? AND r.name = ?
+        LIMIT 1
+    """, (user_id, role_name)).fetchone()
+
+    return row is not None
 
 @bp.before_app_request
 def load_logged_in_user():
@@ -106,6 +144,8 @@ def login():
             # store the user id in a new session and return to the index
             session.clear()
             session["user_id"] = user["id"]
+            session["roles"] = get_user_roles(user["id"])
+
             return redirect(url_for("index"))
 
         flash(error)
@@ -118,3 +158,23 @@ def logout():
     """Clear the current session, including the stored user id."""
     session.clear()
     return redirect(url_for("index"))
+
+@bp.errorhandler(403)
+def forbidden(e):
+    return "403 Forbidden: You don't have access", 403
+
+@bp.route("/admin/assign-role", methods=["POST"])
+@role_required("admin")
+def assign_role():
+    user_id = request.form["user_id"]
+    role_name = request.form["role"]
+
+    db = get_db()
+
+    db.execute("""
+        INSERT OR IGNORE INTO user_role(user_id, role_id)
+        SELECT ?, id FROM role WHERE name = ?
+    """, (user_id, role_name))
+
+    db.commit()
+    return "Role assigned successfully"

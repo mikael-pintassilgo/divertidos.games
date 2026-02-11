@@ -242,6 +242,106 @@
   </div>
 </div>
 
+<!--
+<div class='row mt-3'>
+  <div class='col-12'>
+
+    <div class="d-flex gap-2 align-items-center vote-box"
+        data-target-type="game"
+        data-target-id="{{ game.id }}">
+
+      <button type="button"
+              class="btn btn-outline-success btn-sm d-flex align-items-center gap-2 vote-btn like-btn rounded-pill">
+        <span>👍</span>
+        <span>Like</span>
+        <span class="badge text-bg-success like-count">0</span>
+      </button>
+
+      <button type="button"
+              class="btn btn-outline-danger btn-sm d-flex align-items-center gap-2 vote-btn dislike-btn rounded-pill">
+        <span>👎</span>
+        <span>Dislike</span>
+        <span class="badge text-bg-danger dislike-count">0</span>
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  const voteBox = document.querySelector(".vote-box");
+  if (!voteBox) return;
+
+  const targetType = voteBox.dataset.targetType;
+  const targetId = voteBox.dataset.targetId;
+
+  const likeBtn = voteBox.querySelector(".like-btn");
+  const dislikeBtn = voteBox.querySelector(".dislike-btn");
+
+  const likeCountEl = voteBox.querySelector(".like-count");
+  const dislikeCountEl = voteBox.querySelector(".dislike-count");
+
+  function updateUI(data) {
+    likeCountEl.textContent = data.likes;
+    dislikeCountEl.textContent = data.dislikes;
+
+    // reset state
+    likeBtn.classList.remove("active");
+    dislikeBtn.classList.remove("active");
+
+    // active state
+    if (data.user_vote === 1) {
+      likeBtn.classList.add("active");
+    } else if (data.user_vote === -1) {
+      dislikeBtn.classList.add("active");
+    }
+  }
+
+  async function loadVoteStatus() {
+    const res = await fetch(`/api/vote/status?target_type=${targetType}&target_id=${targetId}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Vote status error:", data);
+      return;
+    }
+
+    updateUI(data);
+  }
+
+  async function sendVote(action) {
+    const res = await fetch("/api/vote", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        target_type: targetType,
+        target_id: parseInt(targetId),
+        action: action
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || "Vote failed");
+      return;
+    }
+
+    await loadVoteStatus();
+  }
+
+  likeBtn.addEventListener("click", () => sendVote("like"));
+  dislikeBtn.addEventListener("click", () => sendVote("dislike"));
+
+  await loadVoteStatus();
+});
+</script>
+-->
+
 <script>
   /*el = document.getElementById("body");
   el.innerHTML = "{{ (request.form['body'] or game['body']) }}";
