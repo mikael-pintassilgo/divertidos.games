@@ -49,7 +49,8 @@ CREATE TABLE IF NOT EXISTS user_role (
 INSERT OR IGNORE INTO role(name) VALUES ('admin');
 INSERT OR IGNORE INTO role(name) VALUES ('user');
 INSERT OR IGNORE INTO role(name) VALUES ('auditor');
-*/
 
 ALTER TABLE game
 ADD COLUMN status TEXT NOT NULL DEFAULT 'private' CHECK(status IN ('private', 'pending_review', 'public'));
+
+*/

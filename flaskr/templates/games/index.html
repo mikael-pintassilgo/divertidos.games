@@ -23,7 +23,12 @@
     <div class="card mb-2" style="width: 18rem;">
       <!-- img src="..." class="card-img-top" alt="..." -->
       <div class="card-body">
-        <h5 class="card-title"><a class="" href="{{ url_for('games.view', id=game['id']) }}">{{ game['title'] }}</a></h5>
+        <h5 class="card-title">
+          <a class="" href="{{ url_for('games.view', id=game['id']) }}">{{ game['title'] }}</a>
+          {% if g.user['id'] == game['author_id'] %}
+          {{ game['status'] }}
+          {% endif %}
+        </h5>
         {% if game['body']|length > 150 %}
           <p class="card-text">{{ game['body'][:150] }}...</p>
         {% else %}
@@ -36,6 +41,7 @@
       
       {% if g.user['id'] == game['author_id'] %}
       <div class="card-body">
+        {{ game['status'] }}
         <a class="" href="{{ url_for('games.update', id=game['id']) }}">edit</a>
       </div>
       {% endif %}

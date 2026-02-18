@@ -61,6 +61,7 @@ CREATE TABLE game (
   title TEXT NOT NULL,
   body TEXT NOT NULL,
   comment TEXT,
+  status TEXT NOT NULL DEFAULT 'private' CHECK(status IN ('private', 'pending_review', 'public')),
   
   FOREIGN KEY (author_id) REFERENCES user (id)
 );
