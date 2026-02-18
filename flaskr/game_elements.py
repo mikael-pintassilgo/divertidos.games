@@ -262,11 +262,12 @@ def view(ge_id):
     
     print(f'2 game_id = {game_id}')
     print(f'ge_id = {ge_id}')
+    print('Tags: ', game_element_tags)
     return render_template("game_elements/view.html", 
                            ge_id=ge_id, 
                            game_element=game_element, 
                            game_id=game_id,
-                            game_title=game_data['title'],
+                           game_title=game_data['title'],
                            game_element_tags=game_element_tags,
                            game_element_links=game_element_links)
 # End Game Elements

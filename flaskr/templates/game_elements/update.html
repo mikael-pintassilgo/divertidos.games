@@ -32,7 +32,7 @@
             <input class="form-control mb-3" placeholder="link" name="ge_link" id="ge_link" value="{{ game_element['link'] }}">
             
             <label for="description" class="form-label">Description</label>
-            <input class="form-control mb-3" placeholder="description" name="description" id="description" value="{{ game_element['description'] }}">
+            <textarea class="form-control mb-3" rows=6 placeholder="description" name="description" id="description">{{ game_element['description'] }}</textarea>
             
             <label for="game_id" class="form-label">Game ID</label>
             <input class="form-control mb-3" name="game_id" value="{{ game_element['game_id'] }}" disabled>                

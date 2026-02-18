@@ -19,20 +19,36 @@
     
     <label for="element_id" class="form-label">Element or Game Element ID</label>
     
-    <div class="input-group mb-3">
-      <input class="form-control mb-3" placeholder="element_id or ge_id" name="element_id" id="element_id" value="{{ request.form['element_id'] }}" aria-describedby="selectElementBtn" required>
+    <div class="input-group">
+      <input class="form-control" placeholder="element_id or ge_id" name="element_id" id="element_id" value="{{ request.form['element_id'] }}" aria-describedby="selectElementBtn" required>
   
-      <button type="button" class="btn btn-outline-secondary mb-3" id="selectElementBtn" data-bs-toggle="offcanvas" data-bs-target="#elementPanel">
+      <button type="button" class="btn btn-outline-secondary" id="selectElementBtn" data-bs-toggle="offcanvas" data-bs-target="#elementPanel">
         Select
-      </button>
+      </button>      
     </div>
+    <a href="#" class="" id="viewElementLink" target="_blank"></a>
 
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="elementPanel" aria-labelledby="elementPanelLabel">
+    <div id="selectElementSidePanelToReplace"></div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="elementPanel" aria-labelledby="elementPanelLabel" style="width: 40%;">
       <div class="offcanvas-header">
         <h5 class="offcanvas-title" id="elementPanelLabel">Select an Element</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
-      <div class="offcanvas-body p-0">
+      <div id="elementsListForSelection" class="offcanvas-body p-0">
+        <div id="searchBar" class="p-3">
+          <div class="row g-3 align-items-center">
+            <div class="col-auto">
+              <input type="text" class="form-control" id="search_term" placeholder="Text to search..." name="search_term" value="{{ search_term }}">
+            </div>
+            <div class="col-auto">
+              <button type="button" class="btn btn-primary" id="searchElementBtn">Search</button>
+            </div>
+            <div class="col-auto">
+              <button type="button" class="btn btn-secondary" id="clearSearchElementBtn">Clear</button>
+            </div>
+          </div>
+        </div>
+        
         <div class="list-group list-group-flush" id="elementsList">
           <p class="p-3">Loading...</p>
         </div>
@@ -47,53 +63,9 @@
       </div>
     </div>
 
-    <script>
-      currentPage = {{ currentPage }};
-      fetchElementsForSelection = function(page) {
-        fetch('{{ url_for("blog.get_elements_for_selection") }}' + '?page=' + page)
-        .then(response => response.json())
-        .then(data => {
-          const elementsList = document.getElementById('elementsList');
-          elementsList.innerHTML = '';
-          data.elements.forEach(element => {
-          const button = document.createElement('button');
-          button.type = 'button';
-          button.className = 'list-group-item list-group-item-action text-start p-3';
-          button.innerHTML = `<h6 class="mb-1">${element.title}</h6><p class="mb-1 small text-muted">${element.body.substring(0, 100)}</p>`;
-          button.onclick = () => selectElement(element.id);
-          elementsList.appendChild(button);
-          });
-        });
-      };
-      
-      document.getElementById('previous_page_btn').addEventListener('click', function() {
-        currentPage -= 1;
-        if (currentPage < 1) {
-          currentPage = 1;
-        };
-        console.log('currentPage = ', currentPage);
-        fetchElementsForSelection(currentPage);
-      });
-      
-      document.getElementById('next_page_btn').addEventListener('click', function() {
-        currentPage += 1;
-        console.log('currentPage = ', currentPage);
-        fetchElementsForSelection(currentPage);
-      });
-      
-      document.getElementById('selectElementBtn').addEventListener('click', function() {
-        fetchElementsForSelection(1);
-    });
-
-    function selectElement(elementId) {
-      document.getElementById('element_id').value = elementId;
-      bootstrap.Offcanvas.getInstance(document.getElementById('elementPanel')).hide();
-    }
-    </script>
-    
-    <input class="form-control mb-3" placeholder="weight" name="ge_weight" id="ge_weight" value="{{ request.form['ge_weight'] }}">
+    <input class="form-control mb-3 mt-3" placeholder="weight" name="ge_weight" id="ge_weight" value="{{ request.form['ge_weight'] }}">
     <input class="form-control mb-3" placeholder="link" name="ge_link" id="ge_link" value="{{ request.form['ge_link'] }}">
-    <input class="form-control mb-3" placeholder="description" name="description" id="description" value="{{ request.form['description'] }}">
+    <textarea class="form-control mb-3" rows=6 placeholder="description" name="description" id="description">{{ request.form['description'] }}</textarea>
 
     <input class="form-control mb-3" name="game_id" id="games_id" value="{{ request.args.get('game_id') }}">                
 
@@ -101,4 +73,10 @@
     
   </fieldset>
 </form>
+
+<script>
+  currentPage = {{ currentPage }};
+  selectURL = '{{ url_for("blog.get_elements_for_selection") }}'
+</script>
+<script src="{{ url_for('static', filename='js/select.js') }}"></script>
 {% endblock %}

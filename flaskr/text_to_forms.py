@@ -210,7 +210,6 @@ def __extract_game_doc_info(nl_input):
     # Decode and print result
     generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
     print(generated_text)
-"""
 
 def extract_game_doc_info(nl_input):
     from openai import OpenAI
@@ -228,4 +227,5 @@ def extract_game_doc_info(nl_input):
 
     print(response.output_text)
 
+"""
 

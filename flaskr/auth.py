@@ -83,10 +83,9 @@ def load_logged_in_user():
 
 @bp.route("/register", methods=("GET", "POST"))
 def register():
-    """error = 'Sorry, this function is under construction.'
+    error = 'Sorry, this function is under construction.'
     flash(error)
     return render_template("auth/register.html")
-    """
     
     """Register a new user.
 

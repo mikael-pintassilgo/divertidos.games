@@ -81,7 +81,7 @@ def get_elements(_page, tags_list, search_term=''):
             " ORDER BY e.title ASC"
             " LIMIT " + str(offset) + "," + str(limit)
         ).fetchall()
-        
+    
     return posts, currentPage
     
 @bp.route("/")
@@ -125,9 +125,11 @@ def get_element_by_title(db, title):
 @login_required
 def get_elements_for_selection():
     _page = request.args.get('page')
+    search_term = request.args.get('search')
+    
     if (_page == None):
         _page = 1
-    elements, currentPage = get_elements(_page, [])
+    elements, currentPage = get_elements(_page, [], search_term=search_term)
     print('elements = ', elements)
     print('elements length = ', len(elements))
     return jsonify({"elements": [{"id": e["id"], "title": e["title"], "body": e["body"]} for e in elements]})

@@ -156,6 +156,33 @@ def get_game(id, check_author=True):
     if game is None:
         abort(404, f"Game id {id} doesn't exist.")
 
+    if game_elements:
+        game_elements_ids = [the_game_element["ge_id"] for the_game_element in game_elements]
+        extra_info = db.execute(
+            "WITH union_result AS ("
+            "  SELECT game_element_id, COUNT(*) as count"
+            "    FROM game_element_link"
+            "   WHERE game_element_id IN (SELECT value FROM json_each(?))"
+            "  UNION ALL"
+            "  SELECT game_element_id, COUNT(*) as count"
+            "    FROM game_element_tag"
+            "   WHERE game_element_id IN (SELECT value FROM json_each(?))"
+            ")"
+            "SELECT game_element_id, SUM(count) as count"
+            "  FROM union_result"
+            " GROUP BY game_element_id",
+            (json.dumps(game_elements_ids), json.dumps(game_elements_ids)),
+        ).fetchall()
+        
+        extra_info_map = {row["game_element_id"]: row["count"] for row in extra_info}
+        #print("game_elements WITHOUT extra_info = ", game_elements)
+        game_elements = [
+            dict(element, count=extra_info_map.get(element["ge_id"], 0), 
+            is_more=extra_info_map.get(element["ge_id"], 0) > 0)
+            for element in game_elements
+        ]
+        print("game_elements with extra_info = ", game_elements)
+
     # Build a tree structure for game_elements
     def build_element_tree(elements, parent_id=None):
         tree = []
@@ -163,14 +190,14 @@ def get_game(id, check_author=True):
             if (element['parent_element_id'] == parent_id or 
                 (element['parent_element_id'] is None and parent_id is None) or
                 (element['parent_element_id'] == '' and parent_id is None)):
-                print("Building tree for element: ", element['title'])
+                #print("Building tree for element: ", element['title'])
                 children = build_element_tree(elements, element['ge_id'])
                 element['children'] = children
                 tree.append(element)
         return tree
 
     game_elements_tree = build_element_tree([dict(element) for element in game_elements])
-    print("game_elements_tree = ", game_elements_tree)
+    #print("game_elements_tree = ", game_elements_tree)
 
     # Map consist_count from game_elements_hierarchy to game_elements by ge_id
     consist_count_map = {row['ge_id']: row['consist_count'] for row in game_elements_hierarchy}
@@ -400,7 +427,7 @@ def update(id):
     
     parent_id = request.args.get('parent_id')
     print(f"229 parent_id = {parent_id}")
-    if parent_id:
+    if parent_id and parent_id != 'None' and parent_id != '':
         game_elements_data = get_game_elements_of_the_parent(id, parent_id)
         game_elements_parents = game_elements_data["game_elements_parents"]
         game_elements = game_elements_data["game_elements"]
@@ -455,7 +482,7 @@ def view(id):
     
     parent_id = request.args.get('parent_id')
     print(f"230 parent_id = {parent_id}")
-    if parent_id:
+    if parent_id and parent_id != 'None' and parent_id != '':
         game_elements_data = get_game_elements_of_the_parent(id, parent_id)
         game_elements_parents = game_elements_data["game_elements_parents"]
         game_elements = game_elements_data["game_elements"]
@@ -519,11 +546,16 @@ def get_sql_for_elements_of_the_parent():
 def get_game_elements_of_the_parent(game_id, parent_element_id):
     db = get_db()
 
+    if parent_element_id == 'None' or parent_element_id == '' or parent_element_id is None:
+        _parent_element_id = None
+    else:
+        _parent_element_id = int(parent_element_id)
+    
     game_elements = (
         db
         .execute(
             get_sql_for_elements_of_the_parent(),
-            (game_id, int(parent_element_id), game_id, int(parent_element_id),),
+            (game_id, _parent_element_id, game_id, _parent_element_id,),
         ).fetchall()
     )
     game_elements_hierarchy = (
