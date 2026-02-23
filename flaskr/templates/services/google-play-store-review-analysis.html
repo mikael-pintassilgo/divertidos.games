@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<header class="bg-primary text-white text-center py-5">
+    <div class="container">
+        <h1 class="display-5 fw-bold">Mobile Game Review Analysis</h1>
+        <p class="lead">Automated collection and analysis of mobile app and game reviews</p>
+        <a href="https://github.com/mikael-pintassilgo/portfolio/blob/my-pages/colab-notebooks/Play_Store_Review_Analysis.ipynb"
+        class="btn btn-light btn-lg mt-3"
+        target="_blank">
+            Access Google Colab Example
+        </a>
+    </div>
+</header>
+
+{% endblock %}
+
+
+{% block menu_items %}
+{% endblock %}
+{% block services_active %}active{% endblock %}
+
+{% block breadcrumb %}
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('services.index') }}">Services</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Google Play Strore Review Analysis</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-lg-12">
+                <h2 class="mb-3">Automated Mobile Game Review Analysis</h2>
+                <p>
+                    For fast and efficient analysis of mobile game reviews (or reviews of any mobile applications),
+                    you can use Google Colab. A ready-to-use example file is available via the link above.
+                </p>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Identify main player pain points</li>
+                    <li class="list-group-item">Detect recurring technical and UX issues</li>
+                    <li class="list-group-item">Discover features players love</li>
+                    <li class="list-group-item">Turn raw feedback into actionable insights</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-lg-12">
+                <h2 class="mb-3">Competitor Game Review Analysis</h2>
+                <p>
+                    Analyzing competitor mobile game reviews helps developers understand market expectations
+                    and identify improvement opportunities.
+                </p>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Find weaknesses in competing products</li>
+                    <li class="list-group-item">Identify highly praised mechanics and features</li>
+                    <li class="list-group-item">Discover differentiation opportunities</li>
+                    <li class="list-group-item">Borrow proven ideas for similar game development</li>
+                </ul>
+                <p class="mt-3">
+                    Competitor review analysis is especially valuable during pre-production and game design phases.
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 class="mb-3">Post-Update Feedback Analysis</h2>
+                <p>
+                    Analyzing reviews after releasing a game update is essential for maintaining player satisfaction
+                    and long-term retention.
+                </p>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Understand player reactions to new features</li>
+                    <li class="list-group-item">Detect negative feedback early</li>
+                    <li class="list-group-item">Measure sentiment shifts after balance or monetization changes</li>
+                    <li class="list-group-item">Make fast, informed product decisions</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{% endblock %}
+

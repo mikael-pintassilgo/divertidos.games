@@ -24,6 +24,10 @@ def index():
 def get_prompt_to_compare_games():
     return render_template("services/get-prompt-to-compare-games.html")
 
+@bp.route("/google-play-store-review-analysis", methods=("GET",))
+def google_play_store_review_analysis():
+    return render_template("services/google-play-store-review-analysis.html")
+
 @bp.route("/submit-feedback", methods=("POST",))
 def submit_feedback():
     feedback_rating = request.form.get("feedback-rating", "").strip()
