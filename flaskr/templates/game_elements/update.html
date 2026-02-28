@@ -51,6 +51,9 @@
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">Tags</button>
       </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="variant-tab" data-bs-toggle="tab" data-bs-target="#variant-tab-pane" type="button" role="tab" aria-controls="variant-tab-pane" aria-selected="false">Variants</button>
+      </li>
     </ul>
     <div class="tab-content" id="myTabContent">
       <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
@@ -126,6 +129,7 @@
         <!-- End Game Element Links -->
 
       </div>
+
       <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
         <!-- Game Element Tags -->
         <div class='row'>
@@ -178,6 +182,60 @@
         <!-- End of Game Element Tags -->
 
       </div>
+
+      <div class="tab-pane fade" id="variant-tab-pane" role="tabpanel" aria-labelledby="variant-tab" tabindex="0">
+        <!-- Game Element Variants -->
+        <div class='row'>
+          <div class='col-12'>
+
+              <table class="table table-hover">
+                <caption class="caption-top">Variants</caption>
+                <tbody>
+                  <thead>
+                    <tr>
+                      <th scope="col">variant</th>
+                      <th scope="col">game_element_id</th>
+                      <th scope="col">action</th>
+                    </tr>
+                  </thead>
+
+                  {% for ge_variant in game_element_variants %}
+                  <tr>
+                      <td>
+                        <p>{{ ge_variant['title'] }}</p>
+                      </td>
+                      <td>
+                        <p>{{ ge_variant['game_element_id'] }}</p>
+                      </td>
+                      <td>
+                        <form action="{{ url_for('game_element_variants.delete', id=ge_variant['ge_variant_id']) }}" method="post">
+                          <input class="form-control" type="hidden" name="game_element_id" id="game_element_id" value="{{ ge_id }}">
+                          <button class="btn btn-danger" type="submit" value="Delete Variant" onclick="return confirm('Are you sure?');">Delete</button>
+                        </form>
+                      </td>
+                  </tr>
+                  {% endfor %}
+                  <tr>
+                    <form action="{{ url_for('game_element_variants.create') }}?type=game_and_element" method="post">
+                      <td>
+                        <textarea class="form-control" placeholder="Enter new variant description here..." name="variant_title" id="variant_title" required>{{ request.form['variant_title'] }}</textarea>
+                      </td>
+                      <td>
+                        <input class="form-control" type="" name="game_element_id" id="game_element_id" value="{{ ge_id }}">
+                      </td>
+                      <td>
+                        <button class="btn btn-primary" type="submit" value="Add Variant">Add Variant</button>
+                      </td>
+                    </form>
+                  </tr>
+                </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- End of Game Element Variants -->
+
+      </div>
+
     </div>
 
   </div>

@@ -34,6 +34,9 @@
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">Tags</button>
       </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="variants-tab" data-bs-toggle="tab" data-bs-target="#variants-tab-pane" type="button" role="tab" aria-controls="variants-tab-pane" aria-selected="false">Variants</button>
+      </li>
     </ul>
     <div class="tab-content" id="myTabContent">
       <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
@@ -72,6 +75,7 @@
         <!-- End Game Element Links -->
 
       </div>
+
       <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
         <!-- Game Element Tags -->
         <div class='row'>
@@ -98,6 +102,39 @@
           </div>
         </div>
         <!-- End of Game Element Tags -->
+
+      </div>
+      
+      <div class="tab-pane fade" id="variants-tab-pane" role="tabpanel" aria-labelledby="variants-tab" tabindex="0">
+        <!-- Game Element Variants -->
+        <div class='row'>
+          <div class='col-12'>
+
+              <table class="table table-hover">
+                <caption class="caption-top">Variants</caption>
+                <tbody>
+                  <thead>
+                    <tr>
+                      <th scope="col">variant</th>
+                      <th scope="col">author</th>
+                    </tr>
+                  </thead>
+
+                  {% for ge_variant in game_element_variants %}
+                  <tr>
+                      <td>
+                        <p>{{ ge_variant['title'] }}</p>
+                      </td>
+                      <td>
+                        <p>{{ ge_variant['author_name'] }}</p>
+                      </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- End of Game Element Variants -->
 
       </div>
     </div>

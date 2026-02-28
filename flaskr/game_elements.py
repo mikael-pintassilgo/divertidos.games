@@ -7,6 +7,8 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
+from flaskr.game_element_variants import get_game_element_variants
+
 from .auth import login_required
 from .db import get_db
 from .game_element_tags import get_game_element_tags
@@ -209,6 +211,7 @@ def update(ge_id):
 
     game_element_tags = get_game_element_tags(ge_id)
     game_element_links = get_game_element_links(ge_id)
+    game_element_variants = get_game_element_variants(ge_id)
                 
     game_id = request.args.get("game_id")
     print(f'2 game_id = {game_id}')
@@ -218,7 +221,8 @@ def update(ge_id):
                            game_element=game_element, 
                            game_id=game_id,
                            game_element_tags=game_element_tags,
-                           game_element_links=game_element_links)
+                           game_element_links=game_element_links,
+                           game_element_variants=game_element_variants)
 
 def get_game_data(game_id):
     """Get game data by game id."""
@@ -256,6 +260,7 @@ def view(ge_id):
 
     game_element_tags = get_game_element_tags(ge_id)
     game_element_links = get_game_element_links(ge_id)
+    game_element_variants = get_game_element_variants(ge_id)
                 
     game_id = request.args.get("game_id")
     game_data = get_game_data(game_id)
@@ -263,11 +268,14 @@ def view(ge_id):
     print(f'2 game_id = {game_id}')
     print(f'ge_id = {ge_id}')
     print('Tags: ', game_element_tags)
+    print('Variants: ', game_element_variants)
+    
     return render_template("game_elements/view.html", 
                            ge_id=ge_id, 
                            game_element=game_element, 
                            game_id=game_id,
                            game_title=game_data['title'],
                            game_element_tags=game_element_tags,
-                           game_element_links=game_element_links)
+                           game_element_links=game_element_links,
+                           game_element_variants=game_element_variants)
 # End Game Elements

@@ -46,6 +46,7 @@ def create_app(test_config=None):
     from . import game_elements
     from . import game_element_tags
     from . import game_element_links
+    from . import game_element_variants
     from . import services
     from . import contacts
     from . import votes
@@ -56,9 +57,12 @@ def create_app(test_config=None):
     app.register_blueprint(quests.bp)
     app.register_blueprint(task.bp)
     app.register_blueprint(games.bp)
+    
     app.register_blueprint(game_elements.bp)
     app.register_blueprint(game_element_tags.bp)
     app.register_blueprint(game_element_links.bp)
+    app.register_blueprint(game_element_variants.bp)
+    
     app.register_blueprint(services.bp)
     app.register_blueprint(contacts.bp)
     app.register_blueprint(votes.vote_api)

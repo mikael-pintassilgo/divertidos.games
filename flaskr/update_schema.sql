@@ -54,3 +54,15 @@ ALTER TABLE game
 ADD COLUMN status TEXT NOT NULL DEFAULT 'private' CHECK(status IN ('private', 'pending_review', 'public'));
 
 */
+
+CREATE TABLE game_element_variant (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  target_type TEXT NOT NULL CHECK(target_type IN ('game', 'game_and_element')),
+  title TEXT NOT NULL,
+
+  game_id INTEGER REFERENCES game (id) ON DELETE CASCADE,
+  game_element_id INTEGER REFERENCES game_and_element (id) ON DELETE CASCADE,
+  author_id INTEGER NOT NULL REFERENCES user (id) ON DELETE SET NULL
+);

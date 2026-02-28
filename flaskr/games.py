@@ -167,11 +167,15 @@ def get_game(id, check_author=True):
             "  SELECT game_element_id, COUNT(*) as count"
             "    FROM game_element_tag"
             "   WHERE game_element_id IN (SELECT value FROM json_each(?))"
+            "  UNION ALL"
+            "  SELECT game_element_id, COUNT(*) as count"
+            "    FROM game_element_variant"
+            "   WHERE game_element_id IN (SELECT value FROM json_each(?))"
             ")"
             "SELECT game_element_id, SUM(count) as count"
             "  FROM union_result"
             " GROUP BY game_element_id",
-            (json.dumps(game_elements_ids), json.dumps(game_elements_ids)),
+            (json.dumps(game_elements_ids), json.dumps(game_elements_ids), json.dumps(game_elements_ids),)
         ).fetchall()
         
         extra_info_map = {row["game_element_id"]: row["count"] for row in extra_info}
