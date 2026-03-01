@@ -6,7 +6,7 @@
   
     <div class="card" style="">
     <div class="card-body">
-    <h5 class="card-title">Edit "{{ game['title'] }}</h5>
+    <h5 class="card-title">Edit: {{ game['title'] }} <a href="{{ url_for('games.view', id=game['id']) }}" class="">view</a></h5>
     
     <form method="post">
       <fieldset class="">
@@ -227,10 +227,10 @@
                 <tr>
                   <form action="{{ url_for('games.create_link', id=game['id']) }}" method="post">
                     <td>
-                      <input class="" placeholder="" name="link_title" id="link_title" value="{{ request.form['link_title'] }}" required>
+                      <input class="form-control" placeholder="" name="link_title" id="link_title" value="{{ request.form['link_title'] }}" required>
                     </td>
                     <td>
-                      <input class="" placeholder="" name="comment" id="comment" value="{{ request.form['comment'] }}" required>
+                      <input class="form-control" placeholder="" name="comment" id="comment" value="{{ request.form['comment'] }}" required>
                     </td>
                     <td>
                       <input class="btn btn-primary" type="submit" value="Add Link">
@@ -267,10 +267,10 @@
                   <tr>
                     <form action="{{ url_for('games.create_tag', id=game['id']) }}" method="post">
                       <td>
-                        <input class="uk-input" placeholder="Enter new tag here..." name="tag_title" id="tag_title" value="{{ request.form['tag_title'] }}" required>
+                        <input class="form-control" placeholder="Enter new tag here..." name="tag_title" id="tag_title" value="{{ request.form['tag_title'] }}" required>
                       </td>
                       <td>
-                        <input class="uk-button uk-button-secondary" type="submit" value="Add Tag">
+                        <input class="btn btn-primary" type="submit" value="Add Tag">
                       </td>
                     </form>
                   </tr>
