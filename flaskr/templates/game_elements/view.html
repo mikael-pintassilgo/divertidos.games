@@ -16,7 +16,7 @@
   <div class='col-12'>
   
     <div class="card" style="">
-      <div class="card-header">Game Element Details</div>
+      <div class="card-header">Game Element Details <a href="{{ url_for('game_elements.update', ge_id=game_element['id']) + "?game_id=" + game_id|string }}">edit</a></div>
       <div class="card-body">
         <fieldset class="">
 
