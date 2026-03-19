@@ -25,8 +25,16 @@
       <div class="card-body">
         <h5 class="card-title">
           <a class="" href="{{ url_for('games.view', id=game['id']) }}">{{ game['title'] }}</a>
-          {% if g.user['id'] == game['author_id'] %}
-          {{ game['status'] }}
+          {% if g.user['id'] == game['author_id'] %}          
+            {% if game['status'] == 'public' %}
+              <p class="mt-3 bg-success-subtle text-success-emphasis">{{ game['status'] }}</p>
+            {% else %}
+              <p class="mt-3 bg-primary-subtle text-primary-emphasis">{{ game['status'] }}</p>
+            {% endif %}
+          {% else %}
+            {% if user_is_admin %}
+              <p class="mt-3 bg-warning-subtle text-warning-emphasis">You are an admin</p>
+            {% endif %}
           {% endif %}
         </h5>
         {% if game['body']|length > 150 %}

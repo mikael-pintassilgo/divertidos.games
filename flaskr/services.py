@@ -319,3 +319,34 @@ def delete_game_elements():
             messages.append('Error deleting game elements: ' + str(e))
             
     return render_template("services/delete-game-elements.html", messages=messages, ids=ids)
+
+@bp.route("/set-status-public-for-elements", methods=("GET", "POST"))
+@login_required
+@role_required("admin")
+def set_status_public_for_elements():
+    messages = []
+    ids = []
+        
+    if request.method == "POST":
+        db = get_db()
+        just_check_flag = True if request.form.get('just_check_flag') else False
+        print('just_check_flag = ' + str(just_check_flag))
+        
+        try:
+            all_elements = db.execute(
+                "SELECT id, title FROM element WHERE status != 'public'"
+            ).fetchall()
+
+            for element in all_elements:
+                if not just_check_flag:
+                    db.execute("UPDATE element SET status = 'public' WHERE id = ?", (element['id'],))
+                ids.append({'id': element['id'], 'title': element['title']})
+
+            if not just_check_flag:
+                db.commit()
+            
+            messages.append('Elements updated successfully.')
+        except Exception as e:
+            messages.append('Error updating elements: ' + str(e))
+            
+    return render_template("services/set-status-public-for-elements.html", messages=messages, ids=ids)

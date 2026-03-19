@@ -262,6 +262,9 @@ def view(ge_id):
     game_element_links = get_game_element_links(ge_id)
     game_element_variants = get_game_element_variants(ge_id)
                 
+    for key, value in request.args.items():
+        print(f'{key}: {value}')
+    
     game_id = request.args.get("game_id")
     game_data = get_game_data(game_id)
     

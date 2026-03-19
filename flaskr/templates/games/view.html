@@ -4,7 +4,7 @@
 <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ url_for('games.index') }}">Games</a></li>
-    <li class="breadcrumb-item active" aria-current="page">{{ game['title'] }}</li>
+    <li class="breadcrumb-item active" aria-current="page"></li>
   </ol>
 </nav>
 {% endblock %}
@@ -17,11 +17,22 @@
 <div class='row mt-3'>
   <div class='col-12'>
   
-    <h5 class="title">{{ game['title'] }}
-    {% if g.user['id'] == game['author_id'] %}
-    <a class="card-link" aria-current="page" href="{{ url_for('games.update', id=game['id']) }}">edit</a>
-    {% else %}            
-    {% endif %}
+    
+    
+    <div class="dropdown">
+      <h5 class="title">{{ game['title'] }}</h5>
+      {% if g.user['id'] == game['author_id'] %}
+      <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        actions
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" aria-current="page" href="{{ url_for('games.update', id=game['id']) }}">edit</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('games.get_full_description', id=game['id']) }}">get full description</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('games.get_full_description', id=game['id']) }}" aria-disabled="true">[under construcion] Get data to past into a Google Spreadsheet</a></li>
+      </ul>
+      {% endif %}
+    </div>
+    
   </div>
 </div>
     
@@ -37,14 +48,6 @@
           Elements
           {% if game_elements_tree %}
             <span class="badge bg-secondary">filled</span>
-          {% endif %}
-        </button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">
-          Links
-          {% if links %}
-            <span class="badge bg-secondary ml-1">filled</span>
           {% endif %}
         </button>
       </li>
@@ -68,18 +71,15 @@
         <div class="text-body-secondary mt-1" name="comment" id="comment">
           <p class="fs-4">{{ request.form['comment'] or game['comment'] }}</p>
         </div>
-    
-        <div class="row mt-3">
-          <div class="col-12">
-            {% if g.user['id'] == game['author_id'] %}
-            <a class="card-link" aria-current="page" href="{{ url_for('games.update', id=game['id']) }}">edit</a>
-            <a class="card-link" href="{{ url_for('games.get_full_description', id=game['id']) }}">get full description</a>
-            <a class="card-link" href="{{ url_for('games.get_full_description', id=game['id']) }}">[under construcion] Get data to past into a Google Spreadsheet</a> 
-            {% else %}            
-            {% endif %}
-          </div>
-        </div>
 
+        {% for link in links %}
+          {% if link['comment'] == None %}
+          <p><a href="{{ link['title'] }}" target="_blank">{{ link['title'] }}</a></p>
+          {% else %}
+          <p><a href="{{ link['title'] }}" target="_blank">{{ link['comment'] }}</a></p>
+          {% endif %}
+        {% endfor %}
+    
       </div>
 
       <div class="tab-pane fade {{'show active' if request.args.get('tab') == 'elements' else ''}}" id="elements-tab-pane" role="tabpanel" aria-labelledby="elements-tab" tabindex="0">
@@ -205,36 +205,9 @@
         </table>
       </div>
 
-      <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
-        <table class="table table-hover">
-          <caption class="caption-top">Links</caption>
-          <tbody>
-            <thead>
-              <tr>
-                <th scope="col">link</th>
-                <th scope="col">comment</th>
-              </tr>
-            </thead>
-            {% for link in links %}
-              <tr>
-                  <td>
-                    <p><a href="{{ link['title'] }}" target="_blank">{{ link['title'] }}</a></p>
-                  </td>
-                  <td>
-                    {% if link['comment'] == None %}
-                    <p></p>
-                    {% else %}
-                    <p>{{ link['comment'] }}</p>
-                    {% endif %}
-                  </td>
-              </tr>
-              {% if loop.last %}
-              {% endif %}
-            {% endfor %}
-      </div>
-
       <div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">
-        {% for tag in tags %}
+        {% if tags %}
+          {% for tag in tags %}
             <article class="">
               <header>
                 <div>
@@ -245,6 +218,9 @@
               </header>
             </article>
           {% endfor %}
+        {% else %}
+          <p class="fs-4">No tags yet</p>
+        {% endif %}
       </div>
     </div>
 

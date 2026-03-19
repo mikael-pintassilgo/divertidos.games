@@ -36,10 +36,13 @@ def create():
     if request.method == "POST":
         title = request.form["variant_title"]
         game_element_id = request.form["game_element_id"]
+        game_id_for_URL = request.form["game_id"]
         target_type = request.args.get('type') or 'game_and_element'
         
+        print('game-element-variant/create called ')
         print('title: ', title)
         print('game_element_id: ', game_element_id)
+        print('game_id_for_URL: ', game_id_for_URL)
         print('target_type: ', target_type)
         
         error = None
@@ -54,7 +57,6 @@ def create():
         elif target_type == 'game_and_element':
             game_id = None
         elif target_type == 'game':
-            game_id = request.form["game_id"]
             if not game_id:
                 error = "game_id is required for game target type."
             
@@ -72,7 +74,9 @@ def create():
             )
             
             db.commit()
-            return redirect(url_for('game_elements.update', ge_id=game_element_id))
+            _url = url_for('game_elements.view', ge_id=game_element_id, game_id=game_id_for_URL)
+            print('redirecting to: ', _url)
+            return redirect( _url )
 
     return render_template("game_elements/update.html")
 

@@ -194,7 +194,7 @@ def get_post(id, check_author=True):
     games = (
         db
         .execute(
-            "SELECT DISTINCT g.id as g_id, g.title, g.body"
+            "SELECT DISTINCT g.id as g_id, g.title, g.body, ge.description"
             "  FROM game g JOIN user u ON g.author_id = u.id"
             " INNER JOIN game_and_element ge ON g.id = ge.game_id"
             " WHERE ge.element_id = ?",
@@ -287,6 +287,7 @@ def create_link(id):
     """Create a new link for the current user."""
     if request.method == "POST":
         title = request.form["link_title"]
+        comment = request.form["link_comment"]
         error = None
 
         if not title:
@@ -301,8 +302,8 @@ def create_link(id):
             
             db = get_db()
             db.execute(
-                "INSERT INTO element_link (title, author_id, element_id) VALUES (?, ?, ?)",
-                (title, g.user["id"], id),
+                "INSERT INTO element_link (title, comment, author_id, element_id) VALUES (?, ?, ?, ?)",
+                (title, comment, g.user["id"], id),
             )
             
             db.commit()

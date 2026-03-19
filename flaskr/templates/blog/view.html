@@ -75,9 +75,15 @@
     <article class="">
       <header>
         <div>
+          
           <a href="{{ link['title'] }}" target="_blank">
+            {% if link['comment'] %}
+            <p class="fs-4">{{ link['comment'] }}</p>
+            {% else %}
             <p class="fs-4">{{ link['title'] }}</p>
+            {% endif %}
           </a>
+          
         </div>
       </header>
     </article>
@@ -87,27 +93,32 @@
 
 <!-- Games -->
 <br/>
-<h3>Games</h3>
+<h3>Games that used {{ post['title'] }}</h3>
 <hr>
+<ul class="list-group">
 {% for game in games %}
-  <article class="">
-    <header>
-      <div>
-        <a href="{{ url_for('games.view', id=game['g_id']) }}" target="_blank">
-          <p class="fs-4">{{ game['title'] }}</p>
-        </a>
-      </div>
-    </header>
-  </article>
-  {% if loop.last %}
-  {% endif %}
+  <li class="list-group-item">  
+    <article class="">
+      <header>
+        <div>
+          <a href="{{ url_for('games.view', id=game['g_id']) }}" target="_blank">
+            <p class="fs-4">{{ game['title'] }}</p>
+          </a>
+          <p class="fs-6">{{ game['description'] }}</p>
+        </div>
+      </header>
+    </article>
+    {% if loop.last %}
+    {% endif %}
+  </li>
 {% endfor %}
+</ul>
+<br/>
 
 <script>
 function tagOnClick(tag_title) {
     window.location.href = "{{ url_for('index') }}" + "?tag=" + tag_title;
 }
 </script>
-
 
 {% endblock %}

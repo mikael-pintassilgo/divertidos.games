@@ -48,7 +48,7 @@ def index():
     for game in games:
         print("game id = " + str(game["id"]) + ", title = " + game["title"] + ", status = " + game["status"])
     
-    return render_template("games/index.html", games=games, tag="", currentPage=currentPage)
+    return render_template("games/index.html", games=games, tag="", currentPage=currentPage, user_is_admin=user_is_admin)
 
 
 def get_game(id, check_author=True):

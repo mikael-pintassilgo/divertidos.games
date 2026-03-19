@@ -55,7 +55,7 @@ ADD COLUMN status TEXT NOT NULL DEFAULT 'private' CHECK(status IN ('private', 'p
 
 */
 
-CREATE TABLE game_element_variant (
+CREATE TABLE IF NOT EXISTS game_element_variant (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -66,3 +66,6 @@ CREATE TABLE game_element_variant (
   game_element_id INTEGER REFERENCES game_and_element (id) ON DELETE CASCADE,
   author_id INTEGER NOT NULL REFERENCES user (id) ON DELETE SET NULL
 );
+
+ALTER TABLE element
+ADD COLUMN status TEXT NOT NULL DEFAULT 'private' CHECK(status IN ('private', 'pending_review', 'public'));

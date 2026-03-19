@@ -27,6 +27,9 @@ CREATE TABLE element (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   author_id INTEGER NOT NULL,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  status TEXT NOT NULL DEFAULT 'private' CHECK(status IN ('private', 'pending_review', 'public')),
+
   title TEXT NOT NULL,
   body TEXT NOT NULL,
   comment TEXT,

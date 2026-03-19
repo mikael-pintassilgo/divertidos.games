@@ -71,10 +71,20 @@
   <table class="">
     <caption>Links</caption>
     <tbody>
+      <thead>
+        <tr>
+          <th scope="col">link</th>
+          <th scope="col">title</th>
+          <th scope="col">action</th>
+        </tr>
+      </thead>
       {% for link in links %}
       <tr>
           <td>
             <p><a href="{{ link['title'] }}" target="_blank">{{ link['title'] }}</a></p>
+          </td>
+          <td>
+            <p>{{ link['comment'] }}</p>
           </td>
           <td>
             <form action="{{ url_for('blog.delete_element_link', id=link['id'], element_id=post['id']) }}" method="post">
@@ -87,6 +97,9 @@
         <form action="{{ url_for('blog.create_link', id=post['id']) }}" method="post">
           <td>
             <input class="form-control" placeholder="Enter new link here..." name="link_title" id="link_title" value="{{ request.form['link_title'] }}" required>
+          </td>
+          <td>
+            <input class="form-control" placeholder="Enter new link here..." name="link_comment" id="link_comment" value="{{ request.form['link_comment'] }}" required>
           </td>
           <td>
             <input class="btn btn-secondary" type="submit" value="Add Link">
