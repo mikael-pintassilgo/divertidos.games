@@ -45,6 +45,9 @@
       {% for tag in tags %}
       <tr>
           <td>
+            <p>{{ tag['tag_id'] }}</p>
+          </td>
+          <td>
             <p>{{ tag['title'] }}</p>
           </td>
           <td>
@@ -57,8 +60,12 @@
       <tr>
         <form action="{{ url_for('blog.create_tag', id=post['id']) }}" method="post">
           <td>
-            <input class="form-control" placeholder="Enter new tag here..." name="tag_title" id="tag_title" value="{{ request.form['tag_title'] }}" required>
+            <input class="form-control" placeholder="tag_id" name="tag_id" id="tag_id" value="{{ request.form['tag_id'] }}" required>
           </td>
+          
+          <td>
+          </td>
+
           <td>
             <input class="btn btn-secondary" type="submit" value="Add Tag">
           </td>

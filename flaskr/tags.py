@@ -31,7 +31,7 @@ def index():
     
     """Show all the posts, most recent first."""
     tags = db.execute(
-        "SELECT DISTINCT title"
+        "SELECT id, title"
         "  FROM tag t"
         " ORDER BY title ASC"
         " LIMIT " + str(offset) + "," + str(limit)

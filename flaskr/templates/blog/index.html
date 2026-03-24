@@ -47,29 +47,30 @@
   <div class="col">
     <div class="card mb-2" style="width: 18rem;">
       <!-- img src="..." class="card-img-top" alt="..." -->
-      <div class="card-body">
+      <div class="card-body" style="min-height: 210px; display: flex; flex-direction: column;">
         <h5 class="card-title"><a class="" href="{{ url_for('blog.view', id=post['id']) }}">{{ post['title'] }}</a></h5>
-        <p class="card-text">{{ post['body'] }}</p>
-        {% if post['parent_id'] %}
-          The part of:
-          <a href="{{ url_for('blog.view', id=post['parent_id']) }}">
-            {{ post['parent_title'] }}
-          </a>
+        <p class="card-text flex-grow-1">{{ post['body'] }}</p>
+        {% if false and post['parent_id'] %}
+          <div class="mt-auto">
+        The parent element:
+        <a href="{{ url_for('blog.view', id=post['parent_id']) }}">
+          {{ post['parent_title'] }}
+        </a>
+          </div>
         {% endif %}
       </div>
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</li>
-      </ul>
 
-      {% if post["tags"] != None and post["tags"] != "" %}
-      <div class="card-body">
-        {% for tag in post["tags"].split(';') %}
-          {% if tag != '' %}  
-            <!-- a href="{{ url_for('index') + '?tag=' + tag }}" onclick='tagOnClick()'>{{ tag }}</a -->
-            <a href="#" onclick="tagOnClickGeneral('{{ tag }}')">#{{ tag }}</a>
-          {% endif %}
-        {% endfor %}
-      </div>
+      {% if false %}
+        {% if post["tags"] != None and post["tags"] != "" %}
+        <div class="card-body">
+          {% for tag in post["tags"].split(';') %}
+            {% if tag != '' %}  
+              <!-- a href="{{ url_for('index') + '?tag=' + tag }}" onclick='tagOnClick()'>{{ tag }}</a -->
+              <a href="#" onclick="tagOnClickGeneral('{{ tag }}')">#{{ tag }}</a>
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
       {% endif %}
       
       {% if g.user['id'] == post['author_id'] %}

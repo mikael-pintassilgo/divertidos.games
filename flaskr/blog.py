@@ -94,14 +94,17 @@ def index():
     print('search_term = ' + str(search_term))
     coockie_tags = request.cookies.get('tags')
     
-    if (tag_title):
-        tags_list = [tag_title,]
-    else:
-        # tags in coockie
-        if coockie_tags:
-            tags_list = coockie_tags.split('%%')
+    if False:
+        if (tag_title):
+            tags_list = [tag_title,]
         else:
-            tags_list = []
+            # tags in coockie
+            if coockie_tags:
+                tags_list = coockie_tags.split('%%')
+            else:
+                tags_list = []
+    else:
+        tags_list = []
     
     print('coockie_tags = ' + str(coockie_tags))
     print('tags_list = ' + str(tags_list))
@@ -177,10 +180,12 @@ def get_post(id, check_author=True):
     tags = (
         db
         .execute(
-            "SELECT t.id, title, comment"
-            "  FROM element_tag t JOIN user u ON t.author_id = u.id"
+            "SELECT t.id AS id, tg.title AS title, tg.comment AS comment, tg.id AS tag_id"
+            "  FROM element_tag t"
+            "  JOIN tag tg ON t.tag_id = tg.id"
+            "  JOIN user u ON t.author_id = u.id"
             " WHERE t.element_id = ?"
-            " ORDER BY created ASC",
+            " ORDER BY tg.title ASC",
             (id,),
         ).fetchall()
     )
@@ -253,32 +258,24 @@ def create():
 def create_tag(id):
     """Create a new tag for the current user."""
     if request.method == "POST":
-        title = request.form["tag_title"]
+        tag_id = request.form["tag_id"]
         error = None
 
-        if not title:
-            error = "Title is required."
+        if not tag_id:
+            error = "tag_id is required."
 
         if error is not None:
             flash(error)
         else:
-            print(title)
-            print(g.user["id"])
-            print((id))
-            
-            post=get_post(id)
+            print('tag_id: ', tag_id)
+            print('g.user["id"]: ',g.user["id"])
+            print('id: ', id)
             
             db = get_db()
             db.execute(
-                "INSERT INTO element_tag (title, author_id, element_id) VALUES (?, ?, ?)",
-                (title, g.user["id"], id),
+                "INSERT INTO element_tag (tag_id, author_id, element_id) VALUES (?, ?, ?)",
+                (tag_id, g.user["id"], id),
             )
-            
-            if (post['element']['tags'].find(title) == -1):
-                db.execute(
-                    "UPDATE element SET tags=? WHERE id=?",
-                    (str(post['element']['tags']) + title + ';', id),
-                )
             
             db.commit()
             return redirect(url_for('blog.update', id=id))
@@ -322,11 +319,11 @@ def update(id):
     post = get_post(id)
 
     if request.method == "POST":
-        parent_id = request.form["parent_id"]
-        title = request.form["title"]
-        body = request.form["body"]
-        comment = request.form["comment"]
-        tags = request.form["tags"]
+        parent_id = request.form["parent_id"] or ''
+        title = request.form["title"] or ''
+        body = request.form["body"] or ''
+        comment = request.form["comment"] or ''
+        tags = request.form["tags"] or ''
 
         error = None
 
@@ -338,7 +335,8 @@ def update(id):
         else:
             db = get_db()
             db.execute(
-                "UPDATE element SET parent_id = ?, title = ?, body = ?, comment = ?, tags = ? WHERE id = ?", (parent_id, title, body, comment, tags, id)
+                "UPDATE element SET parent_id = ?, title = ?, body = ?, comment = ?, tags = ? WHERE id = ?",
+                (parent_id, title, body, comment, tags, id)
             )
             db.commit()
             return redirect(url_for("blog.index"))

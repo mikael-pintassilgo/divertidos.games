@@ -20,17 +20,14 @@
 {% endblock %}
 
 {% block content %}
-  <hr>
   <div name="body" id="body">
     <p class="fs-4">{{ (request.form['body'] or post['body']) | e | replace('\n', '<br>') | safe }}</p>
   </div>
   
-  <br/>
   <div class= "text-body-secondary" name="comment" id="comment">
-    <p class="fs-4">{{ request.form['comment'] or post['comment'] }}</p>
+    <p class="">{{ request.form['comment'] or post['comment'] }}</p>
   </div>
   
-  <br/>
   <!-- Links -->
   {% for link in links %}
     <article class="">
@@ -57,7 +54,6 @@
   {% if composition_of_element %}
   <br/>
   <h3>Consist of</h3>
-  <hr>
   {% for item_of_composition in composition_of_element %}
     <article class="">
       <header>
@@ -76,7 +72,6 @@
   <!-- Part of -->
   {% if part_of %}
   <h3>Part of</h3>
-  <hr>
   {% for the_item in part_of %}
     <article class="">
       <header>
@@ -93,18 +88,11 @@
 
   <!-- Tags -->
   {% if tags %}
-  <h3>Hashtags</h3>
-  <hr>
+  <h3>Tags</h3>
   {% for tag in tags %}
-    <article class="">
-      <header>
-        <div>
-          <a href="#" onclick="tagOnClick('{{ tag['title'] }}')">
-            <p class="fs-4">#{{ tag['title'] }}</p>
-          </a>
-        </div>
-      </header>
-    </article>
+    <a href="#" onclick="tagOnClick('{{ tag['id'] }}')">
+      <p class="fs-4">{{ tag['title'] }}</p>
+    </a>
   {% endfor %}
   <br/>
   {% endif %}
@@ -114,7 +102,6 @@
 <!-- Games -->
 {% if games %}
 <h3>Games that used {{ post['title'] }}</h3>
-<hr>
 <ul class="list-group">
 {% for game in games %}
   <li class="list-group-item">  
@@ -135,6 +122,11 @@
 </ul>
 <br/>
 {% endif %}
+
+
+<h3>Author</h3>
+<p class="fs-4">{{ post['username'] }}</p>
+
 
 <script>
 function tagOnClick(tag_title) {

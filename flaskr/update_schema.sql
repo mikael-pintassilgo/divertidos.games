@@ -69,8 +69,6 @@ CREATE TABLE IF NOT EXISTS game_element_variant (
 ALTER TABLE element
 ADD COLUMN status TEXT NOT NULL DEFAULT 'private' CHECK(status IN ('private', 'pending_review', 'public'));
 
-*/
-
 ALTER TABLE game_element_variant
 ADD COLUMN status TEXT NOT NULL DEFAULT 'private' CHECK(status IN ('private', 'pending_review', 'public'));
 
@@ -80,5 +78,20 @@ CREATE TABLE composition_of_element (
   
   element_id INTEGER REFERENCES element (id) ON DELETE CASCADE,
   subelement_id INTEGER REFERENCES element (id) ON DELETE RESTRICT,
+  author_id INTEGER NOT NULL REFERENCES user (id)
+);
+
+*/
+
+DROP TABLE IF EXISTS element_tag;
+
+CREATE TABLE element_tag (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  
+  comment TEXT,
+  
+  element_id INTEGER NOT NULL REFERENCES element (id) ON DELETE CASCADE,
+  tag_id INTEGER NOT NULL REFERENCES tag (id) ON DELETE CASCADE,
   author_id INTEGER NOT NULL REFERENCES user (id)
 );

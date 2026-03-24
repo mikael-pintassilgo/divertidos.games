@@ -2,7 +2,7 @@
 
 {% block header %}
   <div class="">
-    <h1 class="">{% block title %}Hashtags{% endblock %}</h1>
+    <h1 class="">{% block title %}Tags{% endblock %}</h1>
     {% if g.user %}
     <a class="" href="{{ url_for('tags.create') }}">add tag</a>
     {% endif %}
@@ -21,7 +21,7 @@
 
       <tr>
         <td>
-          <a href="#" onclick="tagOnClickGeneral('{{ tag['title'] }}')">#{{ tag['title'] }}</a>
+          <a href="#" onclick="tagOnClickGeneral('{{ tag['title'] }}')">#{{ tag['title'] }}, {{ tag['id'] }}</a>
         </td>
       </tr>
 
