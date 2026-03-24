@@ -12,7 +12,7 @@
 {% block header %}
   <h1 class="breadcrumb-item active">{% block title %}{{ post['title'] }}{% endblock %}</h1>
   {% if post['parent_id'] %}
-    The part of:
+    Parent Element:
     <a href="{{ url_for('blog.view', id=post['parent_id']) }}">
       {{ post['parent_title'] }}
     </a>
@@ -31,46 +31,7 @@
   </div>
   
   <br/>
-  
-  <!-- Sub Elements -->
-  <br/>
-  <h3>Consist of</h3>
-  <hr>
-  {% for sub_element in sub_elements %}
-    <article class="">
-      <header>
-        <div>
-          <a href="{{ url_for('blog.view', id=sub_element['id']) }}">
-            <p class="fs-4">{{ sub_element['title'] }}</p>
-          </a>
-        </div>
-      </header>
-    </article>
-  {% endfor %}
-  
-  <br/>
-  <!-- Tags -->
-  <br/>
-  <h3>Hashtags</h3>
-  <hr>
-  {% for tag in tags %}
-    <article class="">
-      <header>
-        <div>
-          <a href="#" onclick="tagOnClick('{{ tag['title'] }}')">
-            <p class="fs-4">#{{ tag['title'] }}</p>
-          </a>
-        </div>
-      </header>
-    </article>
-  {% endfor %}
-  
-  <br/>
-  
   <!-- Links -->
-  <br/>
-  <h3>Links</h3>
-  <hr>
   {% for link in links %}
     <article class="">
       <header>
@@ -91,8 +52,67 @@
     {% endif %}
   {% endfor %}
 
+
+  <!-- Sub Elements -->
+  {% if composition_of_element %}
+  <br/>
+  <h3>Consist of</h3>
+  <hr>
+  {% for item_of_composition in composition_of_element %}
+    <article class="">
+      <header>
+        <div>
+          <a href="{{ url_for('blog.view', id=item_of_composition['subelement_id']) }}">
+            <p class="fs-4">{{ item_of_composition['subelement_title'] }}</p>
+          </a>
+        </div>
+      </header>
+    </article>
+  {% endfor %}
+  <br/>
+  {% endif %}
+  
+  
+  <!-- Part of -->
+  {% if part_of %}
+  <h3>Part of</h3>
+  <hr>
+  {% for the_item in part_of %}
+    <article class="">
+      <header>
+        <div>
+          <a href="{{ url_for('blog.view', id=the_item['id']) }}">
+            <p class="fs-4">{{ the_item['title'] }}</p>
+          </a>
+        </div>
+      </header>
+    </article>
+  {% endfor %}
+  <br/>
+  {% endif %}
+
+  <!-- Tags -->
+  {% if tags %}
+  <h3>Hashtags</h3>
+  <hr>
+  {% for tag in tags %}
+    <article class="">
+      <header>
+        <div>
+          <a href="#" onclick="tagOnClick('{{ tag['title'] }}')">
+            <p class="fs-4">#{{ tag['title'] }}</p>
+          </a>
+        </div>
+      </header>
+    </article>
+  {% endfor %}
+  <br/>
+  {% endif %}
+  
+  
+  
 <!-- Games -->
-<br/>
+{% if games %}
 <h3>Games that used {{ post['title'] }}</h3>
 <hr>
 <ul class="list-group">
@@ -114,6 +134,7 @@
 {% endfor %}
 </ul>
 <br/>
+{% endif %}
 
 <script>
 function tagOnClick(tag_title) {

@@ -69,8 +69,8 @@ def create():
             
             db = get_db()
             db.execute(
-                "INSERT INTO game_element_variant (title, author_id, game_element_id, game_id, target_type) VALUES (?, ?, ?, ?, ?)",
-                (title, g.user["id"], game_element_id, game_id, target_type),
+                "INSERT INTO game_element_variant (title, author_id, game_element_id, game_id, target_type, status) VALUES (?, ?, ?, ?, ?, ?)",
+                (title, g.user["id"], game_element_id, game_id, target_type, 'pending_review'),
             )
             
             db.commit()

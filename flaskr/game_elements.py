@@ -248,9 +248,10 @@ def view(ge_id):
             CASE WHEN type_of_id = 'element' THEN element_id
                  ELSE game_element_id
             END AS e_or_ge_id,
-            *
-        FROM game_and_element 
-        WHERE id = ?
+            element.title as element_title,
+            game_and_element.*
+        FROM game_and_element LEFT JOIN element ON game_and_element.element_id = element.id
+        WHERE game_and_element.id = ?
         """,
         (ge_id,),
     ).fetchone()

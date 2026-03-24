@@ -11,6 +11,8 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
+from flaskr.composition_of_elements import get_composition_of_element
+
 from .auth import login_required
 from .db import get_db
 
@@ -160,13 +162,14 @@ def get_post(id, check_author=True):
         )
         .fetchone()
     )
-    sub_elements = (
+    composition_of_element = get_composition_of_element(id)
+    part_of = (
         db
         .execute(
-            "SELECT e.id, e.title as title, e.body, e.comment, e.created, e.author_id, u.username"
-            "  FROM element e"
-            "  JOIN user u ON e.author_id = u.id"
-            " WHERE e.parent_id = ?",
+            "SELECT e.id, e.title as title"
+            "  FROM composition_of_element AS ce"
+            "  JOIN element AS e ON ce.element_id = e.id"
+            " WHERE ce.subelement_id = ?",
             (id,),
         )
         .fetchall()
@@ -208,7 +211,8 @@ def get_post(id, check_author=True):
 
     post = {
         "element": element,
-        "sub_elements": sub_elements,
+        "composition_of_element": composition_of_element,
+        "part_of": part_of,
         "tags": tags,
         "links": links,
         "games": games,
@@ -339,13 +343,23 @@ def update(id):
             db.commit()
             return redirect(url_for("blog.index"))
 
-    return render_template("blog/update.html", post=post["element"], tags=post["tags"], links=post["links"])
+    return render_template("blog/update.html", 
+                           post=post["element"], 
+                           tags=post["tags"], 
+                           links=post["links"], 
+                           composition_of_element=post["composition_of_element"])
 
 @bp.route("/<int:id>/view", methods=("GET", "POST"))
 def view(id):
     """View a post if the current user is the author."""
     post = get_post(id)
-    return render_template("blog/view.html", post=post["element"], tags=post["tags"], links=post["links"], games=post["games"], sub_elements=post["sub_elements"])
+    return render_template("blog/view.html", 
+                           post=post["element"], 
+                           tags=post["tags"], 
+                           links=post["links"], 
+                           games=post["games"], 
+                           composition_of_element=post["composition_of_element"], 
+                           part_of=post["part_of"])
 
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required

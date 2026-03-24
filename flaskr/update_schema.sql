@@ -53,7 +53,6 @@ INSERT OR IGNORE INTO role(name) VALUES ('auditor');
 ALTER TABLE game
 ADD COLUMN status TEXT NOT NULL DEFAULT 'private' CHECK(status IN ('private', 'pending_review', 'public'));
 
-*/
 
 CREATE TABLE IF NOT EXISTS game_element_variant (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -69,3 +68,17 @@ CREATE TABLE IF NOT EXISTS game_element_variant (
 
 ALTER TABLE element
 ADD COLUMN status TEXT NOT NULL DEFAULT 'private' CHECK(status IN ('private', 'pending_review', 'public'));
+
+*/
+
+ALTER TABLE game_element_variant
+ADD COLUMN status TEXT NOT NULL DEFAULT 'private' CHECK(status IN ('private', 'pending_review', 'public'));
+
+CREATE TABLE composition_of_element (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  
+  element_id INTEGER REFERENCES element (id) ON DELETE CASCADE,
+  subelement_id INTEGER REFERENCES element (id) ON DELETE RESTRICT,
+  author_id INTEGER NOT NULL REFERENCES user (id)
+);

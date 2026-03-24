@@ -50,9 +50,11 @@ def create_app(test_config=None):
     from . import services
     from . import contacts
     from . import votes
+    from . import composition_of_elements
         
     app.register_blueprint(auth.bp)
     app.register_blueprint(blog.bp)
+    app.register_blueprint(composition_of_elements.bp)
     app.register_blueprint(tags.bp)
     app.register_blueprint(quests.bp)
     app.register_blueprint(task.bp)
