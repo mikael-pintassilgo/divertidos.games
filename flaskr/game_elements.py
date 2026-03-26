@@ -9,7 +9,7 @@ from werkzeug.exceptions import abort
 
 from flaskr.game_element_variants import get_game_element_variants
 
-from .auth import login_required
+from .auth import login_required, role_required
 from .db import get_db
 from .game_element_tags import get_game_element_tags
 from .game_element_links import get_game_element_links
@@ -21,6 +21,7 @@ bp = Blueprint("game_elements", __name__, url_prefix="/game_elements")
 # Game Elements
 @bp.route("/create", methods=("GET", "POST"))
 @login_required
+@role_required("admin")
 def create():
     print('------------------ CREATE GAME ELEMENT -------------------')
     print(request.method)
@@ -94,6 +95,7 @@ def create():
 
 @bp.route("/<int:ge_id>/delete", methods=("POST",))
 @login_required
+@role_required("admin")
 def delete(ge_id):
     """Delete a game element.
 
@@ -126,6 +128,7 @@ def delete(ge_id):
 
 @bp.route("/<int:ge_id>/update", methods=("GET", "POST"))
 @login_required
+@role_required("admin")
 def update(ge_id):
     """Update an existing game element for the current user."""
     db = get_db()

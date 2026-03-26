@@ -81,8 +81,6 @@ CREATE TABLE composition_of_element (
   author_id INTEGER NOT NULL REFERENCES user (id)
 );
 
-*/
-
 DROP TABLE IF EXISTS element_tag;
 
 CREATE TABLE element_tag (
@@ -95,3 +93,5 @@ CREATE TABLE element_tag (
   tag_id INTEGER NOT NULL REFERENCES tag (id) ON DELETE CASCADE,
   author_id INTEGER NOT NULL REFERENCES user (id)
 );
+
+*/

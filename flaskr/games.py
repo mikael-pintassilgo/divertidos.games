@@ -8,7 +8,7 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
-from .auth import login_required, user_has_role
+from .auth import login_required, user_has_role, role_required
 from .db import get_db
 from .blog import get_element_by_title, clean_key
 
@@ -48,7 +48,7 @@ def index():
     for game in games:
         print("game id = " + str(game["id"]) + ", title = " + game["title"] + ", status = " + game["status"])
     
-    return render_template("games/index.html", games=games, tag="", currentPage=currentPage, user_is_admin=user_is_admin)
+    return render_template("games/index.html", games=games, tag="", currentPage=currentPage)
 
 
 def get_game(id, check_author=True):
@@ -228,6 +228,7 @@ def get_game(id, check_author=True):
 
 @bp.route("/create", methods=("GET", "POST"))
 @login_required
+@role_required("admin")
 def create():
     """Create a new game for the current user."""
     if request.method == "POST":
@@ -363,6 +364,7 @@ def import_game_data(just_check_flag, game_data_json):
 
 @bp.route("/import-game", methods=("GET", "POST"))
 @login_required
+@role_required("admin")
 def import_game():
     """Import a new game for the current user."""
     if request.method == "POST":
@@ -421,6 +423,7 @@ def get_full_description(id):
 
 @bp.route("/<int:id>/update", methods=("GET", "POST"))
 @login_required
+@role_required("admin")
 def update(id):
     """Update a post if the current user is the author."""
     game_data = get_game(id)
@@ -670,6 +673,7 @@ def update_game_elements_of_the_parent(game_id, parent_id):
 
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required
+@role_required("admin")
 def delete(id):
     """Delete a game.
 
@@ -690,6 +694,7 @@ def delete(id):
 
 @bp.route("/game-link/<int:id>/create", methods=("GET", "POST"))
 @login_required
+@role_required("admin")
 def create_link(id):
     """Create a new link for the current user."""
     if request.method == "POST":
@@ -721,6 +726,7 @@ def create_link(id):
 
 @bp.route("/game-link/<int:id>/delete", methods=("POST",))
 @login_required
+@role_required("admin")
 def delete_link(id):
     """Delete an game link.
 
@@ -741,6 +747,7 @@ def delete_link(id):
 # Tags
 @bp.route("/game-tag/<int:id>/create", methods=("GET", "POST"))
 @login_required
+@role_required("admin")
 def create_tag(id):
     """Create a new tag for the current user."""
     if request.method == "POST":
@@ -778,6 +785,7 @@ def create_tag(id):
 
 @bp.route("/game-tag/<int:id>/delete", methods=("POST",))
 @login_required
+@role_required("admin")
 def delete_tag(id):
     """Delete an game tag.
 
@@ -799,6 +807,7 @@ def delete_tag(id):
 # Game Elements
 @bp.route("/<int:id>/game-elements/create", methods=("GET", "POST"))
 @login_required
+@role_required("admin")
 def create_game_element(id):
     """Create a new game element for the current user."""
     if request.method == "POST":
@@ -862,6 +871,7 @@ def create_game_element(id):
 
 @bp.route("/<int:game_id>/game-elements/<int:ge_id>/delete", methods=("POST",))
 @login_required
+@role_required("admin")
 def delete_game_element(game_id, ge_id):
     """Delete a game element.
 
@@ -892,6 +902,7 @@ def delete_game_element(game_id, ge_id):
 
 @bp.route("/<int:game_id>/game-elements/<int:ge_id>/update", methods=("GET", "POST"))
 @login_required
+@role_required("admin")
 def update_game_element(game_id, ge_id):
     """Update an existing game element for the current user."""
     db = get_db()

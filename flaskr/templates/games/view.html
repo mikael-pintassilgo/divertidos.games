@@ -26,7 +26,9 @@
         actions
       </button>
       <ul class="dropdown-menu">
+        {% if "admin" in session.get("roles", []) %}
         <li><a class="dropdown-item" aria-current="page" href="{{ url_for('games.update', id=game['id']) }}">edit</a></li>
+        {% endif %}
         <li><a class="dropdown-item" href="{{ url_for('games.get_full_description', id=game['id']) }}">get full description</a></li>
         <li><a class="dropdown-item" href="{{ url_for('games.get_full_description', id=game['id']) }}" aria-disabled="true">[under construcion] Get data to past into a Google Spreadsheet</a></li>
       </ul>

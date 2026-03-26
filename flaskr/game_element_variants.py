@@ -17,13 +17,10 @@ def get_game_element_variants(ge_id):
     game_element_variants = db.execute(
         "SELECT game_element_variant.id as ge_variant_id, game_element_variant.game_element_id, game_element_variant.title, game_element_variant.author_id, game_element_variant.created,"
         "       user.username AS author_name"
-        "  FROM game_element_variant JOIN user ON game_element_variant.author_id = user.id"
+        "  FROM game_element_variant LEFT JOIN user ON game_element_variant.author_id = user.id"
         " WHERE game_element_variant.game_element_id = ?",
         (ge_id,),
     ).fetchall()
-
-    if game_element_variants is None:
-        abort(404, f"There are no variants for game element id {ge_id}.")
 
     print('game_element_variants: ', game_element_variants)
 

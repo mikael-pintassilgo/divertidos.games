@@ -7,7 +7,7 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
-from .auth import login_required
+from .auth import login_required, role_required
 from .db import get_db
 
 bp = Blueprint("game_element_links", __name__, url_prefix="/game-element-links")
@@ -28,6 +28,7 @@ def get_game_element_links(ge_id):
 
 @bp.route("/game-element-link/create", methods=("GET", "POST"))
 @login_required
+@role_required("admin")
 def create():
     """Create a new link for the current user."""
     if request.method == "POST":
@@ -68,6 +69,7 @@ def create():
 
 @bp.route("/game-element-link/<int:id>/delete", methods=("POST",))
 @login_required
+@role_required("admin")
 def delete(id):
     if request.method == "POST":
         db = get_db()

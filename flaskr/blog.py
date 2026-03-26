@@ -13,7 +13,7 @@ from werkzeug.exceptions import abort
 
 from flaskr.composition_of_elements import get_composition_of_element
 
-from .auth import login_required
+from .auth import login_required, role_required
 from .db import get_db
 
 bp = Blueprint("blog", __name__)
@@ -227,6 +227,7 @@ def get_post(id, check_author=True):
 
 @bp.route("/create", methods=("GET", "POST"))
 @login_required
+@role_required("admin")
 def create():
     """Create a new post for the current user."""
     if request.method == "POST":
@@ -255,6 +256,7 @@ def create():
 
 @bp.route("/element-tag/<int:id>/create", methods=("GET", "POST"))
 @login_required
+@role_required("admin")
 def create_tag(id):
     """Create a new tag for the current user."""
     if request.method == "POST":
@@ -284,6 +286,7 @@ def create_tag(id):
 
 @bp.route("/element-link/<int:id>/create", methods=("GET", "POST"))
 @login_required
+@role_required("admin")
 def create_link(id):
     """Create a new link for the current user."""
     if request.method == "POST":
@@ -314,6 +317,7 @@ def create_link(id):
 
 @bp.route("/<int:id>/update", methods=("GET", "POST"))
 @login_required
+@role_required("admin")
 def update(id):
     """Update a post if the current user is the author."""
     post = get_post(id)
@@ -361,6 +365,7 @@ def view(id):
 
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required
+@role_required("admin")
 def delete(id):
     """Delete a post.
 
@@ -375,6 +380,7 @@ def delete(id):
 
 @bp.route("/element-tag/<int:id>/delete", methods=("POST",))
 @login_required
+@role_required("admin")
 def delete_element_tag(id):
     """Delete an element tag.
 
@@ -393,6 +399,7 @@ def delete_element_tag(id):
 
 @bp.route("/element-link/<int:id>/delete", methods=("POST",))
 @login_required
+@role_required("admin")
 def delete_element_link(id):
     """Delete an element link.
 
