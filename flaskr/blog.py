@@ -245,12 +245,13 @@ def create():
             flash(error)
         else:
             db = get_db()
-            db.execute(
+            coursor = db.execute(
                 "INSERT INTO element (parent_id, title, body, author_id, comment, tags) VALUES (?, ?, ?, ?, ?, ?)",
                 (parent_id, title, body, g.user["id"], comment, tags),
             )
+            new_id = coursor.lastrowid
             db.commit()
-            return redirect(url_for("blog.index"))
+            return redirect(url_for("blog.view", id=new_id))
 
     return render_template("blog/create.html")
 
@@ -343,7 +344,7 @@ def update(id):
                 (parent_id, title, body, comment, tags, id)
             )
             db.commit()
-            return redirect(url_for("blog.index"))
+            return redirect(url_for("blog.view", id=id))
 
     return render_template("blog/update.html", 
                            post=post["element"], 

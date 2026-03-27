@@ -4,7 +4,8 @@
   <form method="post">
     <fieldset class="">
 
-      <legend class="">Edit "{{ post['title'] }}</legend>
+      <legend class="">Edit: {{ post['title'] }}</legend>
+      <p class="fs-4"><a class="" href="{{ url_for('blog.view', id=post['id']) }}">view</a></p>
       <div class="">
         <label for="parent_id"><span class="">Parent ID</span></label>
         <input class="form-control" name="parent_id" id="parent_id" value="{{ request.form['parent_id'] or post['parent_id'] }}">
@@ -39,8 +40,8 @@
     <input class="btn btn-danger" type="submit" value="Delete Element" onclick="return confirm('Are you sure?');">
   </form>
 
+  <h3 class="mt-3">Tags</h3>
   <table class="">
-    <caption>Tags</caption>
     <tbody>
       {% for tag in tags %}
       <tr>
@@ -75,8 +76,8 @@
   </table>
 
   <!-- Links -->
+  <h3 class="mt-3">Links</h3>
   <table class="">
-    <caption>Links</caption>
     <tbody>
       <thead>
         <tr>
@@ -119,9 +120,8 @@
   
   <!-- composition_of_element -->
   <br/>
-  <h3>Consist of</h3>
+  <h3 class="mt-3">Consist of</h3>
   <table class="">
-    <caption>Links</caption>
     <tbody>
       <thead>
         <tr>
