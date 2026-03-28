@@ -1,0 +1,12 @@
+{
+  "elements": [
+    {
+      "name": "Challenge / Difficulty Scaling",
+      "description": "Progressive increase in difficulty that tests player skill over time"
+    },
+    {
+      "name": "Time Pressure",
+      "description": "Players must act quickly due to timers or increasing speed"
+    }
+  ]
+}

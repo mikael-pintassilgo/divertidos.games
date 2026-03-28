@@ -17,7 +17,8 @@
       </div>
     </div>
     {% if "admin" in session.get("roles", []) %}
-    <a class="" href="{{ url_for('blog.create') }}">add element</a>
+    <a class="btn btn-secondary" href="{{ url_for('blog.create') }}">Add element</a>
+    <a class="btn btn-secondary" href="{{ url_for('services.load_elements') }}">Load elements</a>
     {% endif %}
   </div>
 {% endblock %}

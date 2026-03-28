@@ -179,15 +179,15 @@ def add_element_from_dict(just_check_flag, db, title, body, parent_id=None):
             return None
         else:
             cursor = db.execute(
-                "INSERT INTO element (title, body, parent_id, author_id) VALUES (?, ?, ?, ?)",
-                (clean_key(title), body, parent_id, g.user["id"])
+                "INSERT INTO element (status, title, body, parent_id, author_id, comment, tags) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                ("public", clean_key(title), body, parent_id if parent_id is not None else "", g.user["id"], "", "")
             )
             db.commit()
             return cursor.lastrowid
     
     return existing_element['id']
 
-def load_elements_recursive(just_check_flag, ids, db, dict_data, parent_id=None):
+def load_game_elements_recursive(just_check_flag, ids, db, dict_data, parent_id=None):
     for key, value in dict_data.items():
             #body = item.get('description', item.get('body', ''))
             if key.strip().lower() == 'description':
@@ -226,10 +226,54 @@ def load_elements_recursive(just_check_flag, ids, db, dict_data, parent_id=None)
                 pass
                 #messages.append({'key': clean_key(key), 'value': 'Unsupported data type'})
 
+def load_elements_to_database(just_check_flag, ids, db, list_of_elements, parent_id=None):
+    for value in list_of_elements:
+        if isinstance(value, dict):
+            name = value.get('name', '')
+            description = value.get('description', '')
+            
+            new_parent_id = add_element_from_dict(just_check_flag, db, name, description, parent_id)
+            ids.append({ 'id': new_parent_id, 'title': name, 'body': description })
+            #messages.append({'key': clean_key(key), 'value': description, 'id': parent_id})
+                    
+        else:
+            pass
+            #messages.append({'key': clean_key(key), 'value': 'Unsupported data type'})
+
 @bp.route("/load-elements", methods=("GET", "POST"))
 @login_required
 @role_required("admin")
 def load_elements():
+    messages = []
+    ids = []
+    json_input = ''
+    
+    if request.method == "POST":
+        db = get_db()
+        json_input = request.form.get('json_input')
+        
+        just_check_flag = True if request.form.get('just_check_flag') else False
+        print('just_check_flag = ' + str(just_check_flag))
+        
+        try:
+            elements_data = json.loads(json_input)
+        except Exception as e:
+            messages.append('Error loading elements: ' + str(e))
+        
+        elements_data = elements_data.get("elements", {})
+        print('elements_data = ' + str(elements_data))
+        try:
+            load_elements_to_database(just_check_flag, ids, db, elements_data)
+            messages.append('Elements loaded successfully.')
+        except Exception as e:
+            messages.append('Error loading elements: ' + str(e))
+        
+    return render_template("services/load-elements.html", messages=messages, ids=ids, json_input=json_input)
+
+@bp.route("/load-game-elements", methods=("GET", "POST"))
+@login_required
+@role_required("admin")
+def load_game_elements():
     messages = []
     ids = []
     
@@ -253,12 +297,12 @@ def load_elements():
         
         elements_data = game_data_json.get("game", {})
         try:
-            load_elements_recursive(just_check_flag, ids, db, elements_data)
+            load_game_elements_recursive(just_check_flag, ids, db, elements_data)
             messages.append('Elements loaded successfully.')
         except Exception as e:
             messages.append('Error loading elements: ' + str(e))
         
-    return render_template("services/load-elements.html", messages=messages, ids=ids)
+    return render_template("services/load-game-elements.html", messages=messages, ids=ids)
 
 @bp.route("/delete-elements", methods=("GET", "POST"))
 @login_required
