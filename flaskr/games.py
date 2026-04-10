@@ -120,7 +120,7 @@ def get_game(id, check_author=True):
             "  LEFT JOIN game_and_element AS previous_ge "
             "    ON ge.previous_game_element_id = previous_ge.id"
             " WHERE ge.game_id = ?"
-            " ORDER BY order_priority ASC, order_value ASC",
+            " ORDER BY order_priority DESC, order_value ASC",
             (id,),
         ).fetchall()
     )
