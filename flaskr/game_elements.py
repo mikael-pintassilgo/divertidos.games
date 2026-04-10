@@ -47,6 +47,9 @@ def create():
         weight = request.form["ge_weight"]
         print(f'weight = {weight}')
         
+        element_order = request.form["element_order"]
+        print(f'element_order = {element_order}')
+        
         previous_game_element_id = request.form["previous_ge_id"]
         print(f'previous_game_element_id = {previous_game_element_id}')
         print('--------------------------------------------------------')
@@ -67,13 +70,13 @@ def create():
             db = get_db()
             if (type_of_id == 'element'):
                 db.execute(
-                    "INSERT INTO game_and_element (type_of_id, element_id, parent_element_id, author_id, game_id, description, weight, previous_game_element_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                    (type_of_id, element_id, parent_element_id, g.user["id"], game_id, description, weight, previous_game_element_id),
+                    "INSERT INTO game_and_element (type_of_id, element_id, parent_element_id, author_id, game_id, description, weight, previous_game_element_id, element_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (type_of_id, element_id, parent_element_id, g.user["id"], game_id, description, weight, previous_game_element_id, element_order),
                 )
             else:
                 db.execute(
-                    "INSERT INTO game_and_element (type_of_id, game_element_id, parent_element_id, author_id, game_id, description, weight, previous_game_element_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                    (type_of_id, element_id, parent_element_id, g.user["id"], game_id, description, weight, previous_game_element_id),
+                    "INSERT INTO game_and_element (type_of_id, game_element_id, parent_element_id, author_id, game_id, description, weight, previous_game_element_id, element_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (type_of_id, element_id, parent_element_id, g.user["id"], game_id, description, weight, previous_game_element_id, element_order),
                 )
             
             db.commit()
@@ -173,6 +176,9 @@ def update(ge_id):
         weight = request.form["ge_weight"]
         print(f'weight = {weight}')
         
+        element_order = request.form["element_order"]
+        print(f'element_order = {element_order}')
+        
         print('--------------------------------------------------------')
         
         error = None
@@ -193,15 +199,16 @@ def update(ge_id):
                 db.execute(
                     "UPDATE game_and_element SET type_of_id = ?, element_id = ?,"\
                     "parent_element_id = ?, author_id = ?, game_id = ?, description = ?, previous_game_element_id = ?, " \
-                    "weight = ?, link = ? " \
+                    "weight = ?, link = ?, " \
+                    "element_order = ? " \
                     "WHERE id = ?",
-                    (type_of_id, element_id, parent_element_id, g.user["id"], game_id, description, previous_game_element_id, weight, link, ge_id),
+                    (type_of_id, element_id, parent_element_id, g.user["id"], game_id, description, previous_game_element_id, weight, link, element_order, ge_id),
                 )
             else:
                 db.execute(
                     "UPDATE game_and_element SET type_of_id = ?, game_element_id = ?, parent_element_id = ?, author_id = ?, " \
-                    "game_id = ?, description = ?, previous_game_element_id = ?, weight = ?, link = ? WHERE id = ?",
-                    (type_of_id, element_id, parent_element_id, g.user["id"], game_id, description, previous_game_element_id, weight, link, ge_id),
+                    "game_id = ?, description = ?, previous_game_element_id = ?, weight = ?, link = ?, element_order = ? WHERE id = ?",
+                    (type_of_id, element_id, parent_element_id, g.user["id"], game_id, description, previous_game_element_id, weight, link, element_order, ge_id),
                 )
 
             db.commit()

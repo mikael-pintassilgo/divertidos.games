@@ -106,6 +106,7 @@ CREATE TABLE game_and_element (
   description TEXT,
   link TEXT,
   weight INTEGER DEFAULT 0,
+  element_order INTEGER DEFAULT 0,
   --
   game_id INTEGER REFERENCES game (id) ON DELETE CASCADE,
   type_of_id TEXT NOT NULL DEFAULT 'element' CHECK (type_of_id IN ('element', 'game_element')),

@@ -95,3 +95,6 @@ CREATE TABLE element_tag (
 );
 
 */
+
+ALTER TABLE game_and_element
+ADD COLUMN element_order INTEGER DEFAULT 0;

@@ -114,7 +114,7 @@
                     <th scope="col">parent_element_id</th>
                     <th scope="col">e_id</th>
                     <th scope="col">title</th>
-                    <th scope="col">weight</th>
+                    <th scope="col">order</th>
                     <th scope="col">description</th>
                     <th scope="col">consist</th>
                     <th scope="col">action</th>
@@ -147,7 +147,7 @@
                         <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}" target="_blank">{{ game_element['title'] }}</a></p>
                       </td>
                       <td class="w-3">
-                        {{ game_element['weight'] }}
+                        {{ game_element['element_order'] }}
                       </td>
                       <td>
                         {{ game_element['description'] }}
