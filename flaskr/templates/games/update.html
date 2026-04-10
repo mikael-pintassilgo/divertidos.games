@@ -101,7 +101,8 @@
               </nav>
             {% endif %}
             
-            <a class="" href="{{ url_for('game_elements.create', game_id=game['id'], parent_element_id=parent_id) }}">Add game element</a>
+            <a class="btn btn-secondary" href="{{ url_for('game_elements.create', game_id=game['id'], parent_element_id=parent_id) }}">Add game element</a>
+            <a class="btn btn-secondary" href="{{ url_for('game_elements.load_parent_composition', game_id=game['id'], parent_element_id=parent_id) }}">Load parent composition</a>
             <table class="table table-hover">
               <caption class="caption-top">Game Elements</caption>
               <tbody>

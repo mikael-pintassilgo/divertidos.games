@@ -18,7 +18,6 @@ from .blog import get_elements
 bp = Blueprint("game_elements", __name__, url_prefix="/game_elements")
 
 
-# Game Elements
 @bp.route("/create", methods=("GET", "POST"))
 @login_required
 @role_required("admin")
@@ -285,4 +284,11 @@ def view(ge_id):
                            game_element_tags=game_element_tags,
                            game_element_links=game_element_links,
                            game_element_variants=game_element_variants)
-# End Game Elements
+
+# Services
+@bp.route("/load-parent-composition", methods=("GET", "POST"))
+@login_required
+@role_required("admin")
+def load_parent_composition():
+    game_id = request.args.get("game_id")
+    parent_element_id = request.args.get("parent_element_id")

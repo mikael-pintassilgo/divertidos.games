@@ -95,8 +95,10 @@
           </ul>
         {% endif %}
 
+        <!--
         <div class="input-group mb-1 mt-3">
           <div class="d-flex gap-3 mb-3">
+            
             <div class="form-check">
               <input class="form-check-input" type="radio" name="varitanOfElementsVeiw" id="listView" value="all"
               {% if request.args.get('varitanOfElementsVeiw') == 'all' or request.args.get('varitanOfElementsVeiw') == None %}checked{% endif %}
@@ -115,6 +117,7 @@
             </div>
           </div>
         </div>
+        -->
 
         {% if parent_id != None and parent_id != '' and request.args.get('varitanOfElementsVeiw') == 'oneLevel' %}
           <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
@@ -134,32 +137,36 @@
         
         <table class="table table-hover">
           <tbody>
+            <!--
             <thead>
               <tr>
                 <th scope="col">Title</th>
                 <th scope="col">Description</th>
                 {% if request.args.get('varitanOfElementsVeiw') == 'oneLevel' %}<th scope="col">Consist of</th> {% endif %}
-                <th scope="col">More...</th>          
+                <th scope="col">More...</th>
               </tr>
             </thead>
-            
+            -->
+
             {% if request.args.get('varitanOfElementsVeiw') != 'oneLevel' %}
               {% macro render_elements(elements, level=0) %}
                 {% for element in elements %}
                   <tr>
                     <td style="padding-left: {{ level * 20 }}px;">
                       <p><a href="{{ url_for('blog.view', id=element['e_id']) }}">{{ element['title'] }}</a></p>
-                    </td>
-                    <td style="padding-left: {{ level * 20 }}px;">
                       <p>{{ element['description'] }}</p>
-                    </td>
-                    <td>
                       {% if element['is_more'] %}
-                      <a class="btn btn-primary btn-sm" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">more...</a>
-                      {% else %}
                       <a class="btn btn-outline-primary btn-sm" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">more...</a>
+                      {% else %}
+                      <!-- a class="btn btn-outline-primary btn-sm" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">more...</a -- >
                       {% endif %}
                     </td>
+                    <!-- td style="padding-left: {{ level * 20 }}px;">
+                      
+                    </td>
+                    <td>
+                      
+                    </td -->
                   </tr>
                   {% if element.children %}
                     {{ render_elements(element.children, level + 1) }}
@@ -194,7 +201,7 @@
                         {% if game_element['is_more'] %}
                         <a class="btn btn-primary btn-sm" href="{{ url_for('game_elements.view', ge_id=game_element['ge_id'], game_id=game['id']) }}">more...</a>
                         {% else %}
-                        <a class="btn btn-outline-primary btn-sm" href="{{ url_for('game_elements.view', ge_id=game_element['ge_id'], game_id=game['id']) }}">more...</a>
+                        <!-- a class="" href="{{ url_for('game_elements.view', ge_id=game_element['ge_id'], game_id=game['id']) }}">more...</a -->
                         {% endif %}
                       </td>
                       

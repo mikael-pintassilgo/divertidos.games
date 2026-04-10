@@ -185,7 +185,7 @@ def get_game(id, check_author=True):
             is_more=extra_info_map.get(element["ge_id"], 0) > 0)
             for element in game_elements
         ]
-        print("game_elements with extra_info = ", game_elements)
+        #print("game_elements with extra_info = ", game_elements)
 
     # Build a tree structure for game_elements
     def build_element_tree(elements, parent_id=None):
