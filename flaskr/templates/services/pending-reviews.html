@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <div uk-grid class="">
+    <h1 class="">{% block title %}Feedback{% endblock %}</h1>
+  </div>
+{% endblock %}
+
+<div class=""></div>
+{% block menu_items %}
+{% endblock %}
+{% block services_active %}active{% endblock %}
+
+{% block content %}
+  
+<div class="row row-cols-auto mt-3">
+{% for the_pending_variant in ge_variants %}
+  <div class="col">
+    <div class="card mb-2" style="width: 18rem;">
+      <!-- img src="..." class="card-img-top" alt="..." -->
+      <div class="card-body">
+        <h5 class="card-title">{{ the_pending_variant['title'] }}</a></h5>
+        <a href="{{ url_for('game_elements.view', ge_id=the_pending_variant['game_element_id'])  + '?game_id=' + the_pending_variant['game_id'] | string }}" class="btn btn-primary">View game element</a>
+
+        <form method="POST" action="{{ url_for('game_element_variants.publish', id=the_pending_variant['id']) }}" style="display:inline;">
+          <input type="hidden" name="game_element_id" value="{{ the_pending_variant['game_element_id'] }}">
+          <input type="hidden" name="game_id" value="{{ the_pending_variant['game_id'] }}">
+          <button type="submit" class="btn btn-success ms-2">Publish</button>
+        </form>
+      </div>
+      <div class="card-footer text-muted">
+        Submitted on {{ the_pending_variant['created'] }}
+        by {{ the_pending_variant['author_name'] }}
+      </div>
+    </div>
+  </div>
+{% endfor %}
+</div>
+
+{% endblock %}
+

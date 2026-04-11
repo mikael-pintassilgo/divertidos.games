@@ -95,6 +95,23 @@ def feedback():
 
     return render_template("services/feedback.html", feedback=feedback)
 
+@bp.route("/pending-reviews", methods=("GET",))
+@login_required
+@role_required("admin")
+def pending_reviews():
+    db = get_db()
+    
+    ge_variants = db.execute(
+        "SELECT ge_variant.*, user.username AS author_name"
+        "  FROM game_element_variant ge_variant"
+        "  LEFT JOIN user ON ge_variant.author_id = user.id"
+        " WHERE ge_variant.status = 'pending_review'"
+        " ORDER BY ge_variant.created DESC"
+    ).fetchall()
+
+    return render_template("services/pending-reviews.html", ge_variants=ge_variants)
+
+
 @bp.route("/get-prompt-to-compare-games_for_clipboard", methods=("GET",))
 def get_prompt_to_compare_games_for_clipboard():
     game_title = request.args.get('game_title', 'INPUT_HERE_THE_TITLE_OF_THE_GAME_YOU_ARE_INTERESTED_IN')

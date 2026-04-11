@@ -94,7 +94,8 @@ CREATE TABLE element_tag (
   author_id INTEGER NOT NULL REFERENCES user (id)
 );
 
-*/
-
 ALTER TABLE game_and_element
 ADD COLUMN element_order INTEGER DEFAULT 0;
+
+*/
+

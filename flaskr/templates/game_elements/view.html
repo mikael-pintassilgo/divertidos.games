@@ -61,6 +61,9 @@
               <!-- img src="..." class="card-img-top" alt="..." -->
               <div class="card-body">
                 <p>{{ ge_variant['title'] }}</p>
+                {% if ge_variant['status'] == 'pending_review' %}
+                  <span class="badge bg-warning">pending review</span>
+                {% endif %}
               </div>
               <ul class="list-group list-group-flush">
                 <li class="list-group-item">by {{ ge_variant['author_name'] }}</li>
@@ -79,7 +82,11 @@
                 <textarea class="form-control" placeholder="Enter new variant description here..." name="variant_title" id="variant_title" required>{{ request.form['variant_title'] }}</textarea>
                 <input class="form-control" type="" name="game_element_id" id="game_element_id" value="{{ ge_id }}" hidden>
                 <input class="form-control" type="" name="game_id" id="game_id" value="{{ game_id }}" hidden>
+                {% if g.user and g.user['id'] %}
                 <button class="btn btn-primary mt-1" type="submit" value="Add Variant">Add Variant</button>
+                {% else %}
+                <p class="mt-2">Please <a href="{{ url_for('auth.login') }}">log in</a> to add a variant.</p>
+                {% endif %}
               </fieldset>
             </form>
               
