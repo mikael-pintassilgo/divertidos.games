@@ -24,7 +24,8 @@
 
 {% block content %}
   <div name="body" id="body">
-    <p class="fs-4">{{ (request.form['body'] or post['body']) | e | replace('\n', '<br>') | safe }}</p>
+    <!-- p class="fs-4">{{ (request.form['body'] or post['body']) | e | replace('\n', '<br>') | safe }}</p -->
+    <p class="fs-4">{{ post['body'] | safe }}</p>
   </div>
   
   <div class= "text-body-secondary" name="comment" id="comment">

@@ -12,6 +12,7 @@ from flask import url_for
 from werkzeug.exceptions import abort
 
 from flaskr.composition_of_elements import get_composition_of_element
+from flaskr.html_services import sanitize_html
 
 from .auth import login_required, role_required
 from .db import get_db
@@ -233,6 +234,7 @@ def create():
     if request.method == "POST":
         title = request.form["title"]
         body = request.form["body"]
+        body = sanitize_html(body)
         comment = request.form["comment"]
         parent_id = request.form["parent_id"]
         tags = "" #request.form["tags"]
@@ -327,6 +329,7 @@ def update(id):
         parent_id = request.form["parent_id"] or ''
         title = request.form["title"] or ''
         body = request.form["body"] or ''
+        body = sanitize_html(body)
         comment = request.form["comment"] or ''
         tags = request.form["tags"] or ''
 

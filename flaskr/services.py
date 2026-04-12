@@ -1,3 +1,4 @@
+import bleach
 import json
 import os
 from flask import Blueprint
@@ -14,7 +15,6 @@ from .db import get_db
 from .blog import get_element_by_title, clean_key
 
 bp = Blueprint("services", __name__, url_prefix="/services")
-
 
 @bp.route("/", methods=("GET",))
 def index():
