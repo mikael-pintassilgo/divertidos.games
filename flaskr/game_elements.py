@@ -8,6 +8,7 @@ from flask import url_for
 from werkzeug.exceptions import abort
 
 from flaskr.game_element_variants import get_game_element_variants
+from flaskr.html_services import sanitize_html
 
 from .auth import login_required, role_required
 from .db import get_db
@@ -42,6 +43,7 @@ def create():
         print(f'parent_element_id = {parent_element_id}')
         
         description = request.form["description"]
+        description = sanitize_html(description)
         print(f'description = {description}')
         
         weight = request.form["ge_weight"]
@@ -165,6 +167,7 @@ def update(ge_id):
         print(f'parent_element_id = {parent_element_id}')
         
         description = request.form["description"]
+        description = sanitize_html(description)
         print(f'description = {description}')
         
         previous_game_element_id = request.form["previous_ge_id"]

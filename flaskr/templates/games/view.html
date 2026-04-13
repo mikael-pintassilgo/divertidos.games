@@ -154,7 +154,7 @@
                   <tr>
                     <td style="padding-left: {{ level * 20 }}px;">
                       <p><a href="{{ url_for('blog.view', id=element['e_id']) }}">{{ element['title'] }}</a></p>
-                      <p>{{ element['description'] }}</p>
+                      <p>{{ element['description'] | safe }}</p>
                       
                     </td>
                     <!-- td style="padding-left: {{ level * 20 }}px;">
