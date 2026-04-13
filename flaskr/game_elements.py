@@ -83,7 +83,7 @@ def create():
             if parent_element_id:
                 game_title = request.args.get('title')
                 parent = request.args.get('parent')
-                return redirect(url_for("games.update", id=game_id, parent_id=parent_element_id))
+                return redirect(url_for("games.update", id=game_id, parent_id=parent_element_id, element_id=element_id))
             else:
                 return redirect(url_for('games.update', id=game_id))
 
@@ -298,4 +298,23 @@ def view(ge_id):
 @role_required("admin")
 def load_parent_composition():
     game_id = request.args.get("game_id")
-    parent_element_id = request.args.get("parent_element_id")
+    parent_game_element_id = request.args.get("parent_game_element_id")
+    parent_element_id = request.args.get("element_id")
+    
+    db = get_db()
+    elements = db.execute(
+        "SELECT DISTINCT e.* FROM element e"
+        "  JOIN composition_of_element c ON e.id = c.subelement_id"
+        " WHERE c.element_id = ?",
+        (parent_element_id,)
+    ).fetchall()
+
+    for element in elements:
+        db.execute(
+            "INSERT INTO game_and_element (type_of_id, element_id, parent_element_id, author_id, game_id, description, previous_game_element_id) VALUES (?, ?, ?, ?, ?, ?, NULL)",
+            ('element', element['id'], parent_game_element_id, g.user["id"], game_id, ""),
+        )
+
+    db.commit()
+
+    return redirect(url_for("games.update", id=game_id, parent_id=parent_game_element_id, element_id=parent_element_id))

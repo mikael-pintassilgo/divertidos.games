@@ -418,6 +418,8 @@ def update(id):
     
     parent_id = request.args.get('parent_id')
     print(f"229 parent_id = {parent_id}")
+    element_id = request.args.get('element_id')
+    
     if parent_id and parent_id != 'None' and parent_id != '':
         game_elements_data = get_game_elements_of_the_parent(id, parent_id)
         game_elements_parents = game_elements_data["game_elements_parents"]
@@ -460,7 +462,8 @@ def update(id):
                            links=game_data["links"],
                            game_elements=game_elements,
                            game_elements_parents=game_elements_parents,
-                           parent_id=parent_id)
+                           parent_id=parent_id,
+                           element_id=element_id,)
 
 @bp.route("/<int:id>/view", methods=("GET", "POST"))
 def view(id):
