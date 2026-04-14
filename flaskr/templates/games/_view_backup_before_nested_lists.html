@@ -14,7 +14,6 @@
 {% endblock %}
 
 {% block content %}
-
 <div class='row mt-3'>
   <div class='col-12'>
   
@@ -136,50 +135,19 @@
           </nav>
         {% endif %}
         
-        <!-- Nested list  -->
-        <div class="just-padding">
-          <div class="list-group list-group-root well">
-    
-            {% macro render_list_of_elements(elements, level=0) %}
-              {% for element in elements %}
-                {% if element.children %}
-                  <!-- div class="list-group-item" data-bs-toggle="collapse" data-bs-target={{ "#item-" + element['e_id'] | string }} aria-expanded="false" aria-controls={{ "item-" + element['e_id'] | string }} -->
-                  <a href={{ "#item-" + element['e_id'] | string }} class="list-group-item" data-bs-toggle="collapse">
-                    <img src="{{ url_for('static', filename='svg/chevron-right.svg') }}"></img>
-                    {{ element['title'] }}
-                    {% if element['description'] %}: {{ element['description'] | safe }}{% endif %}
-                  </a>
-                  <!--/div-->
-                  <div class="list-group collapse" id={{ "item-" + element['e_id'] | string }}>
-                    {{ render_list_of_elements(element.children, level + 1) }}
-                  </div>
-                {% else %}
-                    <div class="list-group-item">
-                      <!-- img src="{{ url_for('static', filename='svg/dash.svg') }}" style="flex-shrink: 0;"></img -->
-                      <div>
-                        <a href="{{ url_for('blog.view', id=element['e_id']) }}">{{ element['title'] }}</a>
-                        {% if element['description'] %}
-                        : {{ element['description'] | safe }}
-                        {% endif %}
-                        {% if element['is_more'] %}
-                        &nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}"><img src="{{ url_for('static', filename='svg/plus-circle-fill.svg') }}" style="flex-shrink: 0;"></img></a>
-                        {% else %}
-                        &nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}"><img src="{{ url_for('static', filename='svg/plus-circle.svg') }}" style="flex-shrink: 0;"></img></a>
-                        {% endif %}
-                      </div>
-                    </div>
-                {% endif %}
-              {% endfor %}
-            {% endmacro %}
-            {{ render_list_of_elements(game_elements_tree) }}
-          </div>
-        </div>
-
-        <!-- End of Nested list -->
-
-        <!--
         <table class="table table-hover">
           <tbody>
+            <!--
+            <thead>
+              <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Description</th>
+                {% if request.args.get('varitanOfElementsVeiw') == 'oneLevel' %}<th scope="col">Consist of</th> {% endif %}
+                <th scope="col">More...</th>
+              </tr>
+            </thead>
+            -->
+
             {% if request.args.get('varitanOfElementsVeiw') != 'oneLevel' %}
               {% macro render_elements(elements, level=0) %}
                 {% for element in elements %}
@@ -189,6 +157,9 @@
                       <p>{{ element['description'] | safe }}</p>
                       
                     </td>
+                    <!-- td style="padding-left: {{ level * 20 }}px;">
+                      
+                    </td -->
                     <td>
                       {% if element['is_more'] %}
                       <a class="btn btn-primary btn-sm" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">more...</a>
@@ -230,6 +201,7 @@
                         {% if game_element['is_more'] %}
                         <a class="btn btn-primary btn-sm" href="{{ url_for('game_elements.view', ge_id=game_element['ge_id'], game_id=game['id']) }}">more...</a>
                         {% else %}
+                        <!-- a class="" href="{{ url_for('game_elements.view', ge_id=game_element['ge_id'], game_id=game['id']) }}">more...</a -->
                         {% endif %}
                       </td>
                       
@@ -240,7 +212,6 @@
           </tbody>
           
         </table>
-      -->
       </div>
 
       <div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">
@@ -377,21 +348,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById('myTab').addEventListener('shown.bs.tab', (e) => {
     localStorage.setItem(TAB_STORAGE_KEY, e.target.id);
   });
-</script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.list-group-item').forEach(function(item) {
-    item.addEventListener('click', function() {
-      const icon = this.querySelector('img');
-      if (icon and (icon.src.includes('chevron-right') or icon.src.includes('chevron-down'))) {
-        icon.src = icon.src.includes('chevron-right') ? '{{ url_for("static", filename="svg/chevron-down.svg") }}' : '{{ url_for("static", filename="svg/chevron-right.svg") }}';
-        // icon.classList.toggle('glyphicon-chevron-right');
-        // icon.classList.toggle('glyphicon-chevron-down');
-      }
-    });
-  });
-});
 </script>
 
 {% endblock %}
