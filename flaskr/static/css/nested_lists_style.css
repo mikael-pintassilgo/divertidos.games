@@ -28,6 +28,14 @@
     padding-left: 45px;
 }
 
+.list-group.list-group-root > .list-group > .list-group > .list-group > .list-group-item {
+    padding-left: 60px;
+}
+
+.list-group.list-group-root > .list-group > .list-group > .list-group > .list-group > .list-group-item {
+    padding-left: 75px;
+}
+
 .list-group-item .glyphicon {
     margin-right: 5px;
 }

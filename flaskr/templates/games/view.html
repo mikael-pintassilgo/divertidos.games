@@ -384,10 +384,15 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.list-group-item').forEach(function(item) {
     item.addEventListener('click', function() {
       const icon = this.querySelector('img');
-      if (icon and (icon.src.includes('chevron-right') or icon.src.includes('chevron-down'))) {
-        icon.src = icon.src.includes('chevron-right') ? '{{ url_for("static", filename="svg/chevron-down.svg") }}' : '{{ url_for("static", filename="svg/chevron-right.svg") }}';
-        // icon.classList.toggle('glyphicon-chevron-right');
-        // icon.classList.toggle('glyphicon-chevron-down');
+      //console.log("icon: ", icon);
+      if (icon) {
+        //console.log("icon src before: ", icon.src);
+        if (icon.src.includes('chevron-right') || icon.src.includes('chevron-down')) {
+          icon.src = icon.src.includes('chevron-right') ? '{{ url_for("static", filename="svg/chevron-down.svg") }}' : '{{ url_for("static", filename="svg/chevron-right.svg") }}';
+          // icon.classList.toggle('glyphicon-chevron-right');
+          // icon.classList.toggle('glyphicon-chevron-down');
+          //console.log("icon src after: ", icon.src);
+        }  
       }
     });
   });
