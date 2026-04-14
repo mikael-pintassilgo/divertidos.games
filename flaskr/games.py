@@ -142,34 +142,39 @@ def get_game(id, check_author=True):
 
     if game_elements:
         game_elements_ids = [the_game_element["ge_id"] for the_game_element in game_elements]
-        extra_info = db.execute(
-            "WITH union_result AS ("
-            "  SELECT game_element_id, COUNT(*) as count"
-            "    FROM game_element_link"
-            "   WHERE game_element_id IN (SELECT value FROM json_each(?))"
-            "  UNION ALL"
-            "  SELECT game_element_id, COUNT(*) as count"
-            "    FROM game_element_tag"
-            "   WHERE game_element_id IN (SELECT value FROM json_each(?))"
-            "  UNION ALL"
-            "  SELECT game_element_id, COUNT(*) as count"
+        game_element_variants = db.execute(
+            "  SELECT game_element_id,"
+            "         COUNT(*) as count"
             "    FROM game_element_variant"
             "   WHERE game_element_id IN (SELECT value FROM json_each(?))"
-            ")"
-            "SELECT game_element_id, SUM(count) as count"
-            "  FROM union_result"
-            " GROUP BY game_element_id",
-            (json.dumps(game_elements_ids), json.dumps(game_elements_ids), json.dumps(game_elements_ids),)
+            "GROUP BY game_element_id",
+            (json.dumps(game_elements_ids),)
         ).fetchall()
         
-        extra_info_map = {row["game_element_id"]: row["count"] for row in extra_info}
-        #print("game_elements WITHOUT extra_info = ", game_elements)
+        print("game_element_variants:")
+        for row in game_element_variants:
+            print(f"  game_element_id={row['game_element_id']}, count={row['count']}")
+
+        game_element_variants_map = {
+            row["game_element_id"]: row["count"] 
+            for row in game_element_variants
+        }
+        print("game_element_variants_map:")
+        for ge_id, count in game_element_variants_map.items():
+            print(f"  game_element_id={ge_id}, count={count}")
+        
+        
+        
         game_elements = [
-            dict(element, count=extra_info_map.get(element["ge_id"], 0), 
-            is_more=extra_info_map.get(element["ge_id"], 0) > 0)
+            dict(element, count=game_element_variants_map.get(element["ge_id"], 0), 
+            number_of_variants=game_element_variants_map.get(element["ge_id"], 0))
             for element in game_elements
         ]
-        #print("game_elements with extra_info = ", game_elements)
+        print("\n=== game_elements with extra_info ===")
+        for idx, element in enumerate(game_elements):
+            print(f"Element {idx}: id={element['ge_id']}, title={element['title']}, count={element['count']}")
+        print("=" * 40 + "\n")
+        
 
     # Build a tree structure for game_elements
     def build_element_tree(elements, parent_id=None):

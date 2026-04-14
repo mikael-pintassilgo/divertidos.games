@@ -1,5 +1,5 @@
 .just-padding {
-    padding: 15px;
+    padding: 0px;
 }
 
 .list-group.list-group-root {
@@ -20,20 +20,32 @@
     border-top-width: 0;
 }
 
-.list-group.list-group-root > .list-group > .list-group-item {
+.list-group.list-group-root > .list-group > .nested-dropdown-list > .list-group-item {
+    padding-left: 30px;
+}
+.list-group.list-group-root > .list-group > .nested-dropdown-item > .list-group-item {
     padding-left: 30px;
 }
 
-.list-group.list-group-root > .list-group > .list-group > .list-group-item {
-    padding-left: 45px;
+.list-group.list-group-root > .list-group > .list-group > .nested-dropdown-list > .list-group-item {
+    padding-left: 60px;
 }
-
-.list-group.list-group-root > .list-group > .list-group > .list-group > .list-group-item {
+.list-group.list-group-root > .list-group > .list-group > .nested-dropdown-item > .list-group-item {
     padding-left: 60px;
 }
 
-.list-group.list-group-root > .list-group > .list-group > .list-group > .list-group > .list-group-item {
-    padding-left: 75px;
+.list-group.list-group-root > .list-group > .list-group > .list-group > .nested-dropdown-list > .list-group-item {
+    padding-left: 90px;
+}
+.list-group.list-group-root > .list-group > .list-group > .list-group > .nested-dropdown-item > .list-group-item {
+    padding-left: 90px;
+}
+
+.list-group.list-group-root > .list-group > .list-group > .list-group > .list-group > .nested-dropdown-list > .list-group-item {
+    padding-left: 120px;
+}
+.list-group.list-group-root > .list-group > .list-group > .list-group > .list-group > .nested-dropdown-item > .list-group-item {
+    padding-left: 120px;
 }
 
 .list-group-item .glyphicon {

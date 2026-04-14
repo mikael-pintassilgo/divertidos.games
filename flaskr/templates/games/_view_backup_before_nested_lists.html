@@ -161,7 +161,7 @@
                       
                     </td -->
                     <td>
-                      {% if element['is_more'] %}
+                      {% if element['number_of_variants'] > 0 %}
                       <a class="btn btn-primary btn-sm" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">more...</a>
                       {% else %}
                       <a class="btn btn-outline-primary btn-sm" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">more...</a>
@@ -198,7 +198,7 @@
                         
                       </td>
                       <td class="">
-                        {% if game_element['is_more'] %}
+                        {% if game_element['number_of_variants'] > 0 %}
                         <a class="btn btn-primary btn-sm" href="{{ url_for('game_elements.view', ge_id=game_element['ge_id'], game_id=game['id']) }}">more...</a>
                         {% else %}
                         <!-- a class="" href="{{ url_for('game_elements.view', ge_id=game_element['ge_id'], game_id=game['id']) }}">more...</a -->
