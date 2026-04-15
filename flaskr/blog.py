@@ -170,7 +170,7 @@ def get_post(id, check_author=True):
     part_of = (
         db
         .execute(
-            "SELECT e.id, e.title as title"
+            "SELECT e.id, e.title as title, e.body as body"
             "  FROM composition_of_element AS ce"
             "  JOIN element AS e ON ce.element_id = e.id"
             " WHERE ce.subelement_id = ?",

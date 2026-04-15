@@ -16,7 +16,8 @@ def get_composition_of_element(e_id):
     db = get_db()
     composition_of_element = db.execute(
         "SELECT ce.*,"
-        "       e.title AS subelement_title"
+        "       e.title AS subelement_title,"
+        "       e.body AS subelement_body"
         "  FROM composition_of_element AS ce LEFT JOIN element AS e ON ce.subelement_id = e.id"
         " WHERE ce.element_id = ?",
         (e_id,),

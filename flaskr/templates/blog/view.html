@@ -53,22 +53,39 @@
     {% endif %}
   {% endfor %}
 
+  <!-- Tags -->
+  {% if tags %}
+  <div class="hstack gap-3">
+  {% for tag in tags %}
+    <a href="#" onclick="tagOnClick('{{ tag['id'] }}')">
+      <p class="fs-4">#{{ tag['title'] }}</p>
+    </a>
+  {% endfor %}
+  </div>
+  <br/>
+  {% endif %}
+
 
   <!-- Sub Elements -->
   {% if composition_of_element %}
   <br/>
   <h3>Consist of</h3>
+  <ul class="list-group">
   {% for item_of_composition in composition_of_element %}
+  <li class="list-group-item">  
     <article class="">
       <header>
         <div>
           <a href="{{ url_for('blog.view', id=item_of_composition['subelement_id']) }}">
             <p class="fs-4">{{ item_of_composition['subelement_title'] }}</p>
           </a>
+          <p class="fs-6">{{ item_of_composition['subelement_body'] }}</p>
         </div>
       </header>
     </article>
+  </li>
   {% endfor %}
+  </ul>
   <br/>
   {% endif %}
   
@@ -76,31 +93,24 @@
   <!-- Part of -->
   {% if part_of %}
   <h3>Part of</h3>
+  <ul class="list-group">
   {% for the_item in part_of %}
+  <li class="list-group-item">  
     <article class="">
       <header>
         <div>
           <a href="{{ url_for('blog.view', id=the_item['id']) }}">
             <p class="fs-4">{{ the_item['title'] }}</p>
           </a>
+          <p class="fs-6">{{ the_item['body'] }}</p>
         </div>
       </header>
     </article>
+  </li>
   {% endfor %}
   <br/>
   {% endif %}
 
-  <!-- Tags -->
-  {% if tags %}
-  <h3>Tags</h3>
-  {% for tag in tags %}
-    <a href="#" onclick="tagOnClick('{{ tag['id'] }}')">
-      <p class="fs-4">{{ tag['title'] }}</p>
-    </a>
-  {% endfor %}
-  <br/>
-  {% endif %}
-  
   
   
 <!-- Games -->

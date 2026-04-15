@@ -54,14 +54,6 @@
           {% endif %}
         </button>
       </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">
-          Tags
-          {% if tags %}
-            <span class="badge bg-secondary ml-1">filled</span>
-          {% endif %}
-        </button>
-      </li>
     </ul>
 
     <div class="tab-content" id="myTabContent">
@@ -82,6 +74,22 @@
           <p><a href="{{ link['title'] }}" target="_blank">{{ link['comment'] }}</a></p>
           {% endif %}
         {% endfor %}
+
+        {% if tags %}
+        <div class="hstack gap-3">
+          {% for tag in tags %}
+            <article class="">
+              <header>
+                <div>
+                  <a href="#" onclick="tagOnClick('{{ tag['title'] }}')">
+                    <p class="fs-4">#{{ tag['title'] }}</p>
+                  </a>
+                </div>
+              </header>
+            </article>
+          {% endfor %}
+        </div>
+        {% endif %}
     
       </div>
 
@@ -295,23 +303,6 @@
       -->
       </div>
 
-      <div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">
-        {% if tags %}
-          {% for tag in tags %}
-            <article class="">
-              <header>
-                <div>
-                  <a href="#" onclick="tagOnClick('{{ tag['title'] }}')">
-                    <p class="fs-4">#{{ tag['title'] }}</p>
-                  </a>
-                </div>
-              </header>
-            </article>
-          {% endfor %}
-        {% else %}
-          <p class="fs-4">No tags yet</p>
-        {% endif %}
-      </div>
     </div>
 
   </div>

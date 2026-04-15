@@ -329,7 +329,7 @@ def import_game_data(just_check_flag, game_data_json):
     """Import a new game for the current user."""
     db = get_db()
     
-    game_info = game_data_json.get("game", {})
+    game_info = game_data_json #.get("game", {})
     title = game_info.get("title", "")
     body = game_info.get("gameDescription", "")
     
