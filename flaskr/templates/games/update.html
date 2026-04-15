@@ -42,7 +42,7 @@
           <textarea class="form-control" name="comment" id="comment" rows="3">{{ request.form['comment'] or game['comment'] }}</textarea>
         </div>
         
-        <div class="mb-3">
+        <div hidden class="mb-3">
           <label for="tags"><span class="form-label">Tags (keep it the same as the tag items below)</span></label>
           <textarea class="form-control" name="tags" id="tags">{{ request.form['tags'] or game['tags'] }}</textarea>
         </div>

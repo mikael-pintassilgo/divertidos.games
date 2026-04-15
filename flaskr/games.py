@@ -12,6 +12,8 @@ from .auth import login_required, user_has_role, role_required
 from .db import get_db
 from .blog import get_element_by_title, clean_key
 
+from flaskr.html_services import sanitize_html
+
 bp = Blueprint("games", __name__, url_prefix="/games")
 
 @bp.route("/")
@@ -223,7 +225,9 @@ def create():
     if request.method == "POST":
         title = request.form["title"]
         body = request.form["body"]
+        body = sanitize_html(body)  # Sanitize the body content to prevent XSS
         comment = request.form["comment"]
+        comment = sanitize_html(comment)  # Sanitize the comment content to prevent XSS
         tags = "" #request.form["tags"]
         error = None
 
@@ -437,8 +441,10 @@ def update(id):
     if request.method == "POST":
         title = request.form["title"]
         body = request.form["body"]
+        body = sanitize_html(body)  # Sanitize the body content to prevent XSS
         comment = request.form["comment"]
-        
+        comment = sanitize_html(comment)  # Sanitize the comment content to prevent XSS
+
         if user_has_role(user_id, "admin"):
             status = request.form["status"] or "private" # Admin can update status
         else:

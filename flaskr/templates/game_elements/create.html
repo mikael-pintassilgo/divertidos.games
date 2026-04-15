@@ -63,7 +63,7 @@
       </div>
     </div>
 
-    <input class="form-control mb-3 mt-3" placeholder="weight" name="ge_weight" id="ge_weight" value="{{ request.form['ge_weight'] }}">
+    <input hidden class="form-control mb-3 mt-3" placeholder="weight" name="ge_weight" id="ge_weight" value="{{ request.form['ge_weight'] }}">
     <input class="form-control mb-3 mt-3" placeholder="element_order" name="element_order" id="element_order" value="{{ request.form['element_order'] }}">
     <input class="form-control mb-3" placeholder="link" name="ge_link" id="ge_link" value="{{ request.form['ge_link'] }}">
     <textarea class="form-control mb-3" rows=6 placeholder="description" name="description" id="description">{{ request.form['description'] }}</textarea>

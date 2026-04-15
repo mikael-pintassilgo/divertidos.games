@@ -25,8 +25,8 @@
             <label for="element_id" class="form-label">Element or Game Element ID</label>
             <input class="form-control mb-3" placeholder="element_id or ge_id" name="element_id" id="element_id" value="{{ game_element['e_or_ge_id'] }}" required>
             
-            <label for="ge_weight" class="form-label">Weight</label>
-            <input class="form-control mb-3" placeholder="weight" name="ge_weight" id="ge_weight" value="{{ game_element['weight'] }}">
+            <label hidden for="ge_weight" class="form-label">Weight</label>
+            <input hidden class="form-control mb-3" placeholder="weight" name="ge_weight" id="ge_weight" value="{{ game_element['weight'] }}">
 
             <label for="element_order" class="form-label">Element Order</label>
             <input class="form-control mb-3 mt-3" placeholder="element_order" name="element_order" id="element_order" value="{{ game_element['element_order'] }}">

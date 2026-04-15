@@ -79,7 +79,7 @@
           <a href="{{ url_for('blog.view', id=item_of_composition['subelement_id']) }}">
             <p class="fs-4">{{ item_of_composition['subelement_title'] }}</p>
           </a>
-          <p class="fs-6">{{ item_of_composition['subelement_body'] }}</p>
+          <p class="fs-6">{{ item_of_composition['subelement_body'] | safe }}</p>
         </div>
       </header>
     </article>
@@ -102,7 +102,7 @@
           <a href="{{ url_for('blog.view', id=the_item['id']) }}">
             <p class="fs-4">{{ the_item['title'] }}</p>
           </a>
-          <p class="fs-6">{{ the_item['body'] }}</p>
+          <p class="fs-6">{{ the_item['body'] | safe }}</p>
         </div>
       </header>
     </article>
@@ -125,7 +125,7 @@
           <a href="{{ url_for('games.view', id=game['g_id']) }}" target="_blank">
             <p class="fs-4">{{ game['title'] }}</p>
           </a>
-          <p class="fs-6">{{ game['description'] }}</p>
+          <p class="fs-6">{{ game['description'] | safe }}</p>
         </div>
       </header>
     </article>
