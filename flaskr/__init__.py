@@ -4,7 +4,7 @@ from flask import Flask
 from flask_login import LoginManager
 
 from flaskr.auth import get_user_by_id
-from flaskr.my_config import DevelopmentConfig, ProductionConfig
+
 
 def create_app(test_config=None):
     """Create and configure an instance of the Flask application."""
@@ -26,16 +26,14 @@ def create_app(test_config=None):
 
     #print("Testing mode: ", test_config)
     if test_config is None:
-        # Toggle config based on environment variable
-        env = os.environ.get('FLASK_ENV', 'development')
-        
-        if env == 'production':
-            app.config.from_object(ProductionConfig)
-        else:
-            app.config.from_object(DevelopmentConfig)
-        
-        #print("App is running in {} mode.".format(env))
-        #print(f"Secret Key is loaded and starts with: {app.config['SECRET_KEY'][:2]}...")
+        #print("Loading instance config...")
+        # load the instance config, if it exists, when not testing
+        app.config.from_pyfile("config.py", silent=False)
+        # app.config.from_object(Config)
+        SECRET_KEY = app.config['SECRET_KEY']
+        if not SECRET_KEY:
+            raise ValueError("No SECRET_KEY set for production environment")
+        #print(f"Secret Key is loaded and starts with: {SECRET_KEY[:2]}...")
     else:
         # load the test config if passed in
         app.config.update(test_config)

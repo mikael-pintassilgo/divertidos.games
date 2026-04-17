@@ -97,8 +97,6 @@ CREATE TABLE element_tag (
 ALTER TABLE game_and_element
 ADD COLUMN element_order INTEGER DEFAULT 0;
 
-*/
-
 ALTER TABLE user
 ADD COLUMN is_authenticated BOOLEAN NOT NULL DEFAULT 0;
 
@@ -108,3 +106,5 @@ ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT 1;
 ALTER TABLE user
 ADD COLUMN is_anonymous BOOLEAN NOT NULL DEFAULT 0;
 
+
+*/

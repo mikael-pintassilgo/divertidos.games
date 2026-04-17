@@ -12,5 +12,6 @@ build/
 *.swp
 *~
 instance/
+config.py
 games_json/
 .env
