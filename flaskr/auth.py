@@ -126,7 +126,8 @@ def register():
                 error = f"User {username} is already registered."
             else:
                 # Success, go to the login page.
-                return redirect(url_for("auth.login", next=request.args.get('next')))
+                #return redirect(url_for("auth.login", next=request.args.get('next')))
+                return redirect(url_for("auth.login"))
 
         flash(error)
 
@@ -156,7 +157,7 @@ def login():
             session["user_id"] = user["id"]
             session["roles"] = get_user_roles(user["id"])
 
-            next_page = request.args.get('next') or url_for('index')
+            next_page = url_for('index') #request.args.get('next') or url_for('index')
             return redirect(next_page)
 
         flash(error)
