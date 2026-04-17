@@ -1,11 +1,22 @@
 import os
 
 from flask import Flask
+from flask_login import LoginManager
 
+from flaskr.auth import get_user_by_id
+from flaskr.my_config import DevelopmentConfig, ProductionConfig
 
 def create_app(test_config=None):
     """Create and configure an instance of the Flask application."""
     app = Flask(__name__, instance_relative_config=True)
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    login_manager.login_view = 'login' # Куда редиректить неавторизованных
+    @login_manager.user_loader
+    def load_user(user_id):
+        return get_user_by_id(user_id)
+        
+    
     app.config.from_mapping(
         # a default secret that should be overridden by instance config
         SECRET_KEY="dev",
@@ -13,9 +24,18 @@ def create_app(test_config=None):
         DATABASE=os.path.join(app.instance_path, "flaskr.sqlite"),
     )
 
+    #print("Testing mode: ", test_config)
     if test_config is None:
-        # load the instance config, if it exists, when not testing
-        app.config.from_pyfile("config.py", silent=True)
+        # Toggle config based on environment variable
+        env = os.environ.get('FLASK_ENV', 'development')
+        
+        if env == 'production':
+            app.config.from_object(ProductionConfig)
+        else:
+            app.config.from_object(DevelopmentConfig)
+        
+        #print("App is running in {} mode.".format(env))
+        #print(f"Secret Key is loaded and starts with: {app.config['SECRET_KEY'][:2]}...")
     else:
         # load the test config if passed in
         app.config.update(test_config)

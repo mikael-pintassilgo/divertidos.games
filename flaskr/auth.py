@@ -11,6 +11,9 @@ from flask import url_for
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 
+from flask import request, redirect, url_for, render_template
+from flask_login import login_user, logout_user, login_required
+from flaskr.user import User
 from .db import get_db
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
@@ -111,13 +114,13 @@ def register():
                     "INSERT INTO user (username, password) VALUES (?, ?)",
                     (username, generate_password_hash(password)),
                 )
-                user_id = cursor.lastrowid
+                new_user_id = cursor.lastrowid
 
                 # assign default role "user"
                 db.execute("""
                     INSERT OR IGNORE INTO user_role(user_id, role_id)
                     SELECT ?, id FROM role WHERE name = 'user'
-                """, (user_id,))
+                """, (new_user_id,))
                 
                 db.commit()
             except db.IntegrityError:
@@ -127,15 +130,25 @@ def register():
             else:
                 # Success, go to the login page.
                 #return redirect(url_for("auth.login", next=request.args.get('next')))
-                return redirect(url_for("auth.login"))
+                
+                new_user = User(new_user_id, username)
+                login_user(new_user)
+                next_page = after_login(new_user_id)
+                
+                # 5. Handle the 'next' redirect just like in login
+                next_page = request.args.get('next')
+                if not next_page or not next_page.startswith('/'):
+                    next_page = url_for('index')
+            
+                return redirect(next_page)
 
         flash(error)
 
     return render_template("auth/register.html")
 
 
-@bp.route("/login", methods=("GET", "POST"))
-def login():
+#@bp.route("/login", methods=("GET", "POST"))
+def _login():
     """Log in a registered user by adding the user id to the session."""
     if request.method == "POST":
         username = request.form["username"].strip().lower()
@@ -164,9 +177,8 @@ def login():
 
     return render_template("auth/login.html")
 
-
 @bp.route("/logout")
-def logout():
+def _logout():
     """Clear the current session, including the stored user id."""
     session.clear()
     return redirect(url_for("index"))
@@ -190,3 +202,60 @@ def assign_role():
 
     db.commit()
     return "Role assigned successfully"
+
+def get_user_by_id(user_id):
+    db = get_db()
+    user = db.execute(
+        "SELECT id, username FROM user WHERE id = ?", (user_id,)
+    ).fetchone()
+
+    if user:
+        return User(user[0], user[1])
+    return None
+
+@bp.route("/login", methods=("GET", "POST"))
+def login():
+    print("DEBUG: Login route accessed with method", request.method)
+    if request.method == 'POST':
+        username = request.form["username"].strip().lower()
+        password = request.form["password"]
+        
+        db = get_db()
+        error = None
+        
+        user_info = db.execute(
+            "SELECT * FROM user WHERE username = ?", (username,)
+        ).fetchone()
+        
+        if user_info is None:
+            error = "Incorrect username."
+        elif not check_password_hash(user_info["password"], password):
+            error = "Incorrect password."
+        
+        if error is None:
+            session.clear()
+            user = User(user_info["id"], user_info["username"])
+            login_user(user)
+            next_page = after_login(user_info["id"])
+                        
+            return redirect(next_page) if next_page else redirect(url_for("index"))
+        else:
+            flash(error)
+        
+    return render_template("auth/login.html")
+
+@bp.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+def after_login(user_id):
+    session["user_id"] = user_id
+    session["roles"] = get_user_roles(user_id)
+    
+    next_page = request.form.get('next') or request.args.get('next')
+    if not next_page or not next_page.startswith('/'):
+        next_page = url_for('index')
+        
+    return next_page
