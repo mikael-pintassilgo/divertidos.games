@@ -85,7 +85,8 @@
                 {% if g.user and g.user['id'] %}
                 <button class="btn btn-primary mt-1" type="submit" value="Add Variant">Add Variant</button>
                 {% else %}
-                <p class="mt-2">Please <a href="{{ url_for('auth.login') }}">log in</a> to add a variant.</p>
+                <p class="mt-2">Please <a href="{{ url_for('auth.login', next=url_for('game_elements.view', ge_id=ge_id, game_id=game_id)) }}">log in</a>
+                   or <a href="{{ url_for('auth.register', next=url_for('game_elements.view', ge_id=ge_id, game_id=game_id)) }}">register</a> to add a variant.</p>
                 {% endif %}
               </fieldset>
             </form>
