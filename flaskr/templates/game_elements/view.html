@@ -38,29 +38,42 @@
             {% endif %}
           {% endfor %}
 
+          <!-- Tags -->
+          {% if game_element_tags %}
+          <div class="hstack gap-3">
+            {% for ge_tag in game_element_tags %}
+              <article class="">
+                <header>
+                  <div>
+                    <a href="#">
+                      <p>#{{ ge_tag['tag_title'] }}</p>
+                    </a>
+                  </div>
+                </header>
+              </article>
+            {% endfor %}
+          </div>
+          {% endif %}
+          <!-- End of Game Element Tags -->
+
         </fieldset>
       </div>
     </div>
 
-    <ul class="nav nav-tabs mt-3" id="myTab" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">Variants</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">Tags</button>
-      </li>
-    </ul>
-    <div class="tab-content" id="myTabContent">
-      <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
-        
+    <div class="mt-5">
         <!-- Game Element Variants -->
+        <div class="row">
+          <div class="col-auto">
+            <h4>Variants</h4>
+          </div>
+        </div>
         <div class="row row-cols-auto mt-3">
         {% for ge_variant in game_element_variants %}
           <div class="col">
             <div class="card mb-2" style="width: 18rem;">
               <!-- img src="..." class="card-img-top" alt="..." -->
               <div class="card-body">
-                <p>{{ ge_variant['title'] }}</p>
+                <p>{{ ge_variant['title'] | safe }}</p>
                 {% if ge_variant['status'] == 'pending_review' %}
                   <span class="badge bg-warning">pending review</span>
                 {% endif %}
@@ -79,7 +92,7 @@
               
             <form action="{{ url_for('game_element_variants.create') }}?type=game_and_element" method="post">
               <fieldset class="mb-3">
-                <textarea class="form-control" placeholder="Enter new variant description here..." name="variant_title" id="variant_title" required>{{ request.form['variant_title'] }}</textarea>
+                <textarea class="form-control" placeholder="Enter new variant of description here..." name="variant_title" id="variant_title" required>{{ request.form['variant_title'] }}</textarea>
                 <input class="form-control" type="" name="game_element_id" id="game_element_id" value="{{ ge_id }}" hidden>
                 <input class="form-control" type="" name="game_id" id="game_id" value="{{ game_id }}" hidden>
                 {% if g.user and g.user['id'] %}
@@ -95,36 +108,6 @@
         </div>
         <!-- End of Game Element Variants -->
 
-      </div>
-
-      <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
-        <!-- Game Element Tags -->
-        <div class='row'>
-          <div class='col-12'>
-
-              <table class="table table-hover">
-                <caption class="caption-top">Tags</caption>
-                <tbody>
-                  <thead>
-                    <tr>
-                      <th scope="col">tag</th>
-                    </tr>
-                  </thead>
-
-                  {% for ge_tag in game_element_tags %}
-                  <tr>
-                      <td>
-                        <p>{{ ge_tag['tag_title'] }}</p>
-                      </td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-            </table>
-          </div>
-        </div>
-        <!-- End of Game Element Tags -->
-
-      </div>
       
     </div>
 

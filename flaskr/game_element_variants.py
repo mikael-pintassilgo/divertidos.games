@@ -9,6 +9,7 @@ from werkzeug.exceptions import abort
 
 from .auth import login_required, role_required, user_has_role
 from .db import get_db
+from flaskr.html_services import sanitize_html
 
 bp = Blueprint("game_element_variants", __name__, url_prefix="/game-element-variants")
 
@@ -41,6 +42,7 @@ def create():
     """Create a new variant for the current user."""
     if request.method == "POST":
         title = request.form["variant_title"]
+        title = sanitize_html(title)  # Sanitize the comment content to prevent XSS
         game_element_id = request.form["game_element_id"]
         game_id = request.form["game_id"]
         target_type = request.args.get('type') or 'game_and_element'

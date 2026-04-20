@@ -158,14 +158,22 @@
                           <img src="{{ url_for('static', filename='svg/chevron-right.svg') }}"></img>
                           <span class="fw-semibold">{{ element['title'] }}</span>
                           {% if element['description'] %}: {{ element['description'] | safe }}{% endif %} 
-                          {% if element['number_of_variants'] > 0 %}
-                          <a class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
-                            <span class="badge text-bg-secondary">+ {{ element['number_of_variants'] }} variants</span>
-                          </a>                          
-                          {% endif %}                   
+                                             
                           
                     </div>
-                    <div class="ms-auto">
+                    <div class="ms-auto hstack">
+                      <div>  
+                        {% if element['number_of_variants'] > 0 %}
+                        <a class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                          <span class="badge text-bg-info">+ {{ element['number_of_variants'] }} variants</span>
+                        </a>
+                        {% else %}
+                          <a class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                            <span class="badge text-bg-secondary">add variant</span>
+                          </a>
+                        {% endif %}
+                      </div>
+                      
                       <div class="dropdown">
                         <button class="btn btn-link text-dark shadow-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                           <img src="{{ url_for('static', filename='svg/three-dots-vertical.svg') }}" style="flex-shrink: 0;"></img>
@@ -175,15 +183,11 @@
                           <li><a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">Open game element</a></li>                          
                           <li><a class="dropdown-item" href="{{ url_for('blog.view', id=element['e_id']) }}">Open {{ element['title'] }}</a></li>                          
                           <li><hr class="dropdown-divider"></li>
-                          {% if element['number_of_variants'] > 0%}
-                          <li><a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">See other variants</a></li>
-                          {% else %}
                           <li>
                             <a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
                               Add variant
                             </a>
                           </li>
-                          {% endif %}
                         </ul>
                       </div>
 
@@ -200,33 +204,48 @@
                         <span class="fw-semibold">{{ element['title'] }}</span>
                         {% if element['description'] %}
                           : {{ element['description'] | safe }}
+                          <!--
                           {% if element['number_of_variants'] > 0 %}
                           <a class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
-                            <span class="badge text-bg-secondary">+ {{ element['number_of_variants'] }} variants</span>
-                          </a>                          
-                          {% endif %}
-                        {% endif %}
-                      </div>
-
-                      <div class="ms-auto">
-                      <div class="dropdown">
-                        <button class="btn btn-link text-dark shadow-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          <img src="{{ url_for('static', filename='svg/three-dots-vertical.svg') }}" style="flex-shrink: 0;"></img>
-                        </button>
-                        
-                        <ul class="dropdown-menu dropdown-menu-end">
-                          <li><a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">Open game element</a></li> 
-                          <li><a class="dropdown-item" href="{{ url_for('blog.view', id=element['e_id']) }}">Open {{ element['title'] }}</a></li>                          
-                          <li><hr class="dropdown-divider"></li>
-                          {% if element['number_of_variants'] > 0%}
-                          <li><a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">See other variants</a></li>
+                            <span class="badge text-bg-info">+ {{ element['number_of_variants'] }} variants</span>
+                          </a>
                           {% else %}
-                          <li><a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">Add variant</a></li>
+                          <a class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                            <span class="badge text-bg-secondary">add variant</span>
+                          </a>
                           {% endif %}
-                        </ul>
+                          -->
+                        {% endif %}
+                        
                       </div>
 
-                    </div>
+                      <div class="ms-auto hstack">
+                        <div>
+                          {% if element['number_of_variants'] > 0 %}
+                          <a class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                            <span class="badge text-bg-info">+ {{ element['number_of_variants'] }} variants</span>
+                          </a>
+                          {% else %}
+                          <a class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                            <span class="badge text-bg-secondary">add variant</span>
+                          </a>
+                          {% endif %}
+                        </div>
+                      
+                        <div class="dropdown">
+                          <button class="btn btn-link text-dark shadow-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="{{ url_for('static', filename='svg/three-dots-vertical.svg') }}" style="flex-shrink: 0;"></img>
+                          </button>
+                          
+                          <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">Open game element</a></li> 
+                            <li><a class="dropdown-item" href="{{ url_for('blog.view', id=element['e_id']) }}">Open {{ element['title'] }}</a></li>                          
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">Add variant</a></li>
+                          </ul>
+                        </div>
+                        
+                      </div>
                     </div>
                 {% endif %}
               {% endfor %}

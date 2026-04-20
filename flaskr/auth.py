@@ -1,4 +1,5 @@
 import functools
+from urllib.parse import urljoin, urlparse
 
 from flask import Blueprint, abort, app
 from flask import flash
@@ -135,11 +136,6 @@ def register():
                 login_user(new_user)
                 next_page = after_login(new_user_id)
                 
-                # 5. Handle the 'next' redirect just like in login
-                next_page = request.args.get('next')
-                if not next_page or not next_page.startswith('/'):
-                    next_page = url_for('index')
-            
                 return redirect(next_page)
 
         flash(error)
@@ -255,7 +251,13 @@ def after_login(user_id):
     session["roles"] = get_user_roles(user_id)
     
     next_page = request.form.get('next') or request.args.get('next')
-    if not next_page or not next_page.startswith('/'):
+    if not next_page or not is_safe_url(next_page):
         next_page = url_for('index')
         
     return next_page
+
+def is_safe_url(target):
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ('http', 'https') and \
+           ref_url.netloc == test_url.netloc
