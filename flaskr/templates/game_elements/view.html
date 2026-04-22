@@ -96,7 +96,7 @@
                 <input class="form-control" type="" name="game_element_id" id="game_element_id" value="{{ ge_id }}" hidden>
                 <input class="form-control" type="" name="game_id" id="game_id" value="{{ game_id }}" hidden>
                 {% if g.user and g.user['id'] %}
-                <button class="btn btn-primary mt-1" type="submit" value="Add Variant">Add Variant</button>
+                <button id="btn-submit-variant" class="btn btn-primary mt-1" type="submit" value="Add Variant">Add Variant</button>
                 {% else %}
                 <p class="mt-2">Please <a href="{{ url_for('auth.login', next=url_for('game_elements.view', ge_id=ge_id, game_id=game_id)) }}">log in</a>
                    or <a href="{{ url_for('auth.register', next=url_for('game_elements.view', ge_id=ge_id, game_id=game_id)) }}">register</a> to add a variant.</p>

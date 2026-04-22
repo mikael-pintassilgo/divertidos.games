@@ -164,11 +164,11 @@
                     <div class="ms-auto hstack">
                       <div>  
                         {% if element['number_of_variants'] > 0 %}
-                        <a class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                        <a id="btn-add-or-view-variant" class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
                           <span class="badge text-bg-info">+ {{ element['number_of_variants'] }} variants</span>
                         </a>
                         {% else %}
-                          <a class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                          <a id="btn-add-or-view-variant" class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
                             <span class="badge text-bg-secondary">add variant</span>
                           </a>
                         {% endif %}
@@ -182,12 +182,14 @@
                         <ul class="dropdown-menu dropdown-menu-end">
                           <li><a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">Open game element</a></li>                          
                           <li><a class="dropdown-item" href="{{ url_for('blog.view', id=element['e_id']) }}">Open {{ element['title'] }}</a></li>                          
+                          <!--
                           <li><hr class="dropdown-divider"></li>
                           <li>
                             <a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
                               Add variant
                             </a>
                           </li>
+                          -->
                         </ul>
                       </div>
 
@@ -222,11 +224,11 @@
                       <div class="ms-auto hstack">
                         <div>
                           {% if element['number_of_variants'] > 0 %}
-                          <a class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                          <a id="btn-add-or-view-variant" class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
                             <span class="badge text-bg-info">+ {{ element['number_of_variants'] }} variants</span>
                           </a>
                           {% else %}
-                          <a class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                          <a id="btn-add-or-view-variant" class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
                             <span class="badge text-bg-secondary">add variant</span>
                           </a>
                           {% endif %}
@@ -240,8 +242,10 @@
                           <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">Open game element</a></li> 
                             <li><a class="dropdown-item" href="{{ url_for('blog.view', id=element['e_id']) }}">Open {{ element['title'] }}</a></li>                          
+                            <!--
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">Add variant</a></li>
+                            <li><a id="btn-add-or-view-variant" class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">Add variant</a></li>
+                            -->
                           </ul>
                         </div>
                         
