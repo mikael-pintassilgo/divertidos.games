@@ -17,7 +17,7 @@ from flaskr.html_services import sanitize_html
 from .auth import login_required, role_required
 from .db import get_db
 
-bp = Blueprint("blog", __name__)
+bp = Blueprint("blog", __name__, url_prefix="/elements")
 
 def get_elements(_page, tags_list, search_term=''):
     db = get_db()

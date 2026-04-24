@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, app
 from flask_login import LoginManager
 
 from flaskr.auth import get_user_by_id
@@ -56,6 +56,7 @@ def create_app(test_config=None):
 
     # apply the blueprints to the app
     from . import auth
+    from . import home_page
     from . import blog
     from . import tags
     from . import quests
@@ -71,6 +72,7 @@ def create_app(test_config=None):
     from . import composition_of_elements
         
     app.register_blueprint(auth.bp)
+    app.register_blueprint(home_page.bp)
     app.register_blueprint(blog.bp)
     app.register_blueprint(composition_of_elements.bp)
     app.register_blueprint(tags.bp)
