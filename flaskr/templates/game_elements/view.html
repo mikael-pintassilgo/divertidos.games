@@ -5,9 +5,18 @@
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ url_for('games.index') }}">Games</a></li>
     <li class="breadcrumb-item"><a href="{{ url_for('games.view', id=game_id) }}">{{ game_title }}</a></li>
-    <li class="breadcrumb-item active" aria-current="page"></li>
+    <li class="breadcrumb-item active" aria-current="page">Game Element Details</li>
   </ol>
 </nav>
+{% endblock %}
+
+{% block header %}
+  <!--
+  <h1 class="breadcrumb-item active">{% block title %}Game Element Details{% endblock %}</h1>
+  -->
+  {% if g.user['id'] == game_element['author_id'] %}
+  <a href="{{ url_for('game_elements.update', ge_id=game_element['id']) + "?game_id=" + game_id|string }}">edit</a>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -15,50 +24,39 @@
 <div class='row mt-3'>
   <div class='col-12'>
   
-    <div class="card" style="">
-      <div class="card-header">Game Element Details
-        {% if g.user['id'] == game_element['author_id'] %}
-        <a href="{{ url_for('game_elements.update', ge_id=game_element['id']) + "?game_id=" + game_id|string }}">edit</a>
-        {% endif %}
-      </div>
-      <div class="card-body">
-        <fieldset class="">
-
-          <label for="element" class="form-label">Element</label>
-          <p name="element" id="element"><a href="{{ url_for('blog.view', id=game_element['e_or_ge_id']) }}">{{ game_element['element_title'] }}</a></p>
-
-          <label for="description" class="form-label mt-3">Description</label>
-          <p class="mb-3" name="description" id="description">{{ game_element['description'] | safe }}</p>
-          
-          {% for ge_link in game_element_links %}
-            {% if ge_link['title'] %}
-            <p><a href='{{ ge_link['link'] }}' target="_blank">{{ ge_link['title'] }}</a></p>
-            {% else %}
-            <p><a href='{{ ge_link['link'] }}' target="_blank">{{ ge_link['link'] }}</a></p>
-            {% endif %}
-          {% endfor %}
-
-          <!-- Tags -->
-          {% if game_element_tags %}
-          <div class="hstack gap-3">
-            {% for ge_tag in game_element_tags %}
-              <article class="">
-                <header>
-                  <div>
-                    <a href="#">
-                      <p>#{{ ge_tag['tag_title'] }}</p>
-                    </a>
-                  </div>
-                </header>
-              </article>
-            {% endfor %}
-          </div>
-          {% endif %}
-          <!-- End of Game Element Tags -->
-
-        </fieldset>
-      </div>
+    <div name="body" id="body">
+      <p class="fs-4"><a href="{{ url_for('blog.view', id=game_element['e_or_ge_id']) }}">{{ game_element['element_title'] }}</a>:</p>
+      <p  class="fs-4" name="description" id="description">{{ game_element['description'] | safe }}</p>
     </div>
+    
+    <!-- Links -->
+    {% for ge_link in game_element_links %}
+      {% if ge_link['title'] %}
+      <p><a href='{{ ge_link['link'] }}' target="_blank">{{ ge_link['title'] }}</a></p>
+      {% else %}
+      <p><a href='{{ ge_link['link'] }}' target="_blank">{{ ge_link['link'] }}</a></p>
+      {% endif %}
+    {% endfor %}
+    <!-- End of Links -->
+
+    <!-- Tags -->
+    {% if game_element_tags %}
+    <div class="hstack gap-3">
+      {% for ge_tag in game_element_tags %}
+        <article class="">
+          <header>
+            <div>
+              <a href="#">
+                <p>#{{ ge_tag['tag_title'] }}</p>
+              </a>
+            </div>
+          </header>
+        </article>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <!-- End of Game Element Tags -->
+    
 
     <div class="mt-5">
         <!-- Game Element Variants -->
@@ -67,6 +65,7 @@
             <h4>Variants</h4>
           </div>
         </div>
+        {% if game_element_variants|length > 0 %}
         <div class="row row-cols-auto mt-3">
         {% for ge_variant in game_element_variants %}
           <div class="col">
@@ -85,7 +84,7 @@
           </div>
         {% endfor %}
         </div>
-
+        {% endif %}
 
         <div class='row mt-3'>
           <div class='col-12'>

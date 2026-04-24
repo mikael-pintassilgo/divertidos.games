@@ -69,7 +69,7 @@
   <!-- Sub Elements -->
   {% if composition_of_element %}
   <br/>
-  <h3>Consist of</h3>
+  <h4>Consist of</h4>
   <ul class="list-group">
   {% for item_of_composition in composition_of_element %}
   <li class="list-group-item">  
@@ -92,7 +92,7 @@
   
   <!-- Part of -->
   {% if part_of %}
-  <h3>Part of</h3>
+  <h4>Part of</h4>
   <ul class="list-group">
   {% for the_item in part_of %}
   <li class="list-group-item">  
@@ -115,7 +115,7 @@
   
 <!-- Games -->
 {% if games %}
-<h3>Games that used {{ post['title'] }}</h3>
+<h4>Games that used {{ post['title'] }}</h4>
 <ul class="list-group">
 {% for game in games %}
   <li class="list-group-item">  
@@ -138,7 +138,7 @@
 {% endif %}
 
 
-<h3>Author</h3>
+<h4>Added by</h4>
 <p class="fs-4">{{ post['username'] }}</p>
 
 
