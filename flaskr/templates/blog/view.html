@@ -3,7 +3,7 @@
 {% block breadcrumb %}
 <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Elements</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('blog.index') }}">Elements</a></li>
     <li class="breadcrumb-item active" aria-current="page">{{ post['title'] }}</li>
   </ol>
 </nav>
@@ -144,7 +144,7 @@
 
 <script>
 function tagOnClick(tag_title) {
-    window.location.href = "{{ url_for('index') }}" + "?tag=" + tag_title;
+    window.location.href = "{{ url_for('blog.index') }}" + "?tag=" + tag_title;
 }
 </script>
 
