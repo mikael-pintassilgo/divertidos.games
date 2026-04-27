@@ -1,0 +1,109 @@
+{
+  "title": "Snake",
+  "genre": "Arcade, Action",
+  "dimensionality": "2D",
+  "platform": "Arcade, Mobile, PC",
+
+  "game_design_pillars": [
+    "Simplicity & Clarity",
+    "Spatial Mastery",
+    "Score Chase",
+    "Increasing Tension"
+  ],
+
+  "formal_elements_framework": {
+    "player": "One player controls the snake; the system generates food and constraints.",
+
+    "objectives": [
+      "Eat food to grow longer",
+      "Achieve the highest possible score",
+      "Avoid collisions"
+    ],
+
+    "procedures": "Use directional input to control movement",
+
+    "rules": [
+      "Snake moves continuously",
+      "Eating food increases length and score",
+      "Collision with walls or self ends the game",
+      "Cannot reverse direction instantly (in most versions)"
+    ],
+
+    "resources": [
+      "Grid space",
+      "Snake length",
+      "Time / reaction"
+    ],
+
+    "conflict": {
+      "description": "Player vs System",
+      "obstacles": [
+        "Snake body",
+        "Walls"
+      ],
+      "dilemmas":
+        [
+          "Risk vs Reward: Move into tight spaces to reach food vs stay safe in open space",
+        "Short-term vs Long-term: Eat immediately vs position for future survival",
+        "Path Planning: Direct path vs safer longer route",
+        "Growth vs Control: Longer snake increases score but reduces maneuverability",
+"Space Management: Use space aggressively vs preserve it for late game"
+        ]
+    },
+
+    "boundaries": [
+      "Finite grid",
+      "Orthogonal movement only"
+    ],
+
+    "outcome": "Game ends on collision; result is final score"
+  },
+
+  "core_loop": "Move continuously, Navigate toward food, Eat and grow, Avoid collisions, Repeat until failure, Fail, Restart",
+"onboarding": "Minimal. Players learn through immediate interaction and failure.",
+
+  "The MDA framework (Mechanics–Dynamics–Aesthetics)": {
+    "mechanics": [
+      "Continuous movement",
+      "Directional control",
+      "Snake growth system",
+      "Collision detection",
+      "Random food spawning",
+      "Score system"
+    ],
+    "Dynamics (Process + Game Session)": [
+      "Spatial optimization",
+      "Self-created difficulty",
+      "Tension escalation",
+      "Pattern formation"
+    ],
+    "Aesthetics (Requirements + Fun)": "In progress"
+  },
+
+  "chance": "Random food spawning",
+
+  "Mihaly Csikszentmihalyi, Flow: The Psychology of Optimal Experience": {
+    "challenge": "Increasing difficulty due to growth and limited space",
+    "Skills (Flow Theory)": [
+      "Planning",
+      "Spatial awareness",
+      "Anticipation"
+    ],
+    "The Flow Loop (Flow Theory)": "Move, Collect, Grow, Adapt, Repeat",
+    "Positive Flow Feedback Loop (Flow Theory)": "Successful navigation reinforces mastery",
+    "Negative feedback / Flow Equilibrium": "Failure resets progress and encourages retry",
+    "Autotelic Experience (Intrinsic Motivation, Flow Theory)": "Movement and optimization are intrinsically satisfying"
+  },
+
+  "“juicy” (or “juice”)": [
+    "Clear feedback when eating food",
+    "Visible growth of the snake",
+    "Smooth continuous movement"
+  ],
+
+  "dramatic_elements": {
+    "premise": "An abstract snake consumes food and grows within limited space",
+    "character": "The snake as player-controlled entity",
+    "dramatic_arc": "Low tension (early game), Rising tension (mid game), High tension (late game), Crash (resolution)"
+  }
+}

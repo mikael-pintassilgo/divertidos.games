@@ -43,6 +43,8 @@
       <li class="bg-warning">{{ not_existed_item }}</li>
     {% endfor %}
   </ul>
+{% else %}
+  <h2>All items exist. You can import the game.</h2>
 {% endif %}
 
 {% endblock %}

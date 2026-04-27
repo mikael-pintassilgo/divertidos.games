@@ -285,8 +285,9 @@ def insert_elements(just_check_flag, not_existed_items, db, game_id, data, paren
     
     simple_values_as_one_string = ''
     only_simiple_values = True
-    for key, value in data.items():
-        if key in ["title", "gameDescription", "description"]:
+    for _key, value in data.items():
+        key = _key.replace('_', ' ').strip()
+        if key in ["title", "gameDescription", "description", "game"]:
             continue
         
         if isinstance(value, dict):
@@ -334,7 +335,7 @@ def import_game_data(just_check_flag, game_data_json):
     db = get_db()
     
     game_info = game_data_json #.get("game", {})
-    title = game_info.get("title", "")
+    title = game_info.get("title", "") or game_info.get("game", "")
     body = game_info.get("gameDescription", "")
     
     if not title:
