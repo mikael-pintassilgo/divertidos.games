@@ -1,0 +1,305 @@
+{
+    "title": "Subway Surfers",
+    "gameDescription": "Subway Surfers is a fast-paced endless runner mobile game where you play as a graffiti-loving teenager escaping from a police inspector and his dog.\r\n\r\nYou run along subway tracks, swiping to jump, slide, and switch lanes to avoid trains and obstacles while collecting coins, power-ups, and special items.\r\n\r\nThe main goal is to survive as long as possible, get the highest score, and unlock new characters, outfits, hoverboards, and upgrades through rewards and events.\r\n",
+    "Genre": "Endless Runner",
+    "Onboarding": "When you first launch the game, the screen only shows the text \"Tap to play\" and a settings button. After players tap the screen, the game begins, with arrows pointing to the direction in which to swipe or a message telling them to double-tap the screen. To move left or right, slide, or jump, you're prompted to perform two identical actions in a row. This helps you better remember these mechanics. If players make a mistake during onboarding, the game doesn't interrupt; the player is rewinded and can repeat the action they failed to perform. This allows for learning in a safe environment. The tutorial takes place in the same environment in which the player subsequently continues playing; there's no separate transition from the tutorial to the main game, making the gameplay experience very smooth.",
+    "Formal Elements Framework": [
+        {
+            "Player": "One player controls a character (e.g. Jake), the system acts as an opponent."
+        },
+        {
+            "Objectives / Goals of the Player": "Avoid collisions, collect coins, get the highest score, complete missions."
+        },
+        {
+            "Procedures": "Swipe left/right to change lanes \u2726 swipe up to jump \u2726 swipe down to roll \u2726 double tap to use the hoverboard."
+        },
+        {
+            "Rules": "A collision with a train or obstacle ends the run (if there is no protection). \u2726 Movement occurs automatically forward."
+        },
+        {
+            "Resources": "Coins, keys, boosters (jetpack, magnet), hoverboards."
+        },
+        {
+            "Conflict": [
+                {
+                    "Obstacles": "Trains, barriers, gaps between trains"
+                },
+                {
+                    "Dilemmas": [
+                        {
+                            "Risk vs Reward Dilemma": "Stay in a safe lane vs Move into a dangerous lane to collect coins / power-ups: High frequency, Core engagement driver, Builds tension."
+                        },
+                        {
+                            "Short-term vs Long-term Dilemma": "Avoid a risky coin line \u2192 survive longer vs Take risk \u2192 increase multiplier / score"
+                        },
+                        {
+                            "Act Now vs Wait (Timing dilemma)": "Jump early (safe but inefficient) vs Jump late (optimal but risky). This is a micro-dilemma happening every few seconds."
+                        },
+                        {
+                            "Path Selection Dilemma": "Examples: Left lane: safe but low reward \u2726 Middle lane: dense coins but obstacles \u2726 Right lane: unknown / partially hidden.\r\n<br>\r\nIt is important because it combines risk, information, and timing."
+                        },
+                        {
+                            "Scarcity Allocation Dilemma": "Use hoverboard now to avoid crash vs Save it for later (higher speed phases) \u2726 Use keys to revive vs Save keys for future runs.\r\n<br>\r\nThis is one of the few meta-level dilemmas."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Boundaries": "Limited space of three railway lanes. \u2726 Infinite level generation."
+        },
+        {
+            "Outcome": "The game ends when you lose. The result is the score and the resources collected."
+        }
+    ],
+    "The MDA framework (Mechanics\u2013Dynamics\u2013Aesthetics)": [
+        {
+            "Aesthetics (Requirements + Fun)": [
+                {
+                    "Challenge": "Constant pressure and increasing complexity"
+                },
+                {
+                    "Sensation": "Bright graphics, sound, animations"
+                },
+                {
+                    "Fantasy": "The role of a graffiti writer running away from an inspector"
+                },
+                {
+                    "Discovery": "New locations and events (World Tour)"
+                },
+                {
+                    "Expression": "<a href=\"https://mshcheg.pythonanywhere.com/game_elements/743/view?game_id=8\" rel=\"nofollow\">Selecting characters and boards</a>"
+                },
+                {
+                    "Submission": "Submission in Subway Surfers is the feeling of effortless, continuous play that fills time without requiring full focus or long-term investment."
+                },
+                {
+                    "Fellowship": "In Subway Surfers it is weak and mostly indirect: <a href=\"https://mshcheg.pythonanywhere.com/game_elements/741/view?game_id=8\" rel=\"nofollow\">leaderboards</a> create asynchronous <a href=\"https://mshcheg.pythonanywhere.com/game_elements/745/view?game_id=8\" rel=\"nofollow\">competition (comparing scores with others)</a>.\n<br>Occasional events may encourage friendly rivalry. No real-time multiplayer or cooperation (upd. this mechanics were added in last releases). Overall, Fellowship exists mainly as light competition, not deep social play."
+                },
+                {
+                    "Narrative": "Narrative refers to engagement with a story or unfolding events, and in Subway Surfers it is minimal and implicit. Basic premise: a graffiti runner escaping an inspector. No story progression or character development. \u201cWorld Tour\u201d updates provide thematic context, not a true narrative arc. Narrative functions as a thin backdrop, giving flavor but not driving gameplay."
+                }
+            ]
+        },
+        {
+            "Dynamics (Process + Game Session)": [
+                {
+                    "Risk\u2013Reward Trade-Off": "Risk/reward routing through <a href=\"https://mshcheg.pythonanywhere.com/game_elements/735/view?game_id=8\" rel=\"nofollow\">coin placement</a> and <a href=\"https://mshcheg.pythonanywhere.com/game_elements/736/view?game_id=8\" rel=\"nofollow\">power-ups placement</a>."
+                },
+                {
+                    "Competition": "Through <a href=\"https://mshcheg.pythonanywhere.com/game_elements/741/view?game_id=8\" rel=\"nofollow\">leaderboards</a>."
+                },
+                {
+                    "Personalization / Identity Display / Social Signaling": "Through <a href=\"https://mshcheg.pythonanywhere.com/game_elements/742/view?game_id=8\" rel=\"nofollow\">Character/skin customization</a>, <a href=\"https://mshcheg.pythonanywhere.com/game_elements/743/view?game_id=8\" rel=\"nofollow\">Hoverboard/skin customization</a>."
+                },
+                {
+                    "Near-Miss Dynamic": "Through <a href=\"https://mshcheg.pythonanywhere.com/game_elements/734/view?game_id=8\" rel=\"nofollow\">obstacles</a>, <a href=\"https://mshcheg.pythonanywhere.com/game_elements/733/view?game_id=8\" rel=\"nofollow\">speed</a>, hit detection.\n<br>When a player hits an obstacle, the game may not end, and the player is shown an animation that appears to make the character feel dizzy. This disappears after a while."
+                }
+            ]
+        },
+        {
+            "Mechanics": [
+                {
+                    "Mechanics": "Lane switching between 3 lanes."
+                },
+                {
+                    "Mechanics": "Jump & roll. Jumping over obstacles and sliding under certain types of obstacles. The slide is also used to end a jump prematurely."
+                },
+                {
+                    "Mechanics": "Speed scaling"
+                },
+                {
+                    "Mechanics": [
+                        {
+                            "Obstacles": [
+                                {
+                                    "Obstacles": "<b>Oncoming Trains</b>\n<br>\nTrains moving toward the player. Occupy a single lane.\nRequires fast lane switching.\nDesign function: reaction and timing."
+                                },
+                                {
+                                    "Obstacles": "<b>Stationary Trains / Wagons</b>\n<br>Parked on tracks. Often block one or multiple lanes\n<br>Act like \u201cwalls\u201d in the environment\n<br>Design function: route planning + constraint"
+                                },
+                                {
+                                    "Obstacles": "<b>Climbable wagons</b>\n<br>Trains you can jump onto and run along the roof. These cars have a ramp that starts at the bottom of the part of the car closest to the player and ends at the top of the car. It has dual-purpose: obstacle + opportunity.\n<br>Design function: risk\u2013reward (safer path vs coin collection)"
+                                }
+                            ]
+                        },
+                        {
+                            "Obstacles": "Barriers / fences - players must jump."
+                        },
+                        {
+                            "Obstacles": "Signal posts - players must roll."
+                        }
+                    ]
+                },
+                {
+                    "Mechanics": "Coin placement and collecting coins to purchase upgrades, characters, and push-ups."
+                },
+                {
+                    "Mechanics": [
+                        {
+                            "Power-up / Temporary ability boost": "<b>Jetpack</b> \u2014 Lifts the character above obstacles while automatically collecting coins in the air."
+                        },
+                        {
+                            "Power-up / Temporary ability boost": "<b>Coin Magnet</b> \u2014 Attracts nearby coins to the player without needing to touch them."
+                        },
+                        {
+                            "Power-up / Temporary ability boost": "<b>Super Sneakers</b> \u2014 Increases jump height, allowing the player to clear larger obstacles."
+                        }
+                    ]
+                },
+                {
+                    "Mechanics": "Missions: A system of objectives that reward players with score multipliers."
+                },
+                {
+                    "Mechanics": "Endless Runner: Procedural generation of obstacles with gradually increasing difficulty (speed scaling)."
+                },
+                {
+                    "Mechanics": "Fail + restart.\n<br>Life System: A collision results in an instant \"Game Over,\" but hoverboards provide a temporary shield."
+                },
+                {
+                    "Mechanics": "Score multiplier"
+                },
+                {
+                    "Mechanics": "Leaderboards"
+                },
+                {
+                    "Mechanics": "Character/skin customization"
+                },
+                {
+                    "Mechanics": "Hoverboards customization."
+                },
+                {
+                    "Mechanics": "When a player hits an obstacle, the game may not end, and the player is shown an animation that appears to make the character feel dizzy. This disappears after a while."
+                }
+            ]
+        }
+    ],
+    "Core loop": "Run forward \u2192 avoid obstacles (jump, roll, switch lanes, use power-ups) \u2192 collect coins and power-ups \u2192 survive as long as possible \u2192 crash \u2192 instantly restart and repeat.",
+    "Dimensionality": "3D",
+    "Chance": "Random generation of obstacles and bonuses",
+    "Platform": "Mobile",
+    "Mihaly Csikszentmihalyi, Flow: The Psychology of Optimal Experience": [
+        {
+            "Balancing Challenge and Skills (The \"Sweet Spot\", Flow Theory)": [
+                {
+                    "Challenge (Flow Theory)": "Increasing speed, obstacles, and pattern complexity continuously test the player\u2019s reaction time and focus."
+                },
+                {
+                    "Skills (Flow Theory)": "Player improves timing, lane-switching precision, pattern recognition, and anticipation of obstacles."
+                }
+            ]
+        },
+        {
+            "Pacing & Recovery in Flow (Cyclical Attention, Flow Theory)": "Moments of high intensity (dense obstacles) are interspersed with brief relief (coin lines, straight paths), allowing mental reset without breaking engagement."
+        },
+        {
+            "The Flow Loop (Flow Theory)": "Run \u2192 react to obstacles \u2192 collect rewards \u2192 increase speed \u2192 repeat, maintaining continuous attention and engagement."
+        },
+        {
+            "Positive Flow Feedback Loop (Flow Theory)": "Success (dodging, collecting coins, completing missions) reinforces confidence and encourages longer, more focused runs."
+        },
+        {
+            "Negative feedback / Flow Equilibrium": "Failure (crashing) provides immediate feedback, resetting progress but motivating retry with improved skill and strategy."
+        },
+        {
+            "Autotelic Experience (Intrinsic Motivation, Flow Theory)": "The act of running, dodging, and collecting is inherently satisfying, making players continue even without external rewards."
+        },
+        {
+            "Ordered Consciousness (Cognitive Efficiency, Flow Theory)": "Clear goals (survive, collect, complete missions) and simple controls reduce cognitive load, enabling fast, intuitive decision-making."
+        },
+        {
+            "Balancing Goals & Feedback (Flow Theory)": "[in progress]"
+        }
+    ],
+    "Game states": [
+        {
+            "Game states": [
+                {
+                    "Game states": "Start / Countdown State: (1) Transition into action; (2) Player prepares, no full control yet."
+                },
+                {
+                    "Game states": "Running State (Core State). Endless runner loop: (a) avoid obstacles; (b) collect coins; (c) react to increasing speed. This is where skill + flow happens"
+                },
+                {
+                    "Game states": "Power-up State (Overlay State). Temporary modification of rules: (a) Jetpack \u2192 no obstacles; (b) Magnet \u2192 auto-collect coins. These are often sub-states layered over running"
+                },
+                {
+                    "Game states": "Hoverboard State: (a) Temporary protection from failure; (b) Changes risk/reward dynamics."
+                },
+                {
+                    "Game states": "Near-Miss / Stumble State: (a) Player hits obstacle but doesn\u2019t fail immediately; (b) Creates tension and recovery opportunity."
+                }
+            ]
+        },
+        {
+            "Game states": [
+                {
+                    "Game states": "Crash / Capture State: (a) Player fully fails (caught by inspector); (b) Core loop ends."
+                },
+                {
+                    "Game states": "Revive State: (a) Player can spend keys to continue; (b) Important for monetization and retention."
+                },
+                {
+                    "Game states": "Game Over State: (a) Final score shown; (b) Rewards distributed; (c) Transition back to meta layer."
+                }
+            ]
+        },
+        {
+            "Game states": [
+                {
+                    "Game states": "Main Menu State: (a) Player sees character, background scene; (b) Access to play, missions, events; (c) Light animation, no risk."
+                },
+                {
+                    "Game states": "Shop State: (a) Buy characters, boards, power-ups; (b) Spend coins/keys (meta progression)."
+                },
+                {
+                    "Game states": "Mission / Event State: (a) View daily challenges, seasonal events; (b) Defines goals that affect gameplay behavior."
+                }
+            ]
+        },
+        {
+            "Game states": [
+                {
+                    "Game states": "Loading / Scene Transition: Switching between menu and run."
+                },
+                {
+                    "Game states": "Reward Collection: Coins, event rewards, loot boxes."
+                }
+            ]
+        }
+    ],
+    "Burtle (BrainHex) types": [
+        {
+            "Achiever": "The entire meta-layer is built around progression and goals, which is the strongest long-term retention driver in mobile games.\n<br><br>\nKey mechanics:\n<br>- Missions system (clear goals \u2192 reward loop)\n<br>- Score multiplier progression\n<br>- Daily challenges &amp; streaks\n<br>- Level-based unlocks\n<br>\n<br>\ud83d\udc49 Achievers are predictable retainers \u2014 they come back to \u201cfinish things.\u201d This supports daily retention loops."
+        },
+        {
+            "Seeker": "The economy is heavily collection-driven, which is ideal for F2P monetization.\n<br>\n<br>Key mechanics:\n<br>- Coins &amp; keys (dual-currency system)\n<br>- Character and hoverboard unlocks\n<br>- Mystery boxes / random rewards\n<br>- Limited-time items\n<br>\n<br>Seekers respond to:\n<br>- variable rewards (dopamine loop)\n<br>- completion pressure (collect them all)\n<br>\ud83d\udc49 This is the main monetization driver."
+        },
+        {
+            "Daredevil": "The core gameplay loop is pure reaction + risk + speed escalation.\n<br>\n<br>Key mechanics:\n<br>- Increasing speed over time\n<br>- Lane switching &amp; obstacle dodging\n<br>- Near-miss situations\n<br>- Tight reaction windows\n<br>\n<br>Daredevils create:\n<br>- high engagement per session\n<br>- \u201cjust one more run\u201d feeling\n<br>\ud83d\udc49 This is the core gameplay fun, not the meta."
+        }
+    ],
+    "\u201cjuicy\u201d (or \u201cjuice\u201d)": "<br>- The coin collecting feels satisfying\n<br>- Power-ups like jetpacks and magnets look flashy\n<br>- The movement and swiping feel smooth\n<br>- The game gives lots of feedback while running (sounds, animations, score boosts)\n<br>\nThe game is built around fast movement, collecting items, and avoiding obstacles, which naturally fits that \u201cjuicy\u201d style.",
+    "Game Design Pillars": "Main: Fast, Reactive Gameplay \u2726 Endless Progression &amp; Score Chase \u2726 Accessibility &amp; Simplicity",
+    "Dramatic Elements": [
+        {
+            "Premise": "A graffiti artist (Jake and friends) is caught tagging trains\n<br>A grumpy inspector and his dog chase the player\n<br>The player runs endlessly to escape\n<br>\n\ud83d\udc49 This premise is very simple, but crucial:\n<br>It justifies constant forward motion (endless runner)\n<br>It creates immediate tension: you are being chased"
+        },
+        {
+            "Character": [
+                {
+                    "Character": "Jake (default runner) + unlockable characters (Tricky, Fresh, etc.) \n<br>\n\ud83d\udc49 Function: The runner becomes an extension of the player"
+                },
+                {
+                    "Character": "The Inspector (antagonist)\n<br>\n\ud83d\udc49 Function: The inspector creates a clear emotional role: you = rebel, he = authority"
+                },
+                {
+                    "Character": "The Dog - adds urgency and threat"
+                }
+            ]
+        },
+        {
+            "Dramatic Arc": "<ul>\n<li>Increasing speed = rising tension\n</li><li>Near misses = climax moments\n</li><li>Crash = resolution\n</li></ul>\n\ud83d\udc49 Subway Surfers is essentially a repeating dramatic arc machine"
+        }
+    ]
+}

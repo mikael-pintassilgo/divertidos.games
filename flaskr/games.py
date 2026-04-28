@@ -247,6 +247,9 @@ def create():
 
     return render_template("games/create.html")
 
+#--------------------------------------#
+# IMPORT
+#--------------------------------------#
 # Recursively insert game elements
 def insert_elements(just_check_flag, not_existed_items, db, game_id, data, parent_ge_id=None):
         
@@ -268,21 +271,14 @@ def insert_elements(just_check_flag, not_existed_items, db, game_id, data, paren
             return current_ge_id
         else:
             return -1  # Dummy ge_id for just checking
-        
-    def insert_dict(key, value, p_parent_ge_id):
-        current_ge_id = insert_simple_value(key, '', p_parent_ge_id) # Create a parent game_element for the dict
-        
-        if current_ge_id is None:
-            return None
-
-        # Recursively insert nested elements
-        dict_description = insert_elements(just_check_flag, not_existed_items, db, game_id, value, current_ge_id)
-        if dict_description and not just_check_flag:
-            db.execute(
-                "UPDATE game_and_element SET description = ? WHERE id = ?",
-                (dict_description.strip(), current_ge_id),
-            )
     
+    def insert_list(parent_key, value, parent_ge_id):
+        for idx, item in enumerate(value):
+            if isinstance(item, dict):
+                insert_elements(just_check_flag, not_existed_items, db, game_id, item, parent_ge_id)
+            else:
+                insert_simple_value(parent_key, item, parent_ge_id)
+        
     simple_values_as_one_string = ''
     only_simiple_values = True
     for _key, value in data.items():
@@ -290,40 +286,24 @@ def insert_elements(just_check_flag, not_existed_items, db, game_id, data, paren
         if key in ["title", "gameDescription", "description", "game"]:
             continue
         
-        if isinstance(value, dict):
-            insert_dict(key, value, parent_ge_id)
-            only_simiple_values = False
-            
-        elif isinstance(value, list):
-            only_simiple_values = False
+        if isinstance(value, list):
             current_ge_id = insert_simple_value(key, '') # Create a parent game_element for the list
             if current_ge_id is None:
                 continue
             
-            # Create game_element for list items
-            list_description = ""
-            for idx, item in enumerate(value):
-                if isinstance(item, dict):
-                    insert_dict(key, item, current_ge_id)
-                else:
-                    insert_simple_value(key, item, current_ge_id)
-                    if list_description:
-                        list_description += f" - {str(item).strip()}\n"
-                    else:
-                        list_description = str(item)
-                    
-            # Update the parent game_element description with the list items
-            if list_description and not just_check_flag:
-                db.execute(
-                    "UPDATE game_and_element SET description = ? WHERE id = ?",
-                    (list_description.strip(), current_ge_id),
-                )
+            insert_list(key, value, current_ge_id)
+            only_simiple_values = False
+            
+        elif isinstance(value, dict):
+            only_simiple_values = False
+            insert_elements(just_check_flag, not_existed_items, db, game_id, value, parent_ge_id)
+            
         else:
             if simple_values_as_one_string:
                 simple_values_as_one_string += f" ✦ {clean_key(key).strip()}: {str(value).strip()}"
             else:
                 simple_values_as_one_string = f"{clean_key(key).strip()}: {str(value).strip()}"
-            insert_simple_value(key, value)
+            insert_simple_value(key, value, parent_ge_id)
             
     if only_simiple_values:
         return simple_values_as_one_string
@@ -384,6 +364,9 @@ def import_game():
                 return redirect(url_for("games.view", id=game_id))
 
     return render_template("games/import_game.html")
+#--------------------------------------#
+# END IMPORT
+#--------------------------------------#
 
 def get_only_game_elements_of_the_parent(game_elements, parent_element_id):
     if parent_element_id == None:
@@ -414,6 +397,122 @@ def get_full_description(id):
     return render_template("games/full_description.html",
                            game=game_data["game"],
                            full_description=full_description,)
+
+#--------------------------------------#
+# EXPORT
+#--------------------------------------#
+def export_game_data(game_id):
+    db = get_db()
+
+    # 1. Get game
+    game = db.execute(
+        "SELECT title, body FROM game WHERE id = ?",
+        (game_id,)
+    ).fetchone()
+
+    if game is None:
+        return None
+
+    # 2. Load elements
+    rows = db.execute(
+        """
+        SELECT 
+            ge.id AS ge_id,
+            ge.parent_element_id,
+            ge.description,
+            ge.type_of_id,
+            e.title
+        FROM game_and_element ge
+        LEFT JOIN element e ON ge.element_id = e.id
+        WHERE ge.game_id = ?
+        ORDER BY ge.id
+        """,
+        (game_id,)
+    ).fetchall()
+
+    game_elements = [dict(row) for row in rows]
+
+    # --- SAME helper ---
+    def get_only_game_elements_of_the_parent(parent_element_id):
+        if parent_element_id is None:
+            return [
+                el for el in game_elements
+                if el["parent_element_id"] is None or el["parent_element_id"] == ''
+            ]
+        else:
+            return [
+                el for el in game_elements
+                if el["parent_element_id"] == parent_element_id
+            ]
+
+    # --- Recursive builder ---
+    def build_subtree(parent_element_id, parent_title=None):
+        sub_elements = get_only_game_elements_of_the_parent(parent_element_id)
+
+        all_elements_has_same_title = True
+        sub_elements_has_title_equal_to_parent = True
+        
+        first_element_title = sub_elements[0]["title"] if sub_elements else None
+        for element in sub_elements:
+            if element["title"] != first_element_title:
+                all_elements_has_same_title = False
+                break
+        if first_element_title:
+            sub_elements_has_title_equal_to_parent = (first_element_title != parent_title)
+        
+        if all_elements_has_same_title:# and sub_elements_has_title_equal_to_parent:
+            result = []
+        elif not (parent_element_id is None):
+            result = []
+        else:
+            result = {}
+        #duplicates = {}  # key -> list of values
+
+        for element in sub_elements:
+            key = (element["title"] or "").strip()
+            description = (element["description"] or "").strip()
+
+            children = build_subtree(element["ge_id"], element["title"])
+
+            if children:
+                value = children
+            else:
+                value = description
+
+            if isinstance(result, list):
+                result.append({key: value})
+            else:
+                result[key] = value
+            
+
+        # Merge duplicates back as lists
+        #for key, values in duplicates.items():
+        #    result[key] = values
+
+        return result
+
+    # 3. Final JSON
+    game_json = {
+        "title": game["title"],
+        "gameDescription": game["body"]
+    }
+
+    game_json.update(build_subtree(None))
+
+    return json.dumps(game_json, indent=4)
+
+@bp.route("/<int:id>/get_full_description_JSON", methods=("GET", "POST"))
+def get_full_description_JSON(id):
+    data_JSON = ''
+    data_JSON = export_game_data(id)
+    game_data = get_game(id)
+
+    return render_template("games/full_description.html",
+                           game=game_data["game"],
+                           full_description=data_JSON,)
+#--------------------------------------#
+# END EXPORT
+#--------------------------------------#
 
 @bp.route("/<int:id>/update", methods=("GET", "POST"))
 @login_required

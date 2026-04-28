@@ -123,7 +123,8 @@ def clean_key(text):
 def get_element_by_title(db, title):
     element = db.execute(
         "SELECT id FROM element WHERE TRIM(LOWER(title)) = TRIM(LOWER(?))",
-        (clean_key(title),),
+        #(clean_key(title),),
+        ((title),),
     ).fetchone()
     return element
 
