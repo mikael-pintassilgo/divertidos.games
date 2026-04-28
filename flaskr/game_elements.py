@@ -1,3 +1,5 @@
+import re
+
 from flask import Blueprint, jsonify
 from flask import flash
 from flask import g
@@ -319,5 +321,47 @@ def load_parent_composition():
         )
 
     db.commit()
+
+    return redirect(url_for("games.update", id=game_id, parent_id=parent_game_element_id, element_id=parent_element_id))
+
+@bp.route("/split-into-separate-elements", methods=("GET", "POST"))
+@login_required
+@role_required("admin")
+def split_into_separate_elements():
+    game_id = request.args.get("game_id")
+    parent_game_element_id = request.args.get("parent_game_element_id")
+    parent_element_id = request.args.get("element_id")
+    title_for_splitting = request.args.get("title_for_splitting")
+    
+    if not game_id or not parent_game_element_id or not parent_element_id:
+        flash("Missing required parameters.")
+        return redirect(url_for("games.update", id=game_id, parent_id=parent_game_element_id, element_id=parent_element_id))
+    
+    db = get_db()
+    
+    title_for_splitting = db.execute(
+        "SELECT description FROM game_and_element"
+        " WHERE id = ?",
+        (parent_game_element_id,)
+    ).fetchone()
+    
+    print('title_for_splitting = ', title_for_splitting[0])
+    #return
+    if title_for_splitting:
+        title_for_splitting = title_for_splitting[0]
+        
+        elements = [e.strip() for e in re.split(r"\n| - | ✦ |•| → |- ", title_for_splitting) if e.strip()]
+        print('splitted elements = ', elements)
+
+        for element in elements:
+            if element == "<br>":
+                continue
+            
+            db.execute(
+                "INSERT INTO game_and_element (type_of_id, element_id, parent_element_id, author_id, game_id, description, previous_game_element_id) VALUES (?, ?, ?, ?, ?, ?, NULL)",
+                ('element', parent_element_id, parent_game_element_id, g.user["id"], game_id, element.strip()),
+            )
+
+        db.commit()
 
     return redirect(url_for("games.update", id=game_id, parent_id=parent_game_element_id, element_id=parent_element_id))
