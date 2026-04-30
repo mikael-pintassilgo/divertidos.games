@@ -6,7 +6,7 @@
     
     <h1 class="">
       {% block title %}
-        Hello, {% if g.user %}{{ g.user['username'] }}!{% else %}Guest!{% endif %}
+        Hello{% if g.user %}, {{ g.user['username'] }}{% endif %}!
       {% endblock %}
     </h1>
   </div>

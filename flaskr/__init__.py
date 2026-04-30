@@ -5,17 +5,17 @@ from flask_login import LoginManager
 
 from flaskr.auth import get_user_by_id
 
-
 def create_app(test_config=None):
     """Create and configure an instance of the Flask application."""
     app = Flask(__name__, instance_relative_config=True)
+    
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'login' # Куда редиректить неавторизованных
     @login_manager.user_loader
+    
     def load_user(user_id):
         return get_user_by_id(user_id)
-        
     
     app.config.from_mapping(
         # a default secret that should be overridden by instance config
