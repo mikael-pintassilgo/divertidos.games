@@ -50,7 +50,7 @@
       <!-- img src="..." class="card-img-top" alt="..." -->
       <div class="card-body" style="min-height: 210px; display: flex; flex-direction: column;">
         <h5 class="card-title"><a class="" href="{{ url_for('blog.view', id=post['id']) }}">{{ post['title'] }}</a></h5>
-        <p class="card-text flex-grow-1">{{ post['body'] }}</p>
+        <p class="card-text flex-grow-1">{{ post['body'] | safe }}</p>
         {% if false and post['parent_id'] %}
           <div class="mt-auto">
         The parent element:
@@ -76,7 +76,7 @@
       
       {% if g.user['id'] == post['author_id'] %}
       <div class="card-body">
-        <a class="" href="{{ url_for('blog.update', id=post['id']) }}">edit</a>
+        <a class="" href="{{ url_for('blog.update_element', id=post['id']) }}">edit</a>
       </div>
       {% endif %}
     </div>
@@ -91,7 +91,9 @@
       <li class="page-item"><a class="page-link" href="{{ url_for('blog.index') + '?page='+(currentPage-1)|string+ '&search=' + search_term }}">Previous</a></li>
       {% else %}
       {% endif %}
+      {% if posts|length == limit %}
       <li class="page-item"><a class="page-link" href="{{ url_for('blog.index') + '?page='+(currentPage+1)|string+ '&search=' + search_term }}">Next</a></li>
+      {% endif %}
     </ul>
   </nav>
 </div>

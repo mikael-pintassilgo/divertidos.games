@@ -68,28 +68,28 @@ def create():
         else:
             print(type_of_id)
             print(element_id)
-            print(g.user["id"])
+            print(g.user.id)
             print((game_id))
             
             db = get_db()
             if (type_of_id == 'element'):
                 db.execute(
                     "INSERT INTO game_and_element (type_of_id, element_id, parent_element_id, author_id, game_id, description, weight, previous_game_element_id, element_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    (type_of_id, element_id, parent_element_id, g.user["id"], game_id, description, weight, previous_game_element_id, element_order),
+                    (type_of_id, element_id, parent_element_id, g.user.id, game_id, description, weight, previous_game_element_id, element_order),
                 )
             else:
                 db.execute(
                     "INSERT INTO game_and_element (type_of_id, game_element_id, parent_element_id, author_id, game_id, description, weight, previous_game_element_id, element_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    (type_of_id, element_id, parent_element_id, g.user["id"], game_id, description, weight, previous_game_element_id, element_order),
+                    (type_of_id, element_id, parent_element_id, g.user.id, game_id, description, weight, previous_game_element_id, element_order),
                 )
             
             db.commit()
             if parent_element_id:
                 game_title = request.args.get('title')
                 parent = request.args.get('parent')
-                return redirect(url_for("games.update", id=game_id, parent_id=parent_element_id, element_id=element_id))
+                return redirect(url_for("games.update_game", id=game_id, parent_id=parent_element_id, element_id=element_id))
             else:
-                return redirect(url_for('games.update', id=game_id))
+                return redirect(url_for('games.update_game', id=game_id))
 
     game_id = request.args.get("game_id")
     
@@ -110,7 +110,7 @@ def delete(ge_id):
     """
     #print('ge_id = ', ge_id)
     #print('game_id = ', game_id)
-    game_id = request.form["game_id"]
+    game_id = request.form.get("game_id")
     print(f'game_id = {game_id}')
     
     db = get_db()
@@ -130,7 +130,7 @@ def delete(ge_id):
         
         return redirect(url_for("games.update_game_elements_of_the_parent", game_id=game_id, parent_id=parent_id)+"?title="+game_title+"&parent="+parent)
     else:
-        return redirect(url_for('games.update', id=game_id))   
+        return redirect(url_for('games.update_game', id=game_id))   
 
 @bp.route("/<int:ge_id>/update", methods=("GET", "POST"))
 @login_required
@@ -148,15 +148,16 @@ def update(ge_id):
         FROM game_and_element 
         WHERE id = ? AND author_id = ?
         """,
-        (ge_id, g.user["id"]),
+        (ge_id, g.user.id),
     ).fetchone()
 
     if game_element is None:
         abort(404)
-
+    
+    game_id = game_element["game_id"]
+    
     if request.method == "POST":
         print('--------------------------------------------------------')
-        game_id = request.args.get("game_id")
         print(f'1 game_id = {game_id}')
 
         type_of_id = request.form["type_of_id"]
@@ -196,7 +197,7 @@ def update(ge_id):
         else:
             print(type_of_id)
             print(element_id)
-            print(g.user["id"])
+            print(g.user.id)
             print((game_id))
             
             db = get_db()
@@ -207,29 +208,26 @@ def update(ge_id):
                     "weight = ?, link = ?, " \
                     "element_order = ? " \
                     "WHERE id = ?",
-                    (type_of_id, element_id, parent_element_id, g.user["id"], game_id, description, previous_game_element_id, weight, link, element_order, ge_id),
+                    (type_of_id, element_id, parent_element_id, g.user.id, game_id, description, previous_game_element_id, weight, link, element_order, ge_id),
                 )
             else:
                 db.execute(
                     "UPDATE game_and_element SET type_of_id = ?, game_element_id = ?, parent_element_id = ?, author_id = ?, " \
                     "game_id = ?, description = ?, previous_game_element_id = ?, weight = ?, link = ?, element_order = ? WHERE id = ?",
-                    (type_of_id, element_id, parent_element_id, g.user["id"], game_id, description, previous_game_element_id, weight, link, element_order, ge_id),
+                    (type_of_id, element_id, parent_element_id, g.user.id, game_id, description, previous_game_element_id, weight, link, element_order, ge_id),
                 )
 
             db.commit()
             
             if parent_element_id:
-                return redirect(url_for("games.update", id=game_id, parent_id=parent_element_id))
+                return redirect(url_for("games.update_game", id=game_id, parent_id=parent_element_id))
             else:
-                return redirect(url_for('games.update', id=game_id))
+                return redirect(url_for('games.update_game', id=game_id))
 
     game_element_tags = get_game_element_tags(ge_id)
     game_element_links = get_game_element_links(ge_id)
     game_element_variants = get_game_element_variants(ge_id)
                 
-    game_id = request.args.get("game_id")
-    print(f'2 game_id = {game_id}')
-    print(f'ge_id = {ge_id}')
     return render_template("game_elements/update.html", 
                            ge_id=ge_id, 
                            game_element=game_element, 
@@ -317,12 +315,12 @@ def load_parent_composition():
     for element in elements:
         db.execute(
             "INSERT INTO game_and_element (type_of_id, element_id, parent_element_id, author_id, game_id, description, previous_game_element_id) VALUES (?, ?, ?, ?, ?, ?, NULL)",
-            ('element', element['id'], parent_game_element_id, g.user["id"], game_id, ""),
+            ('element', element['id'], parent_game_element_id, g.user.id, game_id, ""),
         )
 
     db.commit()
 
-    return redirect(url_for("games.update", id=game_id, parent_id=parent_game_element_id, element_id=parent_element_id))
+    return redirect(url_for("games.update_game", id=game_id, parent_id=parent_game_element_id, element_id=parent_element_id))
 
 @bp.route("/split-into-separate-elements", methods=("GET", "POST"))
 @login_required
@@ -335,7 +333,7 @@ def split_into_separate_elements():
     
     if not game_id or not parent_game_element_id or not parent_element_id:
         flash("Missing required parameters.")
-        return redirect(url_for("games.update", id=game_id, parent_id=parent_game_element_id, element_id=parent_element_id))
+        return redirect(url_for("games.update_game", id=game_id, parent_id=parent_game_element_id, element_id=parent_element_id))
     
     db = get_db()
     
@@ -359,9 +357,9 @@ def split_into_separate_elements():
             
             db.execute(
                 "INSERT INTO game_and_element (type_of_id, element_id, parent_element_id, author_id, game_id, description, previous_game_element_id) VALUES (?, ?, ?, ?, ?, ?, NULL)",
-                ('element', parent_element_id, parent_game_element_id, g.user["id"], game_id, element.strip()),
+                ('element', parent_element_id, parent_game_element_id, g.user.id, game_id, element.strip()),
             )
 
         db.commit()
 
-    return redirect(url_for("games.update", id=game_id, parent_id=parent_game_element_id, element_id=parent_element_id))
+    return redirect(url_for("games.update_game", id=game_id, parent_id=parent_game_element_id, element_id=parent_element_id))

@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
   <form method="post">
     <fieldset class="">
 
@@ -36,7 +37,7 @@
       </div>
     </div>
   </form>
-  <form action="{{ url_for('blog.delete', id=post['id']) }}" method="post">
+  <form action="{{ url_for('blog.delete_element', id=post['id']) }}" method="post">
     <input class="btn btn-danger" type="submit" value="Delete Element" onclick="return confirm('Are you sure?');">
   </form>
 
@@ -119,6 +120,9 @@
 
   
   <!-- composition_of_element -->
+  {% if False %}
+  <pre>{{ composition_of_element[0]._fields }}</pre>
+  {% else %}
   <br/>
   <h3 class="mt-3">Consist of</h3>
   <table class="">
@@ -136,7 +140,7 @@
           <td>
             <p><a href="{{ url_for('blog.view', id=item_of_composition['subelement_id']) }}" target="_blank">{{ item_of_composition['subelement_title'] }}</a></p>
           </td>
-          <form action="{{ url_for('composition_of_element.delete', id=item_of_composition['id']) }}" method="post">
+          <form action="{{ url_for('composition_of_element.delete_element_of_composition', id=item_of_composition['id']) }}" method="post">
             <td>
               <input class="form-control" placeholder="this element id" name="element_id" id="element_id" value="{{ post['id'] }}" required>
             </td>
@@ -148,7 +152,7 @@
       {% endfor %}
 
       <tr>
-        <form action="{{ url_for('composition_of_element.create') }}" method="post">
+        <form action="{{ url_for('composition_of_element.create_element_of_composition') }}" method="post">
           <td>
             <input class="form-control" placeholder="subelement id..." name="subelement_id" id="subelement_id" value="{{ request.form['subelement_id'] }}" required>
           </td>
@@ -162,5 +166,5 @@
       </tr>
     </tbody>
   </table>
-
+  {% endif %}
 {% endblock %}

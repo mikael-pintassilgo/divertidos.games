@@ -6,7 +6,7 @@
     
     <h1 class="">
       {% block title %}
-        Hello{% if g.user %}, {{ g.user['username'] }}{% endif %}!
+        Hello{% if g.user %}, {{ g.user['username'] }}{% else %}, Game Designer{% endif %}!
       {% endblock %}
     </h1>
   </div>
@@ -23,7 +23,7 @@ This is a website for game designers and anyone interested in the subject.
 Here you can:
 <ul>
   <li class="fs-4">View <a href="{{ url_for("games.index")}}">game deconstructions</a> to understand what existing games are made of
-  <li class="fs-4">Come up with a new variation for an existing game element. Try <a href="{{ url_for('games.view', id=8)}}">Subway Surfers</a> for example, and click on the "Elements" tab.
+  <li class="fs-4">Come up with a new variation for an existing game element. Try <a href="{{ url_for('games.view', id=8)}}">Subway Surfers</a> for example, and explore its game elements.
   <li class="fs-4">See how a particular game element is used in other games. Try <a href="{{ url_for('blog.view', id=331)}}">Core Loop</a> for example.
   <li class="fs-4">Use the service to <a href="{{ url_for('services.google_play_store_review_analysis') }}">analyse feedback on Google Play</a> to understand what players like and dislike in a game.
   <li class="fs-4">And much more to come!

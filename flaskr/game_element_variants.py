@@ -15,7 +15,7 @@ bp = Blueprint("game_element_variants", __name__, url_prefix="/game-element-vari
 
 def get_game_element_variants(ge_id):
     db = get_db()
-    user_id = g.user["id"] if g.user else None
+    user_id = g.user.id if g.user else None
     user_is_admin = user_has_role(user_id, "admin") if user_id else False
     
     game_element_variants = db.execute(
@@ -36,53 +36,68 @@ def get_game_element_variants(ge_id):
 
     return game_element_variants 
 
-@bp.route("/game-element-variant/create", methods=("GET", "POST"))
+@bp.route("/create", methods=("GET", "POST"))
 @login_required
 def create():
     """Create a new variant for the current user."""
     if request.method == "POST":
-        title = request.form["variant_title"]
+        title = request.form.get("variant_title")
         title = sanitize_html(title)  # Sanitize the comment content to prevent XSS
-        game_element_id = request.form["game_element_id"]
-        game_id = request.form["game_id"]
+        game_element_id = request.form.get("game_element_id")
+        game_id = request.form.get("game_id")
         target_type = request.args.get('type') or 'game_and_element'
         
+        print('game_id: ', game_id)
         print('game-element-variant/create called ')
         print('title: ', title)
         print('game_element_id: ', game_element_id)
         print('target_type: ', target_type)
         
         error = None
+        print('1')
 
         if not title:
             error = "title is required."
         if not game_element_id:
             error = "game_element_id is required."
 
+        print('2')
         if target_type not in ['game_and_element', 'element']:
             error = "Invalid target type."
         elif not game_id:
             error = "game_id is required."
-            
+        print('3')   
         if error is not None:
+            print('7')
+            print('Error: ', error)
             flash(error)
         else:
-            
-            print(g.user["id"])
+            print('5')
+            print(g.user.id)
             print((id))
-            
+            print('6')
             db = get_db()
             db.execute(
                 "INSERT INTO game_element_variant (title, author_id, game_element_id, game_id, target_type, status) VALUES (?, ?, ?, ?, ?, ?)",
-                (title, g.user["id"], game_element_id, game_id, target_type, 'pending_review'),
+                (title, g.user.id, game_element_id, game_id, target_type, 'pending_review'),
             )
             
             db.commit()
-            _url = url_for('game_elements.view', ge_id=game_element_id, game_id=game_id)
-            print('redirecting to: ', _url)
+            print('after create - committed to db')
+            
+            is_view = request.form.get("is_view")
+            print("is_view: ", is_view)
+            if is_view and is_view.strip() == "true":
+                print("is_view: ", is_view)
+                _url = url_for("game_elements.view", ge_id=game_element_id, game_id=game_id)
+            else:
+                _url = url_for('game_elements.update', ge_id=game_element_id)
+            
+            print('after create - redirecting to: ', _url)
             return redirect( _url )
 
-    return render_template("game_elements/update.html")
+    print('4')
+    return render_template("game_elements/update.html", ge_id=game_element_id)
 
 @bp.route("/<int:id>/publish", methods=("GET", "POST"))
 @login_required
@@ -104,7 +119,7 @@ def publish(id):
         else:
             
             print('Publishing game element variant with ID: ', id)
-            print(g.user["id"])
+            print(g.user.id)
             
             db = get_db()
             db.execute(
@@ -117,7 +132,7 @@ def publish(id):
     _url = url_for('services.pending_reviews')
     return redirect( _url )
     
-@bp.route("/game-element-variant/<int:id>/delete", methods=("POST",))
+@bp.route("/<int:id>/delete", methods=("POST",))
 @login_required
 def delete(id):
     if request.method == "POST":
@@ -125,7 +140,7 @@ def delete(id):
         db.execute("DELETE FROM game_element_variant WHERE id = ?", (id,))
         db.commit()
         
-        game_element_id = request.form["game_element_id"]
+        game_element_id = request.form.get("game_element_id")
         print(id)
         print(game_element_id)
         return redirect(url_for('game_elements.update', ge_id=game_element_id))

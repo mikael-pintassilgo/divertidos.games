@@ -1,27 +1,45 @@
 import os
 
 from flask import Flask, app
-from flask_login import LoginManager
-
-from flaskr.auth import get_user_by_id
+from flask_talisman import Talisman
+from flaskr.extensions import db_SQLAlchemy, login_manager
 
 def create_app(test_config=None):
     """Create and configure an instance of the Flask application."""
     app = Flask(__name__, instance_relative_config=True)
+
+    # Define a CSP that plays nice with Bootstrap 5
+    csp = {
+        'default-src': '\'self\'',
+        'style-src': [
+            '\'self\'',
+            'https://cdn.jsdelivr.net', # If using CDN
+            '\'unsafe-inline\''         # REQUIRED for many Bootstrap components
+        ],
+        'script-src': [
+            '\'self\'',
+            'https://cdn.jsdelivr.net', # If using CDN
+            '\'unsafe-inline\''         # Allows inline <script> tags
+        ],
+        'img-src': ['\'self\'', 'data:'], # 'data:' allows Bootstrap's SVG icons
+    }
+
+    # Apply Talisman with the custom CSP
+    Talisman(app, content_security_policy=csp)
     
-    login_manager = LoginManager()
+    # SQLite configuration for SQLAlchemy
+    db_path = os.path.join(app.instance_path, "flaskr.sqlite")
+    
     login_manager.init_app(app)
     login_manager.login_view = 'login' # Куда редиректить неавторизованных
-    @login_manager.user_loader
-    
-    def load_user(user_id):
-        return get_user_by_id(user_id)
     
     app.config.from_mapping(
         # a default secret that should be overridden by instance config
         SECRET_KEY="dev",
         # store the database in the instance folder
         DATABASE=os.path.join(app.instance_path, "flaskr.sqlite"),
+        SQLALCHEMY_DATABASE_URI=f"sqlite:///{db_path}",
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
 
     #print("Testing mode: ", test_config)
@@ -33,7 +51,7 @@ def create_app(test_config=None):
         SECRET_KEY = app.config['SECRET_KEY']
         if not SECRET_KEY:
             raise ValueError("No SECRET_KEY set for production environment")
-        #print(f"Secret Key is loaded and starts with: {SECRET_KEY[:2]}...")
+        print(f"Secret Key is loaded and starts with: {SECRET_KEY[:2]}...")
     else:
         # load the test config if passed in
         app.config.update(test_config)
@@ -45,14 +63,16 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    @app.route("/hello")
-    def hello():
-        return "Hello, World!"
-
     # register the database commands
     from . import db
 
     db.init_app(app)
+    
+    # Initialize SQLAlchemy
+    db_SQLAlchemy.init_app(app)
+    
+    with app.app_context():
+        db_SQLAlchemy.create_all() # Creates tables if they don't exist
 
     # apply the blueprints to the app
     from . import auth

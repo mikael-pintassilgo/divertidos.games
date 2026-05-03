@@ -50,13 +50,13 @@ def create():
             flash(error)
         else:
             
-            print(g.user["id"])
+            print(g.user.id)
             print((id))
             
             db = get_db()
             db.execute(
                 "INSERT INTO game_element_tag (tag_id, author_id, game_element_id) VALUES (?, ?, ?)",
-                (tag_id, g.user["id"], game_element_id),
+                (tag_id, g.user.id, game_element_id),
             )
             
             db.commit()

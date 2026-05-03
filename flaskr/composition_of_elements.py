@@ -5,89 +5,95 @@ from flask import redirect
 from flask import render_template
 from flask import request
 from flask import url_for
+from flask import abort
+
 from werkzeug.exceptions import abort
 
-from .auth import login_required, role_required
-from .db import get_db
+from flaskr.models import CompositionOfElement, Element
+from flaskr.auth import login_required, role_required
+from flaskr.db import get_db
+from flaskr.extensions import db_SQLAlchemy
+
+from sqlalchemy import select
+from sqlalchemy import delete
+from sqlalchemy import insert
 
 bp = Blueprint("composition_of_element", __name__, url_prefix="/composition-of-elements")
 
-def get_composition_of_element(e_id):
-    db = get_db()
-    composition_of_element = db.execute(
-        "SELECT ce.*,"
-        "       e.title AS subelement_title,"
-        "       e.body AS subelement_body"
-        "  FROM composition_of_element AS ce LEFT JOIN element AS e ON ce.subelement_id = e.id"
-        " WHERE ce.element_id = ?",
-        (e_id,),
-    ).fetchall()
+def get_composition_of_element(session, e_id):
+    # Select all columns from composition_of_element + joined columns
+    stmt = (
+        select(
+            CompositionOfElement.id,
+            CompositionOfElement.subelement_id,
+            CompositionOfElement.element_id,
+            Element.title.label("subelement_title"),
+            Element.body.label("subelement_body")            
+        )
+        .outerjoin(Element, CompositionOfElement.subelement_id == Element.id)
+        .where(CompositionOfElement.element_id == e_id)
+    )
+    
+    results = session.execute(stmt).fetchall()
 
-    if composition_of_element is None:
-        abort(404, f"There are no subelements for element id {e_id}.")
+    return results
 
-    return composition_of_element 
-
-@bp.route("/composition-of-elements/create", methods=("GET", "POST"))
+@bp.route("/create", methods=("GET", "POST"))
 @login_required
 @role_required("admin")
-def create():
-    """Create a new row in composition_of_element for the current user."""
+def create_element_of_composition():
+    element_id = request.form.get("element_id") # Safer than direct access
+    
     if request.method == "POST":
-        element_id = request.form["element_id"]
-        subelement_id = request.form["subelement_id"]
-        
-        print('element_id: ', element_id)
-        print('subelement_id: ', subelement_id)
-        
+        subelement_id = request.form.get("subelement_id")
         error = None
 
         if not element_id:
             error = "element_id is required."
-        if not subelement_id:
+        elif not subelement_id:
             error = "subelement_id is required."
 
-        db = get_db()
-        element = db.execute(
-            "SELECT author_id FROM element WHERE id = ?",
-            (element_id,),
-        ).fetchone()
+        if error is None:
+            # 1. Check permissions (Scalar returns just the value of the first column)
+            element_author = db_SQLAlchemy.session.execute(
+                select(Element.author_id).where(Element.id == element_id)
+            ).scalar()
 
-        if element is None:
-            error = "Element not found."
-        elif element["author_id"] != g.user["id"]:
-            error = "You are not authorized to modify this element."
+            if element_author is None:
+                error = "Element not found."
+            elif element_author != g.user.id:
+                error = "You are not authorized to modify this element."
 
-        if error is not None:
+        if error:
             flash(error)
         else:
-            
-            print(g.user["id"])
-            print((id))
-            
-            db = get_db()
-            db.execute(
-                "INSERT INTO composition_of_element (element_id, subelement_id, author_id) VALUES (?, ?, ?)",
-                (element_id, subelement_id, g.user["id"]),
+            # 2. Perform Insert
+            new_comp = insert(CompositionOfElement).values(
+                element_id=element_id,
+                subelement_id=subelement_id,
+                author_id=g.user.id
             )
+            db_SQLAlchemy.session.execute(new_comp)
+            db_SQLAlchemy.session.commit()
             
-            db.commit()
-            return redirect(url_for('blog.update', id=element_id))
+            return redirect(url_for('blog.update_element', id=element_id))
 
     return render_template("blog/view.html", id=element_id)
 
-@bp.route("/composition-of-elements/<int:id>/delete", methods=("POST",))
+@bp.route("/<int:id>/delete", methods=("POST",))
 @login_required
 @role_required("admin")
-def delete(id):
-    if request.method == "POST":
-        db = get_db()
-        db.execute(
-            "DELETE FROM composition_of_element WHERE id = ? AND author_id = ?",
-            (id, g.user["id"]),
-        )
-        db.commit()
-        
-        element_id = request.form["element_id"]
-        print(element_id)
-        return redirect(url_for('blog.update', id=element_id))
+def delete_element_of_composition(id):
+    # Perform the deletion with an explicit author check
+    stmt = (
+        delete(CompositionOfElement)
+        .where(CompositionOfElement.id == id)
+        .where(CompositionOfElement.author_id == g.user.id)
+    )
+    
+    db_SQLAlchemy.session.execute(stmt)
+    db_SQLAlchemy.session.commit()
+    
+    # Grab the redirect ID from the form
+    element_id = request.form.get("element_id")
+    return redirect(url_for('blog.update_element', id=element_id))

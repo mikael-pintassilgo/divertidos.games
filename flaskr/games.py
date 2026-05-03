@@ -1,3 +1,5 @@
+from sqlalchemy import select, or_, desc
+
 import json
 from flask import Blueprint
 from flask import flash
@@ -8,6 +10,8 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
+from flaskr.models import Game, User, db_SQLAlchemy
+
 from .auth import login_required, user_has_role, role_required
 from .db import get_db
 from .blog import get_element_by_title, clean_key
@@ -16,8 +20,7 @@ from flaskr.html_services import sanitize_html
 
 bp = Blueprint("games", __name__, url_prefix="/games")
 
-@bp.route("/")
-def index():
+def _index():
     db = get_db()
     
     _page = request.args.get('page')
@@ -32,7 +35,7 @@ def index():
     print('offset = ' + str(offset))
     print('limit = ' + str(limit))
     
-    user_id = g.user["id"] if g.user else None
+    user_id = g.user.id if g.user else None
     user_is_admin = user_has_role(user_id, "admin") if user_id else False
     
     """Show all the games, most recent first."""
@@ -52,6 +55,36 @@ def index():
     
     return render_template("games/index.html", games=games, tag="", currentPage=currentPage)
 
+@bp.route("/")
+def index():
+    # Pagination logic
+    page = request.args.get('page', 1, type=int)
+    limit = 10
+    
+    user_id = g.user.id if g.user else None
+    user_is_admin = user_has_role(user_id, "admin") if user_id else False
+
+    # SQLAlchemy 2.0 Select Statement
+    # We join User to get the username
+    stmt = (
+        select(Game)
+        .join(User)
+        .where(
+            or_(
+                Game.status == 'public',
+                user_is_admin == True,
+                Game.author_id == user_id
+            )
+        )
+        .order_by(desc(Game.created))
+        .limit(limit)
+        .offset((page - 1) * limit)
+    )
+
+    # Execute and get results
+    games = db_SQLAlchemy.session.execute(stmt).scalars().all()
+    
+    return render_template("games/index.html", games=games, currentPage=page)
 
 def get_game(id, check_author=True):
     """Get a game and its author by id.
@@ -221,13 +254,39 @@ def get_game(id, check_author=True):
 @login_required
 @role_required("admin")
 def create():
+    if request.method == "POST":
+        title = request.form["title"]
+        body = sanitize_html(request.form["body"])
+        comment = sanitize_html(request.form.get("comment", ""))
+        error = None
+
+        if not title:
+            error = "Title is required."
+
+        if error:
+            flash(error)
+        else:
+            # Create a new Game object
+            new_game = Game(
+                title=title,
+                body=body,
+                author_id=g.user.id,
+                comment=comment
+            )
+            db_SQLAlchemy.session.add(new_game)
+            db_SQLAlchemy.session.commit()
+            return redirect(url_for("games.index"))
+
+    return render_template("games/create.html")
+
+def _create():
     """Create a new game for the current user."""
     if request.method == "POST":
         title = request.form["title"]
-        body = request.form["body"]
-        body = sanitize_html(body)  # Sanitize the body content to prevent XSS
-        comment = request.form["comment"]
-        comment = sanitize_html(comment)  # Sanitize the comment content to prevent XSS
+        raw_body = request.form["body"]
+        body = sanitize_html(raw_body)  # Sanitize the body content to prevent XSS
+        raw_comment = request.form["comment"]
+        comment = sanitize_html(raw_comment)  # Sanitize the comment content to prevent XSS
         tags = "" #request.form["tags"]
         error = None
 
@@ -240,7 +299,7 @@ def create():
             db = get_db()
             db.execute(
                 "INSERT INTO game (title, body, author_id, comment) VALUES (?, ?, ?, ?)",
-                (title, body, g.user["id"], comment),
+                (title, body, g.user.id, comment),
             )
             db.commit()
             return redirect(url_for("games.index"))
@@ -265,7 +324,7 @@ def insert_elements(just_check_flag, not_existed_items, db, game_id, data, paren
         if not just_check_flag:
             cursor = db.execute(
                 "INSERT INTO game_and_element (type_of_id, element_id, parent_element_id, author_id, game_id, description) VALUES (?, ?, ?, ?, ?, ?)",
-                ("element", element_id, _parent_ge_id, g.user["id"], game_id, str(value)),
+                ("element", element_id, _parent_ge_id, g.user.id, game_id, str(value)),
             )
             current_ge_id = cursor.lastrowid
             return current_ge_id
@@ -325,7 +384,7 @@ def import_game_data(just_check_flag, game_data_json):
     if not just_check_flag:
         cursor = db.execute(
             "INSERT INTO game (title, body, author_id, comment) VALUES (?, ?, ?, ?)",
-            (title, body, g.user["id"], ""),
+            (title, body, g.user.id, ""),
         )
         game_id = cursor.lastrowid
     else:
@@ -517,11 +576,11 @@ def get_full_description_JSON(id):
 @bp.route("/<int:id>/update", methods=("GET", "POST"))
 @login_required
 @role_required("admin")
-def update(id):
+def update_game(id):
     """Update a post if the current user is the author."""
     game_data = get_game(id)
     
-    user_id = g.user["id"]
+    user_id = g.user.id
     if game_data["game"]["author_id"] != user_id and not user_has_role(user_id, "admin"):
         abort(403)
     
@@ -581,7 +640,7 @@ def view(id):
     """View a game if the current user is the author."""
     print('Viewing game id = ', id)
     game_data = get_game(id)
-    user_id = g.user["id"] if g.user else None
+    user_id = g.user.id if g.user else None
     if game_data["game"]["status"] != "public" and game_data["game"]["author_id"] != user_id and not user_has_role(user_id, "admin"):
         abort(403)
     
@@ -807,17 +866,17 @@ def create_link(id):
             flash(error)
         else:
             print(title)
-            print(g.user["id"])
+            print(g.user.id)
             print((id))
             
             db = get_db()
             db.execute(
                 "INSERT INTO game_link (title, author_id, game_id, comment) VALUES (?, ?, ?, ?)",
-                (title, g.user["id"], id, comment),
+                (title, g.user.id, id, comment),
             )
             
             db.commit()
-            return redirect(url_for('games.update', id=id))
+            return redirect(url_for('games.update_game', id=id))
 
     return render_template("games/create.html")
 
@@ -839,7 +898,7 @@ def delete_link(id):
     game_id = request.args.get('game_id')
     print(id)
     print(game_id)
-    return redirect(url_for('games.update', id=game_id))
+    return redirect(url_for('games.update_game', id=game_id))
 # End Links
 
 # Tags
@@ -859,7 +918,7 @@ def create_tag(id):
             flash(error)
         else:
             print(title)
-            print(g.user["id"])
+            print(g.user.id)
             print((id))
             
             post=get_game(id)
@@ -867,7 +926,7 @@ def create_tag(id):
             db = get_db()
             db.execute(
                 "INSERT INTO game_tag (title, author_id, game_id) VALUES (?, ?, ?)",
-                (title, g.user["id"], id),
+                (title, g.user.id, id),
             )
             
             if (post['game']['tags'].find(title) == -1):
@@ -877,7 +936,7 @@ def create_tag(id):
                 )
             
             db.commit()
-            return redirect(url_for('games.update', id=id))
+            return redirect(url_for('games.update_game', id=id))
 
     return render_template("games/update.html")
 
@@ -898,7 +957,7 @@ def delete_tag(id):
     game_id = request.args.get('game_id')
     print(id)
     print(game_id)
-    return redirect(url_for('games.update', id=game_id))   
+    return redirect(url_for('games.update_game', id=game_id))   
 # End Tags
 
 
@@ -942,19 +1001,19 @@ def create_game_element(id):
         else:
             print(type_of_id)
             print(element_id)
-            print(g.user["id"])
+            print(g.user.id)
             print((id))
             
             db = get_db()
             if (type_of_id == 'element'):
                 db.execute(
                     "INSERT INTO game_and_element (type_of_id, element_id, parent_element_id, author_id, game_id, description, link, weight, previous_game_element_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    (type_of_id, element_id, parent_element_id, g.user["id"], id, description, link, weight, previous_game_element_id),
+                    (type_of_id, element_id, parent_element_id, g.user.id, id, description, link, weight, previous_game_element_id),
                 )
             else:
                 db.execute(
                     "INSERT INTO game_and_element (type_of_id, game_element_id, parent_element_id, author_id, game_id, description, link, weight, previous_game_element_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    (type_of_id, element_id, parent_element_id, g.user["id"], id, description, link, weight, previous_game_element_id),
+                    (type_of_id, element_id, parent_element_id, g.user.id, id, description, link, weight, previous_game_element_id),
                 )
             
             db.commit()
@@ -963,7 +1022,7 @@ def create_game_element(id):
                 parent = request.args.get('parent')
                 return redirect(url_for("games.update_game_elements_of_the_parent", game_id=id, parent_id=parent_element_id)+"?title="+game_title+"&parent="+parent)
             else:
-                return redirect(url_for('games.update', id=id))
+                return redirect(url_for('games.update_game', id=id))
 
     return render_template("games/update.html")
 
@@ -994,9 +1053,9 @@ def delete_game_element(game_id, ge_id):
         
         print(f"parent_id = {parent_id}")
         
-        return redirect(url_for("games.update", id=game_id, parent_id=parent_id))
+        return redirect(url_for("games.update_game", id=game_id, parent_id=parent_id))
     else:
-        return redirect(url_for('games.update', id=game_id))   
+        return redirect(url_for('games.update_game', id=game_id))   
 
 @bp.route("/<int:game_id>/game-elements/<int:ge_id>/update", methods=("GET", "POST"))
 @login_required
@@ -1006,7 +1065,7 @@ def update_game_element(game_id, ge_id):
     db = get_db()
     game_element = db.execute(
         "SELECT * FROM game_and_element WHERE id = ? AND author_id = ?",
-        (ge_id, g.user["id"]),
+        (ge_id, g.user.id),
     ).fetchone()
 
     if game_element is None:
@@ -1047,7 +1106,7 @@ def update_game_element(game_id, ge_id):
         else:
             print(type_of_id)
             print(element_id)
-            print(g.user["id"])
+            print(g.user.id)
             print((game_id))
             
             db = get_db()
@@ -1057,22 +1116,22 @@ def update_game_element(game_id, ge_id):
                     "parent_element_id = ?, author_id = ?, game_id = ?, description = ?, previous_game_element_id = ?, " \
                     "weight = ?, link = ? " \
                     "WHERE id = ?",
-                    (type_of_id, element_id, parent_element_id, g.user["id"], game_id, description, previous_game_element_id, weight, link, ge_id),
+                    (type_of_id, element_id, parent_element_id, g.user.id, game_id, description, previous_game_element_id, weight, link, ge_id),
                 )
             else:
                 db.execute(
                     "UPDATE game_and_element SET type_of_id = ?, game_element_id = ?, parent_element_id = ?, author_id = ?, " \
                     "game_id = ?, description = ?, previous_game_element_id = ?, weight = ?, link = ? WHERE id = ?",
-                    (type_of_id, element_id, parent_element_id, g.user["id"], game_id, description, previous_game_element_id, weight, link, ge_id),
+                    (type_of_id, element_id, parent_element_id, g.user.id, game_id, description, previous_game_element_id, weight, link, ge_id),
                 )
 
             db.commit()
             if parent_element_id:
                 game_title = request.args.get('title')
                 parent = request.args.get('parent')
-                return redirect(url_for("games.update", id=game_id, parent_id=parent_element_id))
+                return redirect(url_for("games.update_game", id=game_id, parent_id=parent_element_id))
             else:
-                return redirect(url_for('games.update', id=game_id))
+                return redirect(url_for('games.update_game', id=game_id))
 
     return render_template("games/update.html")
 # End Game Elements

@@ -58,7 +58,7 @@ def create():
             db = get_db()
             db.execute(
                 "INSERT INTO tag (title, comment, author_id) VALUES (?, ?, ?)",
-                (title, comment, g.user["id"]),
+                (title, comment, g.user.id),
             )
             db.commit()
             return redirect(url_for("tags.index"))

@@ -52,7 +52,7 @@
       {% if g.user['id'] == game['author_id'] and "admin" in session.get("roles", []) %}
       <div class="card-body">
         {{ game['status'] }}
-        <a class="" href="{{ url_for('games.update', id=game['id']) }}">edit</a>
+        <a class="" href="{{ url_for('games.update_game', id=game['id']) }}">edit</a>
       </div>
       {% endif %}
     </div>

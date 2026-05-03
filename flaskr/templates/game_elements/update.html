@@ -38,7 +38,7 @@
             <textarea class="form-control mb-3" rows=6 placeholder="description" name="description" id="description">{{ game_element['description'] }}</textarea>
             
             <label for="game_id" class="form-label">Game ID</label>
-            <input class="form-control mb-3" name="game_id" value="{{ game_element['game_id'] }}" disabled>                
+            <input class="form-control mb-3" name="game_id" id="game_id" value="{{ game_element['game_id'] }}" disabled>                
 
             <button class="btn btn-primary mb-3" type="submit" value="Update Element">Update Element</button>
             
@@ -98,6 +98,7 @@
                       <td>
                         <form action="{{ url_for('game_element_links.delete', id=ge_link['ge_link_id']) }}" method="post">
                           <input class="form-control" type="hidden" name="game_element_id" id="game_element_id" value="{{ ge_id }}">
+                          <input class="form-control" type="hidden" name="game_id" id="game_id" value="{{ game_id }}" hidden>
                           <button class="btn btn-danger" type="submit" value="Delete Link" onclick="return confirm('Are you sure?');">Delete</button>
                         </form>
                       </td>
@@ -160,6 +161,7 @@
                       <td>
                         <form action="{{ url_for('game_element_tags.delete', id=ge_tag['ge_tag_id']) }}" method="post">
                           <input class="form-control" type="hidden" name="game_element_id" id="game_element_id" value="{{ ge_id }}">
+                          <input class="form-control" type="hidden" name="game_id" id="game_id" value="{{ game_id }}" hidden>
                           <button class="btn btn-danger" type="submit" value="Delete Tag" onclick="return confirm('Are you sure?');">Delete</button>
                         </form>
                       </td>
@@ -174,6 +176,7 @@
                         <input class="form-control" type="" name="game_element_id" id="game_element_id" value="{{ ge_id }}">
                       </td>
                       <td>
+                        <input class="form-control" type="hidden" name="game_id" id="game_id" value="{{ game_id }}" hidden>
                         <button class="btn btn-primary" type="submit" value="Add Tag">Add Tag</button>
                       </td>
                     </form>
@@ -213,6 +216,7 @@
                       <td>
                         <form action="{{ url_for('game_element_variants.delete', id=ge_variant['ge_variant_id']) }}" method="post">
                           <input class="form-control" type="hidden" name="game_element_id" id="game_element_id" value="{{ ge_id }}">
+                          <input class="form-control" type="hidden" name="game_id" id="game_id" value="{{ game_element['game_id'] }}" disabled>   
                           <button class="btn btn-danger" type="submit" value="Delete Variant" onclick="return confirm('Are you sure?');">Delete</button>
                         </form>
                       </td>
@@ -227,6 +231,7 @@
                         <input class="form-control" type="" name="game_element_id" id="game_element_id" value="{{ ge_id }}">
                       </td>
                       <td>
+                        <input class="form-control" type="hidden" name="game_id" value="{{ game_element['game_id'] }}" disabled>   
                         <button class="btn btn-primary" type="submit" value="Add Variant">Add Variant</button>
                       </td>
                     </form>

@@ -1,8 +1,11 @@
+from select import select
 import sqlite3
 
 import click
 from flask import current_app
 from flask import g
+
+from flaskr.models import Role
 
 
 def get_db():
@@ -35,6 +38,19 @@ def init_db():
 
     with current_app.open_resource("schema.sql") as f:
         db.executescript(f.read().decode("utf8"))
+        
+    # Seed roles
+    roles = ['admin', 'user', 'auditor']
+    for role_name in roles:
+        # Check if role exists to avoid duplicates
+        existing = db.session.execute(
+            select(Role).where(Role.name == role_name)
+        ).scalar()
+        
+        if not existing:
+            db.session.add(Role(name=role_name))
+    
+    db.session.commit()
 
 def update_db():
     """Update tables."""

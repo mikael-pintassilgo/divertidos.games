@@ -9,7 +9,7 @@ vote_api = Blueprint("vote_api", __name__)
 @vote_api.route("/api/vote", methods=["POST"])
 @login_required
 def vote_toggle():
-    user_id = g.user["id"]
+    user_id = g.user.id
     
     data = request.get_json(silent=True) or {}
     target_type = data.get("target_type")
@@ -98,7 +98,7 @@ def vote_toggle():
 
 @vote_api.route("/api/vote/status", methods=["GET"])
 def vote_status():
-    user_id = g.user["id"]
+    user_id = g.user.id
 
     target_type = request.args.get("target_type")
     target_id = request.args.get("target_id", type=int)

@@ -4,7 +4,7 @@
 <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ url_for('games.index') }}">Games</a></li>
-    <li class="breadcrumb-item"><a href="{{ url_for('games.update', id=game_id) }}">{{ game_title }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('games.update_game', id=game_id) }}">{{ game_title }}</a></li>
     {% for parent in game_elements_parents %}
       {% if loop.last %}
       <li class="breadcrumb-item active" aria-current="page">{{ parent.description }}</li>

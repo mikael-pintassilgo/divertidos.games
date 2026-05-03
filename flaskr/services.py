@@ -70,7 +70,7 @@ def submit_feedback():
             INSERT INTO feedback (service_name, feedback_text, author_id, is_positive, is_negative, version)
             VALUES (?, ?, ?, ?, ?, ?)
             """,
-            (service_name, feedback_text, g.user["id"] if g.user else None, is_positive, is_negative, "1.0.0.1")
+            (service_name, feedback_text, g.user.id if g.user else None, is_positive, is_negative, "1.0.0.1")
         )
 
         db.commit()
@@ -197,7 +197,7 @@ def add_element_from_dict(just_check_flag, db, title, body, parent_id=None):
         else:
             cursor = db.execute(
                 "INSERT INTO element (status, title, body, parent_id, author_id, comment, tags) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                ("public", clean_key(title), body, parent_id if parent_id is not None else "", g.user["id"], "", "")
+                ("public", clean_key(title), body, parent_id if parent_id is not None else "", g.user.id, "", "")
             )
             db.commit()
             return cursor.lastrowid

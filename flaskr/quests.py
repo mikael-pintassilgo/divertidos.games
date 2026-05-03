@@ -71,7 +71,7 @@ def create():
             db.execute(
                 "INSERT INTO quest (author_id, city, title, description, price, start_point, static_link, image_static_link, first_task_id) "
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                (g.user["id"], city, title, description, price, start_point, static_link, image_static_link, first_task_id),
+                (g.user.id, city, title, description, price, start_point, static_link, image_static_link, first_task_id),
             )
             db.commit()
             return redirect(url_for("quests.index"))

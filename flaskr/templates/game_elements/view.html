@@ -94,6 +94,7 @@
                 <textarea class="form-control" placeholder="Enter new variant of description here..." name="variant_title" id="variant_title" required>{{ request.form['variant_title'] }}</textarea>
                 <input class="form-control" type="" name="game_element_id" id="game_element_id" value="{{ ge_id }}" hidden>
                 <input class="form-control" type="" name="game_id" id="game_id" value="{{ game_id }}" hidden>
+                <input class="form-control" type="" name="is_view" id="is_view" value="true" hidden>
                 {% if g.user and g.user['id'] %}
                 <button id="btn-submit-variant" class="btn btn-primary mt-1" type="submit" value="Add Variant">Add Variant</button>
                 {% else %}

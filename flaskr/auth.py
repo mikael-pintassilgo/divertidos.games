@@ -1,24 +1,19 @@
 import functools
 from urllib.parse import urljoin, urlparse
-
-from flask import Blueprint, abort, app
-from flask import flash
-from flask import g
-from flask import redirect
-from flask import render_template
-from flask import request
-from flask import session
-from flask import url_for
-from werkzeug.security import check_password_hash
-from werkzeug.security import generate_password_hash
-
-from flask import request, redirect, url_for, render_template
-from flask_login import login_user, logout_user, login_required
-from flaskr.user import User
-from .db import get_db
+from flask import Blueprint, abort, flash, g, redirect, render_template, request, session, url_for
+from werkzeug.security import check_password_hash, generate_password_hash
+from flask_login import login_user, logout_user
+from sqlalchemy import select
+from flaskr.models import User, Role  # Import your SQLAlchemy models
+from flaskr.extensions import db_SQLAlchemy, login_manager
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
+# --- Helper Functions (SQLAlchemy 2.0 Style) ---
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db_SQLAlchemy.session.get(User, int(user_id))
 
 def login_required(view):
     """View decorator that redirects anonymous users to the login page."""
@@ -32,76 +27,44 @@ def login_required(view):
 
     return wrapped_view
 
+
+def user_has_role(user_id, role_name):
+    user = db_SQLAlchemy.session.get(User, user_id)
+    if user:
+        return any(role.name == role_name for role in user.roles)
+    return False
+
+def get_user_roles(user_id):
+    user = db_SQLAlchemy.session.get(User, user_id)
+    return [role.name for role in user.roles] if user else []
+
+# --- Decorators ---
+
 def role_required(role_name):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            if "user_id" not in session:
-                return redirect(url_for("login"))
-
-            user_id = session["user_id"]
-
-            if not user_has_role(user_id, role_name):
-                abort(403)  # Forbidden
-
+            if not g.user or not user_has_role(g.user.id, role_name):
+                abort(403)
             return func(*args, **kwargs)
         return wrapper
     return decorator
 
-def get_user_roles(user_id):
-    db = get_db()
-    rows = db.execute("""
-        SELECT r.name
-        FROM role r
-        JOIN user_role ur ON ur.role_id = r.id
-        WHERE ur.user_id = ?
-    """, (user_id,)).fetchall()
-
-    return [row["name"] for row in rows]
-
-def user_has_role(user_id, role_name):
-    db = get_db()
-    row = db.execute("""
-        SELECT 1
-        FROM user_role ur
-        JOIN role r ON r.id = ur.role_id
-        WHERE ur.user_id = ? AND r.name = ?
-        LIMIT 1
-    """, (user_id, role_name)).fetchone()
-
-    return row is not None
-
 @bp.before_app_request
 def load_logged_in_user():
-    """If a user id is stored in the session, load the user object from
-    the database into ``g.user``."""
     user_id = session.get("user_id")
-
     if user_id is None:
         g.user = None
     else:
-        g.user = (
-            get_db().execute("SELECT * FROM user WHERE id = ?", (user_id,)).fetchone()
-        )
+        g.user = db_SQLAlchemy.session.get(User, user_id)
 
+# --- Routes ---
 
 @bp.route("/register", methods=("GET", "POST"))
 def register():
-    """
-    error = 'Sorry, this function is under construction.'
-    flash(error)
-    return render_template("auth/register.html")
-    """
-    
-    """Register a new user.
-
-    Validates that the username is not already taken. Hashes the
-    password for security.
-    """
     if request.method == "POST":
         username = request.form["username"].strip().lower()
         password = request.form["password"]
-        db = get_db()
         error = None
 
         if not username:
@@ -110,133 +73,42 @@ def register():
             error = "Password is required."
 
         if error is None:
-            try:
-                cursor = db.execute(
-                    "INSERT INTO user (username, password) VALUES (?, ?)",
-                    (username, generate_password_hash(password)),
-                )
-                new_user_id = cursor.lastrowid
-
-                # assign default role "user"
-                db.execute("""
-                    INSERT OR IGNORE INTO user_role(user_id, role_id)
-                    SELECT ?, id FROM role WHERE name = 'user'
-                """, (new_user_id,))
-                
-                db.commit()
-            except db.IntegrityError:
-                # The username was already taken, which caused the
-                # commit to fail. Show a validation error.
+            # Check if user exists
+            existing_user = db_SQLAlchemy.session.execute(select(User).where(User.username == username)).scalar()
+            if existing_user:
                 error = f"User {username} is already registered."
             else:
-                # Success, go to the login page.
-                #return redirect(url_for("auth.login", next=request.args.get('next')))
+                # 1. Create User
+                new_user = User(username=username, password=generate_password_hash(password))
                 
-                new_user = User(new_user_id, username)
+                # 2. Assign default 'user' role
+                default_role = db_SQLAlchemy.session.execute(select(Role).where(Role.name == 'user')).scalar()
+                if default_role:
+                    new_user.roles.append(default_role)
+                
+                db_SQLAlchemy.session.add(new_user)
+                db_SQLAlchemy.session.commit()
+                
                 login_user(new_user)
-                next_page = after_login(new_user_id)
-                
-                return redirect(next_page)
+                return redirect(after_login(new_user.id))
 
         flash(error)
-
     return render_template("auth/register.html")
-
-
-#@bp.route("/login", methods=("GET", "POST"))
-def _login():
-    """Log in a registered user by adding the user id to the session."""
-    if request.method == "POST":
-        username = request.form["username"].strip().lower()
-        password = request.form["password"]
-        db = get_db()
-        error = None
-        user = db.execute(
-            "SELECT * FROM user WHERE username = ?", (username,)
-        ).fetchone()
-
-        if user is None:
-            error = "Incorrect username."
-        elif not check_password_hash(user["password"], password):
-            error = "Incorrect password."
-
-        if error is None:
-            # store the user id in a new session and return to the index
-            session.clear()
-            session["user_id"] = user["id"]
-            session["roles"] = get_user_roles(user["id"])
-
-            next_page = url_for('index') #request.args.get('next') or url_for('index')
-            return redirect(next_page)
-
-        flash(error)
-
-    return render_template("auth/login.html")
-
-@bp.route("/logout")
-def _logout():
-    """Clear the current session, including the stored user id."""
-    session.clear()
-    return redirect(url_for("index"))
-
-@bp.errorhandler(403)
-def forbidden(e):
-    return "403 Forbidden: You don't have access", 403
-
-@bp.route("/admin/assign-role", methods=["POST"])
-@role_required("admin")
-def assign_role():
-    user_id = request.form["user_id"]
-    role_name = request.form["role"]
-
-    db = get_db()
-
-    db.execute("""
-        INSERT OR IGNORE INTO user_role(user_id, role_id)
-        SELECT ?, id FROM role WHERE name = ?
-    """, (user_id, role_name))
-
-    db.commit()
-    return "Role assigned successfully"
-
-def get_user_by_id(user_id):
-    db = get_db()
-    user = db.execute(
-        "SELECT id, username FROM user WHERE id = ?", (user_id,)
-    ).fetchone()
-
-    if user:
-        return User(user[0], user[1])
-    return None
 
 @bp.route("/login", methods=("GET", "POST"))
 def login():
-    print("DEBUG: Login route accessed with method", request.method)
-    if request.method == 'POST':
+    if request.method == "POST":
         username = request.form["username"].strip().lower()
         password = request.form["password"]
         
-        db = get_db()
-        error = None
+        user = db_SQLAlchemy.session.execute(select(User).where(User.username == username)).scalar()
         
-        user_info = db.execute(
-            "SELECT * FROM user WHERE username = ?", (username,)
-        ).fetchone()
-        
-        if user_info is None:
-            error = "Incorrect username."
-        elif not check_password_hash(user_info["password"], password):
-            error = "Incorrect password."
-        
-        if error is None:
-            session.clear()
-            user = User(user_info["id"], user_info["username"])
-            login_user(user)
-            next_page = after_login(user_info["id"])
-                        
-            return redirect(next_page) if next_page else redirect(url_for("index"))
+        if user is None or not check_password_hash(user.password, password):
+            flash("Incorrect username or password.")
         else:
-            flash(error)
+            session.clear()
+            login_user(user)
+            return redirect(after_login(user.id))
         
     return render_template("auth/login.html")
 
@@ -244,7 +116,25 @@ def login():
 @login_required
 def logout():
     logout_user()
+    session.clear()
     return redirect(url_for('index'))
+
+@bp.route("/admin/assign-role", methods=["POST"])
+@role_required("admin")
+def assign_role():
+    user_id = request.form["user_id"]
+    role_name = request.form["role"]
+
+    user = db_SQLAlchemy.session.get(User, user_id)
+    role = db_SQLAlchemy.session.execute(select(Role).where(Role.name == role_name)).scalar()
+
+    if user and role and role not in user.roles:
+        user.roles.append(role)
+        db_SQLAlchemy.session.commit()
+        return "Role assigned successfully"
+    return "Error: User or Role not found", 400
+
+# --- Utility ---
 
 def after_login(user_id):
     session["user_id"] = user_id
@@ -253,11 +143,9 @@ def after_login(user_id):
     next_page = request.form.get('next') or request.args.get('next')
     if not next_page or not is_safe_url(next_page):
         next_page = url_for('index')
-        
     return next_page
 
 def is_safe_url(target):
     ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))
-    return test_url.scheme in ('http', 'https') and \
-           ref_url.netloc == test_url.netloc
+    return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
