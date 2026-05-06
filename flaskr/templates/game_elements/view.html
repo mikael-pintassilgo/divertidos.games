@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% from 'macros.html' import input_field %}
 
 {% block breadcrumb %}
 <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
@@ -66,32 +67,89 @@
           </div>
         </div>
         {% if game_element_variants|length > 0 %}
+        
         <div class="row row-cols-auto mt-3">
         {% for ge_variant in game_element_variants %}
+          {% if ge_variant['status_name'] != 'needs_revision' %}
           <div class="col">
             <div class="card mb-2" style="width: 18rem;">
               <!-- img src="..." class="card-img-top" alt="..." -->
               <div class="card-body">
                 <p>{{ ge_variant['title'] | safe }}</p>
-                {% if ge_variant['status'] == 'pending_review' %}
-                  <span class="badge bg-warning">pending review</span>
+                {% if ge_variant['status_name'] == 'pending_review' %}
+                  <span class="badge bg-info">pending review</span>
                 {% endif %}
               </div>
               <ul class="list-group list-group-flush">
                 <li class="list-group-item">by {{ ge_variant['author_name'] }}</li>
               </ul>
+
+            <!-- LIKES SECTION -->
+            <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
+              {# Check if current user is in the list of likes #}
+              {# Note: This assumes ge_variant is a model object or has the likes relationship mapped #}
+              {% set liked = g.user.id in ge_variant.likes|map(attribute='user_id') %}
+              
+              {% if g.user['id'] %}
+              <form action="{{ url_for('game_element_variants.toggle_like', id=ge_variant['id']) }}" method="post">
+              {% else %}
+              <form action="{{ url_for('auth.login', next=url_for('game_elements.view', ge_id=ge_id, game_id=game_id)) }}" method="get">
+              {% endif %}
+                <input type="hidden" name="next" id="next" value="{{ request.full_path }}">
+                
+                <button type="submit" class="btn btn-sm {{ 'text-danger' if liked else 'text-secondary' }} p-0 d-inline-flex align-items-center">
+                  <img src="{{ url_for('static', filename='svg/' + ('heart-fill.svg' if liked else 'heart.svg')) }}" 
+                      style="width: 1.2rem; height: 1.2rem;" 
+                      alt="Like">
+                  <span class="ms-1 text-dark small">{{ ge_variant.likes_count }}</span>
+              </button>
+              </form>
+
+              <small class="text-muted">{{ ge_variant['created'].strftime('%Y-%m-%d') if ge_variant['created'] }}</small>
+            </div>
+
+
             </div>
           </div>
+          {% endif %}
         {% endfor %}
         </div>
+        
         {% endif %}
 
+        {% for ge_variant in game_element_variants %}
+          {% if ge_variant['status_name'] == 'needs_revision' %}
+          <div class='row mt-3'>
+            <div class='col-12'>
+              <span class="badge bg-warning">needs revision</span>
+              <p>Previous variant: {{ ge_variant['title'] | safe }}</p>
+              <p class="mt-2">Admin feedback: {{ ge_variant['admin_feedback'] }}</p>  
+              <form action="{{ url_for('game_element_variants.resubmit', id=ge_variant['id']) }}" method="post">
+                <fieldset class="mb-3">                  
+                  <textarea class="form-control" placeholder="Enter description of a new variant here..." name="variant_title" id="variant_title" required></textarea>
+                  <input class="form-control" type="" name="game_element_id" id="game_element_id" value="{{ ge_id }}" hidden>
+                  <input class="form-control" type="" name="game_id" id="game_id" value="{{ game_id }}" hidden>
+                  <input class="form-control" type="" name="is_view" id="is_view" value="true" hidden>
+                  {% if g.user and g.user['id'] %}
+                  <button id="btn-submit-variant" class="btn btn-primary mt-1" type="submit" value="Resubmit Variant">Resubmit Variant</button>
+                  {% else %}
+                  <p class="mt-2">Please <a href="{{ url_for('auth.login', next=url_for('game_elements.view', ge_id=ge_id, game_id=game_id)) }}">log in</a>
+                    or <a href="{{ url_for('auth.register', next=url_for('game_elements.view', ge_id=ge_id, game_id=game_id)) }}">register</a> to add a variant.</p>
+                  {% endif %}
+                </fieldset>
+              </form>
+                
+            </div>
+          </div>
+          {% endif %}
+        {% endfor %}
+        
         <div class='row mt-3'>
           <div class='col-12'>
               
             <form action="{{ url_for('game_element_variants.create') }}?type=game_and_element" method="post">
               <fieldset class="mb-3">
-                <textarea class="form-control" placeholder="Enter new variant of description here..." name="variant_title" id="variant_title" required>{{ request.form['variant_title'] }}</textarea>
+                <textarea class="form-control" placeholder="Enter description of a new variant here..." name="variant_title" id="variant_title" required>{{ request.form['variant_title'] }}</textarea>
                 <input class="form-control" type="" name="game_element_id" id="game_element_id" value="{{ ge_id }}" hidden>
                 <input class="form-control" type="" name="game_id" id="game_id" value="{{ game_id }}" hidden>
                 <input class="form-control" type="" name="is_view" id="is_view" value="true" hidden>

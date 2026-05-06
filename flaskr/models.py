@@ -1,9 +1,8 @@
 from datetime import datetime, timezone
 from typing import List, Optional
 from flask_login import UserMixin
-from sqlalchemy import Index, Table, Boolean, CheckConstraint, Column, String, Integer, ForeignKey, Text, DateTime, UniqueConstraint, text
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Index, Table, Boolean, CheckConstraint, Column, String, Integer, ForeignKey, Text, DateTime, UniqueConstraint, func, text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from flaskr.extensions import db_SQLAlchemy
 
 # Helper to get the current UTC time with timezone info
@@ -76,6 +75,9 @@ class User(UserMixin, db_SQLAlchemy.Model):
     game_element_links: Mapped[List["GameElementLink"]] = relationship("GameElementLink", back_populates="author")
     game_element_tags: Mapped[List["GameElementTag"]] = relationship("GameElementTag", back_populates="author")
     compositions: Mapped[List["CompositionOfElement"]] = relationship("CompositionOfElement", back_populates="author")
+    
+    # Likes
+    game_element_variant_likes: Mapped[list["GameElementVariantLike"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     
     def get_id(self):
         """Returns the user ID as a string, required by Flask-Login."""
@@ -310,24 +312,25 @@ class GameElementVariant(db_SQLAlchemy.Model):
     target_type: Mapped[str] = mapped_column(
         Text, CheckConstraint("target_type IN ('game', 'game_and_element')")
     )
-    status: Mapped[str] = mapped_column(
-        Text, 
-        CheckConstraint("status IN ('private', 'pending_review', 'public')"), 
-        default='private'
-    )
+    #status: Mapped[str] = mapped_column(
+    #    Text, 
+    #    CheckConstraint("status IN ('private', 'pending_review', 'public')"), 
+    #    default='private'
+    #)
     admin_feedback: Mapped[str | None] = mapped_column(String(500))
     
-    """status_name: Mapped[str] = mapped_column(
+    status_name: Mapped[str] = mapped_column(
         ForeignKey("variant_status.name"),
         nullable=False,
         server_default=text("'private'")
-    )"""
+    )
     game_id: Mapped[Optional[int]] = mapped_column(ForeignKey("game.id", ondelete="CASCADE"))
     game_element_id: Mapped[Optional[int]] = mapped_column(ForeignKey("game_and_element.id", ondelete="CASCADE"))
     author_id: Mapped[int] = mapped_column(ForeignKey("user.id", ondelete="SET NULL"))
     
     author: Mapped["User"] = relationship("User", back_populates="game_element_variants")
-    #statuses: Mapped["VariantStatus"] = relationship(back_populates="statuses")
+    statuses: Mapped["VariantStatus"] = relationship(back_populates="statuses")
+    likes: Mapped[list["GameElementVariantLike"]] = relationship(back_populates="variant", cascade="all, delete-orphan")
 
 # END GAME ELEMENTS
 
@@ -416,7 +419,6 @@ class Feedback(db_SQLAlchemy.Model):
 # END VOTES and FEEDBACK
 
 # STATUSES
-"""
 class VariantStatus(db_SQLAlchemy.Model):
     __tablename__ = "variant_status"
 
@@ -429,5 +431,39 @@ class VariantStatus(db_SQLAlchemy.Model):
 
     def __repr__(self) -> str:
         return f"VariantStatus(name={self.name!r})"
-"""
 # END STATUSES
+
+# LIKES
+class GameElementVariantLike(db_SQLAlchemy.Model):
+    __tablename__ = "game_element_variant_like"
+
+    # 1. Composite Primary Key or Single ID
+    # Using a dedicated ID is often easier for modern ORMs
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    # 2. Foreign Keys
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("user.id", ondelete="CASCADE"), 
+        nullable=False
+    )
+    variant_id: Mapped[int] = mapped_column(
+        ForeignKey("game_element_variant.id", ondelete="CASCADE"), 
+        nullable=False
+    )
+
+    # 3. Metadata
+    created_at: Mapped[datetime] = mapped_column(
+        server_default=func.now()
+    )
+
+    # 4. Relationships (Optional, but very helpful)
+    # Allows you to do: variant.likes or user.liked_variants
+    user: Mapped["User"] = relationship(back_populates="game_element_variant_likes")
+    variant: Mapped["GameElementVariant"] = relationship(back_populates="likes")
+
+    # 5. Constraints
+    # Crucial: Prevent a user from liking the same variant twice!
+    __table_args__ = (
+        UniqueConstraint("user_id", "variant_id", name="uix_user_variant_like"),
+    )
+# END LIKES

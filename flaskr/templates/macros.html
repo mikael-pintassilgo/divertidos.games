@@ -1,0 +1,129 @@
+{% macro render_like_button(variant, current_user_has_liked) %}
+<div class="like-container">
+    <form action="{{ url_for('game_element_variants.toggle_like', id=variant.id) }}" method="post">
+        <!-- We include the current URL so the server knows where to redirect us back to -->
+        <input type="hidden" name="next" id="next" value="{{ request.full_path }}">
+        
+        <button type="submit" class="btn {{ 'btn-danger' if current_user_has_liked else 'btn-outline-danger' }} btn-sm d-flex align-items-center gap-2">
+            {% if current_user_has_liked %}
+                <i class="bi bi-heart-fill"></i> Unlike
+            {% else %}
+                <i class="bi bi-heart"></i> Like
+            {% endif %}
+            
+            <span class="badge bg-white text-danger ms-1">
+                {{ variant.likes|length }}
+            </span>
+        </button>
+    </form>
+</div>
+{% endmacro %}
+
+{% macro render_variant_section(title, items, border_class, status_type) %}
+    <div class="mb-5">
+        <h5 class="border-bottom pb-2 mb-3 d-flex justify-content-between align-items-center">
+            <span>{{ title }}</span>
+            <span class="badge rounded-pill bg-light text-dark border">{{ items|length }}</span>
+        </h5>
+        
+        {% if items %}
+            <div class="list-group list-group-flush shadow-sm border rounded">
+                {% for item in items %}
+                    <div class="list-group-item list-group-item-action border-start {{ border_class }} border-4 py-3">
+                        <div class="d-flex w-100 justify-content-between align-items-start">
+                            <div class="me-3">
+                                <a href="{{ url_for('game_elements.view', ge_id=item.game_element_id) }}" class="text-decoration-none text-dark">
+                                    <h6 class="mb-1 fw-bold">{{ item.title | safe }}</h6>
+                                </a>
+                                <p class="mb-1 text-muted small">ID: #{{ item.id }} • Обновлено: {{ item.created.strftime('%d.%m.%Y') }}</p>
+                                
+                                {# Вывод фидбека от админа, если он есть #}
+                                {% if item.status_name == 'needs_revision' and item.admin_feedback %}
+                                    <div class="mt-2 p-2 bg-danger bg-opacity-10 border-start border-danger rounded">
+                                        <small class="text-danger">
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                            <strong>Замечание:</strong> {{ item.admin_feedback }}
+                                        </small>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            {# Блок кнопок управления #}
+                            <div class="d-flex align-items-center">
+                                <div class="me-3 text-end">
+                                    <small class="d-block text-muted">
+                                        <i class="bi bi-heart"></i> {{ item.likes|length }}
+                                    </small>
+                                </div>
+                                
+                                {# Кнопка редактирования только для тех, кому нужны правки #}
+                                {% if status_type == 'needs_revision' %}
+                                    <a href="{{ url_for('game_elements.view', ge_id=item.game_element_id) }}" 
+                                       class="btn btn-outline-primary btn-sm d-flex align-items-center px-3">
+                                        <i class="bi bi-pencil-square me-1"></i> Исправить
+                                    </a>
+                                {% else %}
+                                    <a href="{{ url_for('game_elements.view', ge_id=item.game_element_id) }}" 
+                                       class="btn btn-light btn-sm text-secondary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-4 border rounded bg-light bg-opacity-50">
+                <p class="text-muted small mb-0">В этой категории пока нет записей</p>
+            </div>
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{% macro render_variant_list(items) %}
+    {% if items %}
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            {% for item in items %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0 bg-light bg-opacity-50 position-relative">
+                        
+                        {# Like Counter Badge in the corner #}
+                        <div class="position-absolute top-0 end-0 p-2">
+                            <span class="badge bg-white text-danger shadow-sm rounded-pill">
+                                <i class="bi bi-heart-fill"></i> {{ item.likes|length }}
+                            </span>
+                        </div>
+
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title fw-bold mb-1 pe-4">
+                                <a href="{{ url_for('game_elements.view', ge_id=item.game_element_id) }}" class="text-decoration-none text-dark">
+                                    {{ item.title | safe }}
+                                </a>
+                            </h6>
+                            
+                            <p class="text-muted small mb-3">
+                                by <span class="text-primary">{{ item.author_name if item.author_name else 'Anonymous' }}</span>
+                            </p>
+
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <span class="badge bg-secondary-subtle text-secondary small">
+                                    {{ item.status_name }}
+                                </span>
+                                <a href="{{ url_for('game_elements.view', ge_id=item.game_element_id) }}" class="btn btn-sm btn-outline-dark">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5 border rounded bg-white">
+            <i class="bi bi-heart text-muted fs-1 d-block mb-2"></i>
+            <p class="text-muted">You haven't liked any variants yet.</p>
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-sm">Explore Variants</a>
+        </div>
+    {% endif %}
+{% endmacro %}

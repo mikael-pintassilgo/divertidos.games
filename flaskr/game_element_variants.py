@@ -7,140 +7,345 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
-from .auth import login_required, role_required, user_has_role
-from .db import get_db
+from flaskr.auth import login_required, role_required, user_has_role
+from flaskr.db import get_db
 from flaskr.html_services import sanitize_html
+from flaskr.extensions import db_SQLAlchemy
+from flaskr.models import GameElementVariant, GameElementVariantLike, VariantStatus, User
+
+from sqlalchemy import select, update, func
+from sqlalchemy import or_, and_
+
 
 bp = Blueprint("game_element_variants", __name__, url_prefix="/game-element-variants")
 
+from sqlalchemy import select, or_
+from sqlalchemy.orm import selectinload
+
 def get_game_element_variants(ge_id):
-    db = get_db()
     user_id = g.user.id if g.user else None
     user_is_admin = user_has_role(user_id, "admin") if user_id else False
+
+    # 1. Scalar subquery for the count (most efficient for sorting)
+    like_count_stmt = (
+        select(func.count(GameElementVariantLike.id))
+        .where(GameElementVariantLike.variant_id == GameElementVariant.id)
+        .scalar_subquery()
+    )
+
+    # 2. Build the main query
+    stmt = (
+        select(
+            GameElementVariant,
+            User.username.label("author_name"),
+            like_count_stmt.label("likes_count") # We select the count directly
+        )
+        .join(User, GameElementVariant.author_id == User.id, isouter=True)
+        .where(GameElementVariant.game_element_id == ge_id)
+        .where(
+            or_(
+                GameElementVariant.status_name == 'public',
+                user_is_admin,
+                GameElementVariant.author_id == user_id
+            )
+        )
+        # Order by likes first, then newest
+        .order_by(like_count_stmt.desc(), GameElementVariant.created.desc())
+    )
+
+    # 4. Execute and get scalars (the objects)
+    rows = db_SQLAlchemy.session.execute(stmt).all()
     
-    game_element_variants = db.execute(
-        "SELECT game_element_variant.id as ge_variant_id, "
-        "       game_element_variant.game_element_id, "
-        "       game_element_variant.title, "
-        "       game_element_variant.author_id, "
-        "       game_element_variant.created, "
-        "       game_element_variant.status, "
-        "       user.username AS author_name"
-        "  FROM game_element_variant LEFT JOIN user ON game_element_variant.author_id = user.id"
-        " WHERE game_element_variant.game_element_id = ?"
-        "       AND (game_element_variant.status = 'public' OR ? OR game_element_variant.author_id = ?)",
-        (ge_id, user_is_admin, user_id),
-    ).fetchall()
+    # Unpack on the server side into a list of dictionaries
+    game_element_variants = []
+    for variant, author_name, likes_count in rows:
+        game_element_variants.append({
+            "obj": variant,             # Keep the object for likes/relationships
+            "id": variant.id,           # Explicit ID
+            "title": variant.title,
+            "author_name": author_name,
+            "likes_count": likes_count,
+            "likes": variant.likes,       # Pass the list of like objects for template logic
+            "status_name": variant.status_name
+        })
 
-    print('game_element_variants: ', game_element_variants)
+    return game_element_variants
 
-    return game_element_variants 
+def _get_game_element_variants(ge_id):
+    user_id = g.user.id if g.user else None
+    user_is_admin = user_has_role(user_id, "admin") if user_id else False
+
+    # 1. Build the Query
+    # We select the columns we need. SQLAlchemy will handle the JOIN.
+    stmt = (
+        select(
+            GameElementVariant,
+            User.username.label("author_name")
+        )
+        .join(User, GameElementVariant.author_id == User.id, isouter=True) # isouter=True makes it a LEFT JOIN
+        .where(GameElementVariant.game_element_id == ge_id)
+        .where(
+            or_(
+                GameElementVariant.status_name == 'public',
+                user_is_admin,               # If True, this part of OR is always met
+                GameElementVariant.author_id == user_id
+            )
+        )
+    )
+
+    # 2. Execute
+    # .mappings() allows you to access columns by name like a dictionary (e.g., row['title'])
+    result = db_SQLAlchemy.session.execute(stmt).mappings().all()
+
+    print('game_element_variants: ', result)
+
+    return result
 
 @bp.route("/create", methods=("GET", "POST"))
 @login_required
 def create():
     """Create a new variant for the current user."""
     if request.method == "POST":
-        title = request.form.get("variant_title")
-        title = sanitize_html(title)  # Sanitize the comment content to prevent XSS
+        # 1. Extract and Sanitize Data
+        title = sanitize_html(request.form.get("variant_title"))
         game_element_id = request.form.get("game_element_id")
         game_id = request.form.get("game_id")
-        target_type = request.args.get('type') or 'game_and_element'
         
-        print('game_id: ', game_id)
-        print('game-element-variant/create called ')
-        print('title: ', title)
-        print('game_element_id: ', game_element_id)
-        print('target_type: ', target_type)
-        
+        # 2. Validation
         error = None
-        print('1')
-
         if not title:
-            error = "title is required."
-        if not game_element_id:
-            error = "game_element_id is required."
-
-        print('2')
-        if target_type not in ['game_and_element', 'element']:
-            error = "Invalid target type."
+            error = "Title is required."
+        elif not game_element_id:
+            error = "Game element ID is required."
         elif not game_id:
-            error = "game_id is required."
-        print('3')   
-        if error is not None:
-            print('7')
-            print('Error: ', error)
+            error = "Game ID is required."
+        
+        if error:
             flash(error)
+            # You might want to return the template here instead of falling through
         else:
-            print('5')
-            print(g.user.id)
-            print((id))
-            print('6')
-            db = get_db()
-            db.execute(
-                "INSERT INTO game_element_variant (title, author_id, game_element_id, game_id, target_type, status) VALUES (?, ?, ?, ?, ?, ?)",
-                (title, g.user.id, game_element_id, game_id, target_type, 'pending_review'),
-            )
+            # 3. SQLAlchemy 2.0 Insert
+            try:
+                new_variant = GameElementVariant(
+                    title=title,
+                    author_id=g.user.id,
+                    game_element_id=game_element_id,
+                    game_id=game_id,
+                    target_type='game_and_element',
+                    status_name='pending_review'  # Using your new column
+                )
+                
+                db_SQLAlchemy.session.add(new_variant)
+                db_SQLAlchemy.session.commit()
+                
+                # 4. Handle Redirection logic
+                is_view = request.form.get("is_view", "").lower() == "true"
+                if is_view:
+                    return redirect(url_for("game_elements.view", ge_id=game_element_id, game_id=game_id))
+                
+                return redirect(url_for('game_elements.update', ge_id=game_element_id))
             
-            db.commit()
-            print('after create - committed to db')
-            
-            is_view = request.form.get("is_view")
-            print("is_view: ", is_view)
-            if is_view and is_view.strip() == "true":
-                print("is_view: ", is_view)
-                _url = url_for("game_elements.view", ge_id=game_element_id, game_id=game_id)
-            else:
-                _url = url_for('game_elements.update', ge_id=game_element_id)
-            
-            print('after create - redirecting to: ', _url)
-            return redirect( _url )
+            except Exception as e:
+                db_SQLAlchemy.session.rollback()
+                flash("An error occurred while saving the variant.")
+                print(f"Database error: {e}")
 
-    print('4')
-    return render_template("game_elements/update.html", ge_id=game_element_id)
+    # Fallback to the update page (ensure game_element_id is available)
+    ge_id = request.args.get('ge_id') or request.form.get('game_element_id')
+    return render_template("game_elements/update.html", ge_id=ge_id)
 
 @bp.route("/<int:id>/publish", methods=("GET", "POST"))
 @login_required
 @role_required("admin")
 def publish(id):
+    # If using POST for the action (standard for state changes)
     if request.method == "POST":
-        game_element_id = id
+        # In Flask, the 'id' from the URL is already passed as the function argument
+        game_element_variant_id = id
         
-        print('game-element-variant/publish called ')
-        print('game_element_id: ', game_element_id)
-        
-        error = None
-
-        if not game_element_id:
-            error = "game element ID is required."
-            
-        if error is not None:
-            flash(error)
+        if not game_element_variant_id:
+            flash("Game element ID is required.")
         else:
-            
-            print('Publishing game element variant with ID: ', id)
-            print(g.user.id)
-            
-            db = get_db()
-            db.execute(
-                "UPDATE game_element_variant SET status = ? WHERE id = ?",
-                ('public', id)
-            )
-            
-            db.commit()
+            try:
+                # SQLAlchemy 2.0 Update Statement
+                stmt = (
+                    update(GameElementVariant)
+                    .where(GameElementVariant.id == game_element_variant_id)
+                    .values(status_name='public')
+                )
+                
+                db_SQLAlchemy.session.execute(stmt)
+                db_SQLAlchemy.session.commit()
+                
+                flash(f"Variant #{id} has been published.")
+                
+            except Exception as e:
+                db_SQLAlchemy.session.rollback()
+                print(f"Error publishing variant: {e}")
+                flash("An error occurred during publication.")
 
-    _url = url_for('services.pending_reviews')
-    return redirect( _url )
+    # Redirect to the pending reviews list
+    return redirect(url_for('services.pending_reviews'))
+
+@bp.route("/<int:id>/return_for_revision", methods=("POST",))
+@login_required
+@role_required("admin")
+def return_for_revision(id):
+    """Admin returns a variant to the author for fixes."""
+    
+    # Get the feedback from the form (usually a textarea in your admin panel)
+    feedback = request.form.get("admin_feedback")
+    
+    if not feedback or not feedback.strip():
+        flash("Please provide feedback so the author knows what to fix.")
+        return redirect(url_for('services.pending_reviews'))
+
+    try:
+        # SQLAlchemy 2.0 Update Statement
+        stmt = (
+            update(GameElementVariant)
+            .where(GameElementVariant.id == id)
+            .values(
+                status_name='needs_revision',
+                admin_feedback=sanitize_html(feedback) # Keep your data clean
+            )
+        )
+        
+        result = db_SQLAlchemy.session.execute(stmt)
+        db_SQLAlchemy.session.commit()
+        
+        # Check if the row actually existed
+        if result.rowcount > 0:
+            flash(f"Variant #{id} has been returned to the author for revision.")
+        else:
+            flash("Variant not found.")
+            
+    except Exception as e:
+        db_SQLAlchemy.session.rollback()
+        print(f"Error returning variant: {e}")
+        flash("An error occurred while updating the variant status.")
+
+    return redirect(url_for('services.pending_reviews'))
+
+@bp.route("/<int:id>/resubmit", methods=("POST",))
+@login_required
+def resubmit(id):
+    """Author updates their variant and sends it back to the admin for review."""
+    
+    # 1. Get and Sanitize the updated title
+    title = sanitize_html(request.form.get("variant_title"))
+    game_element_id = request.form.get("game_element_id")
+    
+    if not title:
+        flash("Title is required to resubmit.")
+        return redirect(request.referrer or url_for('main.index'))
+
+    try:
+        # 2. Update the record
+        # Security: ensure current user IS the author and status IS 'needs_revision'
+        stmt = (
+            update(GameElementVariant)
+            .where(
+                and_(
+                    GameElementVariant.id == id,
+                    GameElementVariant.author_id == g.user.id,
+                    GameElementVariant.status_name == 'needs_revision'
+                )
+            )
+            .values(
+                title=title,             # Update the title with sanitized input
+                status_name='pending_review',
+                admin_feedback=None      # Clear feedback as the author has addressed it
+            )
+        )
+        
+        result = db_SQLAlchemy.session.execute(stmt)
+        db_SQLAlchemy.session.commit()
+        
+        if result.rowcount > 0:
+            flash("Variant updated and resubmitted for review!")
+        else:
+            flash("Action denied: You can only resubmit your own variants that require revision.")
+            
+    except Exception as e:
+        db_SQLAlchemy.session.rollback()
+        print(f"Error during resubmission: {e}")
+        flash("A database error occurred.")
+
+    # Redirect back to the element or update page
+    is_view = request.form.get("is_view", "").lower() == "true"
+    if is_view:
+        game_id = request.form.get("game_id")
+        return redirect(url_for("game_elements.view", ge_id=game_element_id, game_id=game_id))
+    return redirect(url_for('game_elements.update', ge_id=game_element_id))
     
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required
 def delete(id):
-    if request.method == "POST":
-        db = get_db()
-        db.execute("DELETE FROM game_element_variant WHERE id = ?", (id,))
-        db.commit()
+    """Delete a variant. Only the author or an admin can delete."""
+    
+    game_element_id = request.form.get("game_element_id")
+    user_id = g.user.id
+    user_is_admin = user_has_role(user_id, "admin") # Assuming you have this helper
+
+    try:
+        # SQLAlchemy 2.0 Delete Statement with Security Check
+        # A user can delete if: (ID matches) AND (they are the author OR they are an admin)
+        stmt = (
+            delete(GameElementVariant)
+            .where(
+                and_(
+                    GameElementVariant.id == id,
+                    or_(
+                        GameElementVariant.author_id == user_id,
+                        user_is_admin
+                    )
+                )
+            )
+        )
         
-        game_element_id = request.form.get("game_element_id")
-        print(id)
-        print(game_element_id)
-        return redirect(url_for('game_elements.update', ge_id=game_element_id))
+        result = db_SQLAlchemy.session.execute(stmt)
+        db_SQLAlchemy.session.commit()
+        
+        if result.rowcount > 0:
+            flash("Variant deleted successfully.")
+        else:
+            flash("Delete failed: Variant not found or you do not have permission.")
+            
+    except Exception as e:
+        db_SQLAlchemy.session.rollback()
+        print(f"Error deleting variant: {e}")
+        flash("An error occurred while trying to delete the variant.")
+
+    return redirect(url_for('game_elements.update', ge_id=game_element_id))
+
+@bp.route("/variant/<int:id>/toggle_like", methods=("POST",))
+@login_required
+def toggle_like(id):
+    user_id = g.user.id
+    
+    # 1. Check if the like already exists
+    stmt = select(GameElementVariantLike).where(
+        GameElementVariantLike.user_id == user_id,
+        GameElementVariantLike.variant_id == id
+    )
+    existing_like = db_SQLAlchemy.session.execute(stmt).scalar_one_or_none()
+
+    try:
+        if existing_like:
+            # 2. "Take back" the like
+            db_SQLAlchemy.session.delete(existing_like)
+            flash("Removed from your favorites.", "info")
+        else:
+            # 3. Add a new like
+            new_like = GameElementVariantLike(user_id=user_id, variant_id=id)
+            db_SQLAlchemy.session.add(new_like)
+            flash("You liked this variant!", "success")
+        
+        db_SQLAlchemy.session.commit()
+    except Exception as e:
+        db_SQLAlchemy.session.rollback()
+        flash("An error occurred.")
+
+    # Redirect back to the page the user was on
+    return redirect(request.form.get('next') or url_for('main.index'))

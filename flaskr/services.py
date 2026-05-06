@@ -105,7 +105,7 @@ def pending_reviews():
         "SELECT ge_variant.*, user.username AS author_name"
         "  FROM game_element_variant ge_variant"
         "  LEFT JOIN user ON ge_variant.author_id = user.id"
-        " WHERE ge_variant.status = 'pending_review'"
+        " WHERE ge_variant.status_name = 'pending_review'"
         " ORDER BY ge_variant.created DESC"
     ).fetchall()
 

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import render_variant_section %}
+{% from 'macros.html' import render_variant_list %}
+
+{% block header %}
+  {% if g.user['id'] %}
+  {{ g.user['username'] }}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% if g.user['id'] %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Боковое меню в стиле Stack Overflow -->
+        <div class="col-md-3 mb-4">
+            <div class="list-group list-group-flush border-end">
+                <a href="#summary" class="list-group-item list-group-item-action active" data-bs-toggle="list">Обзор</a>
+                <a href="#my-variants" class="list-group-item list-group-item-action" data-bs-toggle="list">Мои варианты</a>
+                <a href="#liked-variants" class="list-group-item list-group-item-action" data-bs-toggle="list">Понравилось</a>
+            </div>
+        </div>
+
+        <!-- Основной контент -->
+        <div class="col-md-9">
+            <div class="tab-content">
+                
+                <!-- Секция: Мои варианты -->
+                <div class="tab-pane fade show active" id="my-variants">
+                    <h3 class="mb-4 fw-bold">Управление контентом</h3>
+                    
+                    {# Передаем "needs_revision" в конце, чтобы активировать кнопку редактирования #}
+                    {{ render_variant_section("Требуют исправления", stats.needs_revision, "border-danger", "needs_revision") }}
+                    
+                    {{ render_variant_section("На проверке", stats.pending_review, "border-warning", "pending_review") }}
+                    {{ render_variant_section("Опубликовано", stats.public, "border-success", "public") }}
+                    {{ render_variant_section("Черновики / Приватные", stats.private, "border-secondary", "private") }}
+                </div>
+
+                <!-- Секция: Лайки -->
+                <div class="tab-pane fade" id="liked-variants">
+                    <h3 class="mb-4">Избранное</h3>
+                    {{ render_variant_list(stats.liked) }}
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

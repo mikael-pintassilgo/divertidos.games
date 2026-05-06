@@ -13,15 +13,27 @@ def create_app(test_config=None):
         'default-src': '\'self\'',
         'style-src': [
             '\'self\'',
-            'https://cdn.jsdelivr.net', # If using CDN
-            '\'unsafe-inline\''         # REQUIRED for many Bootstrap components
+            'https://cdn.jsdelivr.net',
+            '\'unsafe-inline\''
         ],
         'script-src': [
             '\'self\'',
-            'https://cdn.jsdelivr.net', # If using CDN
-            '\'unsafe-inline\''         # Allows inline <script> tags
+            'https://cdn.jsdelivr.net',
+            'https://www.googletagmanager.com',
+            'https://www.google-analytics.com',
+            '\'unsafe-inline\'' 
         ],
-        'img-src': ['\'self\'', 'data:'], # 'data:' allows Bootstrap's SVG icons
+        'img-src': [
+            '\'self\'', 
+            'data:', 
+            'https://www.googletagmanager.com', 
+            '*.google-analytics.com'  # Wildcard for images/pixels
+        ],
+        'connect-src': [
+            '\'self\'', 
+            '*.google-analytics.com',   # Wildcard fixes the "region1" issue
+            'https://stats.g.doubleclick.net'
+        ],
     }
 
     # Apply Talisman with the custom CSP
@@ -76,6 +88,7 @@ def create_app(test_config=None):
 
     # apply the blueprints to the app
     from . import auth
+    from . import profiles
     from . import home_page
     from . import blog
     from . import tags
@@ -92,6 +105,7 @@ def create_app(test_config=None):
     from . import composition_of_elements
         
     app.register_blueprint(auth.bp)
+    app.register_blueprint(profiles.bp)
     app.register_blueprint(home_page.bp)
     app.register_blueprint(blog.bp)
     app.register_blueprint(composition_of_elements.bp)
@@ -99,7 +113,6 @@ def create_app(test_config=None):
     app.register_blueprint(quests.bp)
     app.register_blueprint(task.bp)
     app.register_blueprint(games.bp)
-    
     app.register_blueprint(game_elements.bp)
     app.register_blueprint(game_element_tags.bp)
     app.register_blueprint(game_element_links.bp)
