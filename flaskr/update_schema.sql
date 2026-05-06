@@ -123,8 +123,6 @@ CREATE TABLE element_value (
 );
 -- END ?????
 
-*/
-
 -- Adding the column for admin feedback
 -- We allow NULL because new records or public ones won't have feedback yet
 ALTER TABLE game_element_variant 
@@ -139,3 +137,12 @@ INSERT OR IGNORE INTO variant_status(name, description) VALUES ('private', 'The 
 INSERT OR IGNORE INTO variant_status(name, description) VALUES ('pending_review', 'The variant is pending review');
 INSERT OR IGNORE INTO variant_status(name, description) VALUES ('public', 'The variant is public');
 INSERT OR IGNORE INTO variant_status(name, description) VALUES ('needs_revision', 'The variant is needs revision');
+
+
+*/
+
+ALTER TABLE game_element_variant 
+ADD COLUMN status_name TEXT REFERENCES variant_status(name);
+
+UPDATE game_element_variant SET status_name = status;
+

@@ -159,12 +159,24 @@ CREATE TABLE game_element_variant (
   target_type TEXT NOT NULL CHECK(target_type IN ('game', 'game_and_element')),
   title TEXT NOT NULL,
 
-  status TEXT NOT NULL DEFAULT 'private' CHECK(status IN ('private', 'pending_review', 'public')),
+  #status TEXT NOT NULL DEFAULT 'private' CHECK(status IN ('private', 'pending_review', 'public')),
+  admin_feedback TEXT,
 
+  status_name TEXT REFERENCES variant_status(name),
   game_id INTEGER REFERENCES game (id) ON DELETE CASCADE,
   game_element_id INTEGER REFERENCES game_and_element (id) ON DELETE CASCADE,
   author_id INTEGER NOT NULL REFERENCES user (id) ON DELETE SET NULL
 );
+
+CREATE TABLE IF NOT EXISTS variant_status (
+    name TEXT PRIMARY KEY,
+    description TEXT
+);
+
+INSERT OR IGNORE INTO variant_status(name, description) VALUES ('private', 'The variant is private');
+INSERT OR IGNORE INTO variant_status(name, description) VALUES ('pending_review', 'The variant is pending review');
+INSERT OR IGNORE INTO variant_status(name, description) VALUES ('needs_revision', 'The variant is needs revision');
+INSERT OR IGNORE INTO variant_status(name, description) VALUES ('public', 'The variant is public');
 -- End of Game elements --
 
 DROP TABLE IF EXISTS quest;
