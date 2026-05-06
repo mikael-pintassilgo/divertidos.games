@@ -71,6 +71,18 @@ CREATE TABLE composition_of_element (
   author_id INTEGER NOT NULL REFERENCES user (id)
 );
 
+CREATE TABLE element_value (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  title TEXT NOT NULL,
+
+  status TEXT NOT NULL DEFAULT 'private' CHECK(status IN ('private', 'pending_review', 'public')),
+
+  element_id INTEGER NOT NULL REFERENCES element (id) ON DELETE CASCADE,
+  author_id INTEGER NOT NULL REFERENCES user (id) ON DELETE SET NULL
+);
+
 -- Games
 CREATE TABLE game (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

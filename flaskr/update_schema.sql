@@ -107,4 +107,35 @@ ALTER TABLE user
 ADD COLUMN is_anonymous BOOLEAN NOT NULL DEFAULT 0;
 
 
+-- ?????
+DROP TABLE IF EXISTS element_value;
+
+CREATE TABLE element_value (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  title TEXT NOT NULL,
+
+  status TEXT NOT NULL DEFAULT 'private' CHECK(status IN ('private', 'pending_review', 'public')),
+
+  element_id INTEGER NOT NULL REFERENCES element (id) ON DELETE CASCADE,
+  author_id INTEGER NOT NULL REFERENCES user (id) ON DELETE SET NULL
+);
+-- END ?????
+
 */
+
+-- Adding the column for admin feedback
+-- We allow NULL because new records or public ones won't have feedback yet
+ALTER TABLE game_element_variant 
+ADD COLUMN admin_feedback TEXT;
+
+CREATE TABLE IF NOT EXISTS variant_status (
+    name TEXT PRIMARY KEY,
+    description TEXT
+);
+
+INSERT OR IGNORE INTO variant_status(name, description) VALUES ('private', 'The variant is private');
+INSERT OR IGNORE INTO variant_status(name, description) VALUES ('pending_review', 'The variant is pending review');
+INSERT OR IGNORE INTO variant_status(name, description) VALUES ('public', 'The variant is public');
+INSERT OR IGNORE INTO variant_status(name, description) VALUES ('needs_revision', 'The variant is needs revision');

@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import List, Optional
 from flask_login import UserMixin
-from sqlalchemy import Index, Table, Boolean, CheckConstraint, Column, String, Integer, ForeignKey, Text, DateTime, UniqueConstraint
+from sqlalchemy import Index, Table, Boolean, CheckConstraint, Column, String, Integer, ForeignKey, Text, DateTime, UniqueConstraint, text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from flask_sqlalchemy import SQLAlchemy
 from flaskr.extensions import db_SQLAlchemy
@@ -69,7 +69,8 @@ class User(UserMixin, db_SQLAlchemy.Model):
     # Deep Metadata (Elements)
     element_links: Mapped[List["ElementLink"]] = relationship("ElementLink", back_populates="author")
     element_tags: Mapped[List["ElementTag"]] = relationship("ElementTag", back_populates="author")
-    
+    element_values: Mapped[List["ElementValue"]] = relationship("ElementValue", back_populates="author")
+
     # Variants and Compositions
     game_element_variants: Mapped[List["GameElementVariant"]] = relationship("GameElementVariant", back_populates="author")
     game_element_links: Mapped[List["GameElementLink"]] = relationship("GameElementLink", back_populates="author")
@@ -126,6 +127,7 @@ class Element(db_SQLAlchemy.Model):
     
     links: Mapped[List["ElementLink"]] = relationship("ElementLink", back_populates="element")
     element_tags: Mapped[List["ElementTag"]] = relationship("ElementTag", back_populates="element")
+    element_values: Mapped[List["ElementValue"]] = relationship("ElementValue", back_populates="element")
 
 class ElementLink(db_SQLAlchemy.Model):
     __tablename__ = "element_link"
@@ -153,6 +155,24 @@ class ElementTag(db_SQLAlchemy.Model):
     element: Mapped["Element"] = relationship("Element", back_populates="element_tags")
     tag: Mapped["Tag"] = relationship("Tag", back_populates="element_tags")
     author: Mapped["User"] = relationship("User", back_populates="element_tags")
+
+class ElementValue(db_SQLAlchemy.Model):
+    __tablename__ = "element_value"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    title: Mapped[str] = mapped_column(Text, nullable=False)
+    
+    status: Mapped[str] = mapped_column(
+        Text, 
+        CheckConstraint("status IN ('private', 'pending_review', 'public')"), 
+        default='private'
+    )
+
+    element_id: Mapped[int] = mapped_column(ForeignKey("element.id", ondelete="CASCADE"))
+    author_id: Mapped[int] = mapped_column(ForeignKey("user.id", ondelete="SET NULL"))
+    
+    element: Mapped["Element"] = relationship("Element", back_populates="element_values")
+    author: Mapped["User"] = relationship("User", back_populates="element_values")
 
 class CompositionOfElement(db_SQLAlchemy.Model):
     __tablename__ = "composition_of_element"
@@ -295,13 +315,20 @@ class GameElementVariant(db_SQLAlchemy.Model):
         CheckConstraint("status IN ('private', 'pending_review', 'public')"), 
         default='private'
     )
-
+    admin_feedback: Mapped[str | None] = mapped_column(String(500))
+    
+    """status_name: Mapped[str] = mapped_column(
+        ForeignKey("variant_status.name"),
+        nullable=False,
+        server_default=text("'private'")
+    )"""
     game_id: Mapped[Optional[int]] = mapped_column(ForeignKey("game.id", ondelete="CASCADE"))
     game_element_id: Mapped[Optional[int]] = mapped_column(ForeignKey("game_and_element.id", ondelete="CASCADE"))
     author_id: Mapped[int] = mapped_column(ForeignKey("user.id", ondelete="SET NULL"))
     
     author: Mapped["User"] = relationship("User", back_populates="game_element_variants")
-    
+    #statuses: Mapped["VariantStatus"] = relationship(back_populates="statuses")
+
 # END GAME ELEMENTS
 
 # VOTES and FEEDBACK    
@@ -387,3 +414,20 @@ class Feedback(db_SQLAlchemy.Model):
     def __repr__(self) -> str:
         return f"<Feedback from User {self.author_id} for {self.service_name}>"
 # END VOTES and FEEDBACK
+
+# STATUSES
+"""
+class VariantStatus(db_SQLAlchemy.Model):
+    __tablename__ = "variant_status"
+
+    # Use a string as the primary key so that the main table stores human-readable values ('public', 'archived') instead of just IDs.
+    name: Mapped[str] = mapped_column(String(30), primary_key=True)
+    description: Mapped[str | None] = mapped_column(String(200))
+
+    # Reverse relationship (optional, for ease of search)
+    statuses: Mapped[List["GameElementVariant"]] = relationship(back_populates="statuses")
+
+    def __repr__(self) -> str:
+        return f"VariantStatus(name={self.name!r})"
+"""
+# END STATUSES
