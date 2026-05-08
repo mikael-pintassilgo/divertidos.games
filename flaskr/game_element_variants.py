@@ -66,7 +66,9 @@ def get_game_element_variants(ge_id):
             "author_name": author_name,
             "likes_count": likes_count,
             "likes": variant.likes,       # Pass the list of like objects for template logic
-            "status_name": variant.status_name
+            "status_name": variant.status_name,
+            "admin_feedback": variant.admin_feedback,
+            "created": variant.created
         })
 
     return game_element_variants

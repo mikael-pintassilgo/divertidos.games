@@ -24,7 +24,7 @@
                                 <a href="{{ url_for('game_elements.view', ge_id=item.game_element_id) }}" class="text-decoration-none text-dark">
                                     <h6 class="mb-1 fw-bold">{{ item.title | safe }}</h6>
                                 </a>
-                                <p class="mb-1 text-muted small">ID: #{{ item.id }} • Updated: {{ item.created.strftime('%d.%m.%Y') }}</p>
+                                <p class="mb-1 text-muted small">Updated: {{ item.created.strftime('%d.%m.%Y') }}</p>
                                 
                                 {# Admin Feedback if exists #}
                                 {% if item.status_name == 'needs_revision' and item.admin_feedback %}
@@ -92,7 +92,7 @@
                             </h6>
                             
                             <p class="text-muted small mb-3">
-                                by <span class="text-primary">{{ item.author_name if item.author_name else 'Anonymous' }}</span>
+                                by <span class="text-primary">{{ item.author.username if item.author.username else 'Anonymous' }}</span>
                             </p>
 
                             <div class="mt-auto d-flex justify-content-between align-items-center">

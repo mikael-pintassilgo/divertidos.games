@@ -1,8 +1,8 @@
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import joinedload, selectinload
 
 from flaskr.extensions import db_SQLAlchemy as db
-from flaskr.models import GameElementVariant, GameElementVariantLike, GameElementVariant, GameElementVariantLike
+from flaskr.models import GameElementVariant, GameElementVariantLike, GameElementVariant, GameElementVariantLike, User
 from flaskr.auth import login_required, role_required, user_has_role
 
 from flask import Blueprint
@@ -27,6 +27,16 @@ def get_user_profile_data(user_id):
         .join(GameElementVariantLike)
         .where(GameElementVariantLike.user_id == user_id)
         .options(selectinload(GameElementVariant.likes))
+        .order_by(GameElementVariant.created.desc())
+    )
+    stmt_liked = (
+        select(GameElementVariant)
+        .options(
+            joinedload(GameElementVariant.author), # Automatically joins User table
+            selectinload(GameElementVariant.likes)
+        )
+        .join(GameElementVariantLike)
+        .where(GameElementVariantLike.user_id == user_id)
         .order_by(GameElementVariant.created.desc())
     )
     liked_variants = db.session.execute(stmt_liked).scalars().all()
