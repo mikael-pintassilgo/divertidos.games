@@ -54,6 +54,9 @@ def create_app(test_config=None):
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SQLALCHEMY_ENGINE_OPTIONS = {"execution_options": {"sqlite_with_returning": False}}
     )
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        "execution_options": {"sqlite_with_returning": False}
+    }
 
     #print("Testing mode: ", test_config)
     if test_config is None:
