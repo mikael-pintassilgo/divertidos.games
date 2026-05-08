@@ -1,22 +1,11 @@
-{% macro render_like_button(variant, current_user_has_liked) %}
-<div class="like-container">
-    <form action="{{ url_for('game_element_variants.toggle_like', id=variant.id) }}" method="post">
-        <!-- We include the current URL so the server knows where to redirect us back to -->
-        <input type="hidden" name="next" id="next" value="{{ request.full_path }}">
-        
-        <button type="submit" class="btn {{ 'btn-danger' if current_user_has_liked else 'btn-outline-danger' }} btn-sm d-flex align-items-center gap-2">
-            {% if current_user_has_liked %}
-                <i class="bi bi-heart-fill"></i> Unlike
-            {% else %}
-                <i class="bi bi-heart"></i> Like
-            {% endif %}
-            
-            <span class="badge bg-white text-danger ms-1">
-                {{ variant.likes|length }}
-            </span>
-        </button>
-    </form>
-</div>
+{% macro render_status_name(status_name) %}
+    {% if status_name == 'pending_review' %}
+        <span class="badge bg-warning">pending review</span>
+    {% elif status_name == 'private' %}
+        <span class="badge bg-secondary">private</span>
+    {% elif status_name == 'needs_revision' %}
+        <span class="badge bg-danger">needs revision</span>
+    {% endif %}
 {% endmacro %}
 
 {% macro render_variant_section(title, items, border_class, status_type) %}
@@ -35,20 +24,20 @@
                                 <a href="{{ url_for('game_elements.view', ge_id=item.game_element_id) }}" class="text-decoration-none text-dark">
                                     <h6 class="mb-1 fw-bold">{{ item.title | safe }}</h6>
                                 </a>
-                                <p class="mb-1 text-muted small">ID: #{{ item.id }} • Обновлено: {{ item.created.strftime('%d.%m.%Y') }}</p>
+                                <p class="mb-1 text-muted small">ID: #{{ item.id }} • Updated: {{ item.created.strftime('%d.%m.%Y') }}</p>
                                 
-                                {# Вывод фидбека от админа, если он есть #}
+                                {# Admin Feedback if exists #}
                                 {% if item.status_name == 'needs_revision' and item.admin_feedback %}
                                     <div class="mt-2 p-2 bg-danger bg-opacity-10 border-start border-danger rounded">
                                         <small class="text-danger">
                                             <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                                            <strong>Замечание:</strong> {{ item.admin_feedback }}
+                                            <strong>Admin Feedback:</strong> {{ item.admin_feedback }}
                                         </small>
                                     </div>
                                 {% endif %}
                             </div>
 
-                            {# Блок кнопок управления #}
+                            {# Block of control buttons #}
                             <div class="d-flex align-items-center">
                                 <div class="me-3 text-end">
                                     <small class="d-block text-muted">
@@ -56,11 +45,11 @@
                                     </small>
                                 </div>
                                 
-                                {# Кнопка редактирования только для тех, кому нужны правки #}
+                                {# Edit button only for those who need revisions #}
                                 {% if status_type == 'needs_revision' %}
                                     <a href="{{ url_for('game_elements.view', ge_id=item.game_element_id) }}" 
                                        class="btn btn-outline-primary btn-sm d-flex align-items-center px-3">
-                                        <i class="bi bi-pencil-square me-1"></i> Исправить
+                                        <i class="bi bi-pencil-square me-1"></i> Correct
                                     </a>
                                 {% else %}
                                     <a href="{{ url_for('game_elements.view', ge_id=item.game_element_id) }}" 
@@ -75,7 +64,7 @@
             </div>
         {% else %}
             <div class="text-center py-4 border rounded bg-light bg-opacity-50">
-                <p class="text-muted small mb-0">В этой категории пока нет записей</p>
+                <p class="text-muted small mb-0">There are no entries in this category yet.</p>
             </div>
         {% endif %}
     </div>

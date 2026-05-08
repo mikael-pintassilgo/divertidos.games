@@ -111,6 +111,15 @@ def create():
         game_element_id = request.form.get("game_element_id")
         game_id = request.form.get("game_id")
         
+        action = request.form.get('action')
+        if action == 'submit_for_publication':
+            # Logic for public publication
+            status_name='pending_review'
+        else: #if action == 'save_private':
+            # Logic for private saving
+            status_name='private'
+
+    
         # 2. Validation
         error = None
         if not title:
@@ -132,7 +141,7 @@ def create():
                     game_element_id=game_element_id,
                     game_id=game_id,
                     target_type='game_and_element',
-                    status_name='pending_review'  # Using your new column
+                    status_name=status_name
                 )
                 
                 db_SQLAlchemy.session.add(new_variant)

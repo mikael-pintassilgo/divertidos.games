@@ -278,7 +278,7 @@ def view(ge_id):
     for key, value in request.args.items():
         print(f'{key}: {value}')
     
-    game_id = request.args.get("game_id")
+    game_id = game_element["game_id"]#request.args.get("game_id")
     game_data = get_game_data(game_id)
     
     print(f'2 game_id = {game_id}')

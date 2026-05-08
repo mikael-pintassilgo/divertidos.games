@@ -1,0 +1,11 @@
+Fail conditions
+Fail conditions are the rules or states that determine when a player loses, cannot continue a challenge, or fails to achieve a game objective. They create tension, stakes, and meaningful challenge within gameplay.
+<br>
+Examples:
+<br>Losing all health
+<br>Running out of time
+<br>Falling into a pit
+<br>Being caught by enemies
+<br>Destroying an important object
+<br>Making irreversible bad decisions
+<br>Failing to meet mission objectives

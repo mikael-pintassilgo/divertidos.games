@@ -4,7 +4,7 @@
 
 {% block header %}
   {% if g.user['id'] %}
-  {{ g.user['username'] }}
+  <h1>{{ g.user['username'] }}</h1>
   {% endif %}
 {% endblock %}
 
@@ -13,34 +13,31 @@
 {% if g.user['id'] %}
 <div class="container mt-5">
     <div class="row">
-        <!-- Боковое меню в стиле Stack Overflow -->
         <div class="col-md-3 mb-4">
             <div class="list-group list-group-flush border-end">
-                <a href="#summary" class="list-group-item list-group-item-action active" data-bs-toggle="list">Обзор</a>
-                <a href="#my-variants" class="list-group-item list-group-item-action" data-bs-toggle="list">Мои варианты</a>
-                <a href="#liked-variants" class="list-group-item list-group-item-action" data-bs-toggle="list">Понравилось</a>
+                <a href="#my-variants" class="list-group-item list-group-item-action active" data-bs-toggle="list" aria-selected="true">My Variants</a>
+                <a href="#liked-variants" class="list-group-item list-group-item-action" data-bs-toggle="list" aria-selected="false">Liked Variants</a>
             </div>
         </div>
 
-        <!-- Основной контент -->
+        <!-- Main Content -->
         <div class="col-md-9">
             <div class="tab-content">
                 
-                <!-- Секция: Мои варианты -->
+                <!-- Section: My Variatns -->
                 <div class="tab-pane fade show active" id="my-variants">
-                    <h3 class="mb-4 fw-bold">Управление контентом</h3>
+                    <h3 class="mb-4 fw-bold">My Variants</h3>
                     
-                    {# Передаем "needs_revision" в конце, чтобы активировать кнопку редактирования #}
-                    {{ render_variant_section("Требуют исправления", stats.needs_revision, "border-danger", "needs_revision") }}
+                    {{ render_variant_section("Needs Revision", stats.needs_revision, "border-danger", "needs_revision") }}
                     
-                    {{ render_variant_section("На проверке", stats.pending_review, "border-warning", "pending_review") }}
-                    {{ render_variant_section("Опубликовано", stats.public, "border-success", "public") }}
-                    {{ render_variant_section("Черновики / Приватные", stats.private, "border-secondary", "private") }}
+                    {{ render_variant_section("Pending Review", stats.pending_review, "border-warning", "pending_review") }}
+                    {{ render_variant_section("Published", stats.public, "border-success", "public") }}
+                    {{ render_variant_section("Private", stats.private, "border-secondary", "private") }}
                 </div>
 
-                <!-- Секция: Лайки -->
+                <!-- Section: Liked Variants -->
                 <div class="tab-pane fade" id="liked-variants">
-                    <h3 class="mb-4">Избранное</h3>
+                    <h3 class="mb-4">Liked Variants</h3>
                     {{ render_variant_list(stats.liked) }}
                 </div>
 

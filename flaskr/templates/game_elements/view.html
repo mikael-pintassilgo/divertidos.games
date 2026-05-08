@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% from 'macros.html' import input_field %}
+{% from 'macros.html' import render_status_name %}
 
 {% block breadcrumb %}
 <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
@@ -76,9 +77,7 @@
               <!-- img src="..." class="card-img-top" alt="..." -->
               <div class="card-body">
                 <p>{{ ge_variant['title'] | safe }}</p>
-                {% if ge_variant['status_name'] == 'pending_review' %}
-                  <span class="badge bg-info">pending review</span>
-                {% endif %}
+                {{ render_status_name(ge_variant['status_name']) }}
               </div>
               <ul class="list-group list-group-flush">
                 <li class="list-group-item">by {{ ge_variant['author_name'] }}</li>
@@ -154,7 +153,8 @@
                 <input class="form-control" type="" name="game_id" id="game_id" value="{{ game_id }}" hidden>
                 <input class="form-control" type="" name="is_view" id="is_view" value="true" hidden>
                 {% if g.user and g.user['id'] %}
-                <button id="btn-submit-variant" class="btn btn-primary mt-1" type="submit" value="Add Variant">Add Variant</button>
+                <button name="action" value="submit_for_publication" id="btn-submit-variant" class="btn btn-primary mt-1" type="submit" value="Add Variant">Submit for publication</button>
+                <button name="action" value="save_private" id="btn-submit-variant" class="btn btn-secondary mt-1" type="submit" value="Add Variant">Save as private</button>
                 {% else %}
                 <p class="mt-2">Please <a href="{{ url_for('auth.login', next=url_for('game_elements.view', ge_id=ge_id, game_id=game_id)) }}">log in</a>
                    or <a href="{{ url_for('auth.register', next=url_for('game_elements.view', ge_id=ge_id, game_id=game_id)) }}">register</a> to add a variant.</p>
