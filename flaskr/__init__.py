@@ -52,6 +52,7 @@ def create_app(test_config=None):
         DATABASE=os.path.join(app.instance_path, "flaskr.sqlite"),
         SQLALCHEMY_DATABASE_URI=f"sqlite:///{db_path}",
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        SQLALCHEMY_ENGINE_OPTIONS = {"execution_options": {"sqlite_with_returning": False}}
     )
 
     #print("Testing mode: ", test_config)
