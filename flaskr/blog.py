@@ -330,27 +330,24 @@ def create():
         if error:
             flash(error)
         else:
-            # 2. Build the Insert Statement
-            # .returning(Element.id) allows us to get the ID without extra queries
-            stmt = (
-                insert(Element)
-                .values(
-                    parent_id=parent_id,
-                    title=title,
-                    body=body,
-                    author_id=g.user.id,
-                    comment=comment,
-                    tags=tags
-                )
-                .returning(Element.id)
+            new_element = Element(
+                parent_id=parent_id,
+                title=title,
+                body=body,
+                author_id=g.user.id,
+                comment=comment,
+                tags=tags
             )
 
-            # 3. Execute and get the ID
-            result = db_SQLAlchemy.session.execute(stmt)
-            new_id = result.scalar() # scalar() grabs the ID from the returning clause
-            
+            # Add object to session
+            db_SQLAlchemy.session.add(new_element)
+
+            # Commit to DB
             db_SQLAlchemy.session.commit()
-            
+
+            # SQLite automatically populates the primary key
+            new_id = new_element.id
+
             return redirect(url_for("blog.view", id=new_id))
 
     return render_template("blog/create.html")
