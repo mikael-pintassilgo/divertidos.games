@@ -24,12 +24,12 @@
     
     <div class="dropdown mb-1">
       
-      {% if g.user['id'] == game['author_id'] %}
+      {% if current_user.id == game['author_id'] %}
       <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         actions
       </button>
       <ul class="dropdown-menu">
-        {% if "admin" in session.get("roles", []) %}
+        {% if current_user.is_authenticated and current_user.has_role("admin") %}
         <li><a class="dropdown-item" aria-current="page" href="{{ url_for('games.update_game', id=game['id']) }}">Edit</a></li>
         {% endif %}
         <li><a class="dropdown-item" href="{{ url_for('games.get_full_description', id=game['id']) }}">Get full description (text)</a></li>

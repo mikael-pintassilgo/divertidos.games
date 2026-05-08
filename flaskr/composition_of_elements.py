@@ -10,7 +10,8 @@ from flask import abort
 from werkzeug.exceptions import abort
 
 from flaskr.models import CompositionOfElement, Element
-from flaskr.auth import login_required, role_required
+from flaskr.auth import role_required
+from flask_login import login_required
 from flaskr.db import get_db
 from flaskr.extensions import db_SQLAlchemy
 
@@ -61,7 +62,7 @@ def create_element_of_composition():
 
             if element_author is None:
                 error = "Element not found."
-            elif element_author != g.user.id:
+            elif element_author != current_user.id:
                 error = "You are not authorized to modify this element."
 
         if error:
@@ -71,7 +72,7 @@ def create_element_of_composition():
             new_comp = insert(CompositionOfElement).values(
                 element_id=element_id,
                 subelement_id=subelement_id,
-                author_id=g.user.id
+                author_id=current_user.id
             )
             db_SQLAlchemy.session.execute(new_comp)
             db_SQLAlchemy.session.commit()
@@ -88,7 +89,7 @@ def delete_element_of_composition(id):
     stmt = (
         delete(CompositionOfElement)
         .where(CompositionOfElement.id == id)
-        .where(CompositionOfElement.author_id == g.user.id)
+        .where(CompositionOfElement.author_id == current_user.id)
     )
     
     db_SQLAlchemy.session.execute(stmt)

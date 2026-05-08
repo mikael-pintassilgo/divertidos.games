@@ -62,9 +62,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           <button class="btn btn-outline-info" type="submit">Search</button>
         </form>
         -->
-        {% if g.user %}
+        {% if current_user.is_authenticated %}
         <ul class="navbar-nav d-flex justify-content-end ms-2">
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('profiles.index') }}">{{ g.user['username'] }}</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('profiles.index') }}">{{ current_user.username }}</a></li>
           <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Log Out</a>
         </ul>
         {% else %}

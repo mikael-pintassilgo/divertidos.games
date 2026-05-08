@@ -36,14 +36,11 @@ def create_app(test_config=None):
         ],
     }
 
-    # Apply Talisman with the custom CSP
-    Talisman(app, content_security_policy=csp)
-    
     # SQLite configuration for SQLAlchemy
     db_path = os.path.join(app.instance_path, "flaskr.sqlite")
     
     login_manager.init_app(app)
-    login_manager.login_view = 'login' # Куда редиректить неавторизованных
+    login_manager.login_view = 'auth.login' # Куда редиректить неавторизованных
     
     app.config.from_mapping(
         # a default secret that should be overridden by instance config
@@ -71,7 +68,12 @@ def create_app(test_config=None):
     else:
         # load the test config if passed in
         app.config.update(test_config)
-        print(test_config)
+        print(f"Test config: {test_config}")
+    
+    # Apply Talisman with the custom CSP
+    is_testing = app.config.get('TESTING') or False
+    print(f"app.testing: {is_testing}, force_https: {not is_testing}")
+    Talisman(app, content_security_policy=csp, force_https=(not is_testing))
     
     # ensure the instance folder exists
     try:

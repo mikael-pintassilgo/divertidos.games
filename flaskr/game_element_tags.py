@@ -7,7 +7,9 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
-from .auth import login_required, role_required
+from .auth import role_required
+from flask_login import login_required
+
 from .db import get_db
 
 bp = Blueprint("game_element_tags", __name__, url_prefix="/game-element-tags")
@@ -50,13 +52,13 @@ def create():
             flash(error)
         else:
             
-            print(g.user.id)
+            print(current_user.id)
             print((id))
             
             db = get_db()
             db.execute(
                 "INSERT INTO game_element_tag (tag_id, author_id, game_element_id) VALUES (?, ?, ?)",
-                (tag_id, g.user.id, game_element_id),
+                (tag_id, current_user.id, game_element_id),
             )
             
             db.commit()

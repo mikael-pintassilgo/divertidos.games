@@ -2,7 +2,11 @@ import functools
 from urllib.parse import urljoin, urlparse
 from flask import Blueprint, abort, flash, g, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
+
 from flask_login import login_user, logout_user
+from flask_login import current_user
+from flask_login import login_required
+
 from sqlalchemy import select
 from flaskr.models import User, Role  # Import your SQLAlchemy models
 from flaskr.extensions import db_SQLAlchemy, login_manager
@@ -13,20 +17,10 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 @login_manager.user_loader
 def load_user(user_id):
-    return db_SQLAlchemy.session.get(User, int(user_id))
-
-def login_required(view):
-    """View decorator that redirects anonymous users to the login page."""
-
-    @functools.wraps(view)
-    def wrapped_view(**kwargs):
-        if g.user is None:
-            return redirect(url_for("auth.login"))
-
-        return view(**kwargs)
-
-    return wrapped_view
-
+    user = db_SQLAlchemy.session.get(User, int(user_id))
+    print(f"Loading user with ID: {user_id}, Found: {user.username if user else 'None'}")
+    print(f"User: {user}")
+    return user
 
 def user_has_role(user_id, role_name):
     user = db_SQLAlchemy.session.get(User, user_id)
@@ -39,24 +33,17 @@ def get_user_roles(user_id):
     return [role.name for role in user.roles] if user else []
 
 # --- Decorators ---
-
 def role_required(role_name):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            if not g.user or not user_has_role(g.user.id, role_name):
+            # current_user.is_authenticated checks if the user is logged in
+            if not current_user.is_authenticated or \
+               not any(role.name == role_name for role in current_user.roles):
                 abort(403)
             return func(*args, **kwargs)
         return wrapper
     return decorator
-
-@bp.before_app_request
-def load_logged_in_user():
-    user_id = session.get("user_id")
-    if user_id is None:
-        g.user = None
-    else:
-        g.user = db_SQLAlchemy.session.get(User, user_id)
 
 # --- Routes ---
 
@@ -97,18 +84,24 @@ def register():
 
 @bp.route("/login", methods=("GET", "POST"))
 def login():
+    print("Login route accessed")
     if request.method == "POST":
         username = request.form["username"].strip().lower()
         password = request.form["password"]
+        print(f"Attempting login for username: {username}")
         
         user = db_SQLAlchemy.session.execute(select(User).where(User.username == username)).scalar()
+        print(f"User found: {user.username if user else 'None'}")
         
         if user is None or not check_password_hash(user.password, password):
             flash("Incorrect username or password.")
         else:
-            session.clear()
-            login_user(user)
-            return redirect(after_login(user.id))
+            login_user(user) # Flask-Login takes over here
+            
+            next_page = request.args.get('next')
+            if not next_page or not is_safe_url(next_page):
+                next_page = url_for('index')
+            return redirect(next_page)
         
     return render_template("auth/login.html")
 
@@ -137,8 +130,8 @@ def assign_role():
 # --- Utility ---
 
 def after_login(user_id):
-    session["user_id"] = user_id
-    session["roles"] = get_user_roles(user_id)
+    #session["user_id"] = user_id
+    #session["roles"] = get_user_roles(user_id)
     
     next_page = request.form.get('next') or request.args.get('next')
     if not next_page or not is_safe_url(next_page):

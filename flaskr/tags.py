@@ -8,7 +8,7 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
-from .auth import login_required
+from flask_login import login_required
 from .db import get_db
 
 bp = Blueprint("tags", __name__, url_prefix="/tags")
@@ -58,7 +58,7 @@ def create():
             db = get_db()
             db.execute(
                 "INSERT INTO tag (title, comment, author_id) VALUES (?, ?, ?)",
-                (title, comment, g.user.id),
+                (title, comment, current_user.id),
             )
             db.commit()
             return redirect(url_for("tags.index"))

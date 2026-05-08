@@ -3,14 +3,14 @@
 {% from 'macros.html' import render_variant_list %}
 
 {% block header %}
-  {% if g.user['id'] %}
-  <h1>{{ g.user['username'] }}</h1>
+  {% if current_user.id %}
+  <h1>{{ current_user.username }}</h1>
   {% endif %}
 {% endblock %}
 
 {% block content %}
 
-{% if g.user['id'] %}
+{% if current_user.id %}
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-3 mb-4">

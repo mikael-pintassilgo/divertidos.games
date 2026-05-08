@@ -3,7 +3,7 @@
 {% block header %}
   <div uk-grid class="">
     <h1 class="">{% block title %}Contacts{% endblock %}</h1>
-    {% if g.user %}
+    {% if current_user.is_authenticated %}
     {% endif %}
   </div>
 {% endblock %}

@@ -33,7 +33,7 @@ class Role(db_SQLAlchemy.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
 
-class User(UserMixin, db_SQLAlchemy.Model):
+class User(db_SQLAlchemy.Model, UserMixin):
     __tablename__ = "user"
 
     # id is automatically handled as autoincrement by SQLAlchemy for Integer primary keys
@@ -44,9 +44,9 @@ class User(UserMixin, db_SQLAlchemy.Model):
     
     # Flask-Login usually manages these as properties, 
     # but since you defined them in SQL, we map them here:
-    is_authenticated: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    is_anonymous: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    #is_authenticated: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    #is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    #is_anonymous: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     # Relationship to Roles
     roles: Mapped[list["Role"]] = relationship("Role", secondary=user_role)
@@ -82,6 +82,9 @@ class User(UserMixin, db_SQLAlchemy.Model):
     def get_id(self):
         """Returns the user ID as a string, required by Flask-Login."""
         return str(self.id)
+    
+    def has_role(self, role_name):
+        return any(role.name == role_name for role in self.roles)
 # END USERS and ROLES
 
 # ELEMENTS

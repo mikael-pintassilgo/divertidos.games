@@ -14,7 +14,9 @@ from werkzeug.exceptions import abort
 from flaskr.composition_of_elements import get_composition_of_element
 from flaskr.html_services import sanitize_html
 
-from .auth import login_required, role_required
+from .auth import role_required
+from flask_login import login_required
+
 from .db import get_db
 
 bp = Blueprint("blog", __name__, url_prefix="/elements")
@@ -250,7 +252,7 @@ def create():
             db = get_db()
             coursor = db.execute(
                 "INSERT INTO element (parent_id, title, body, author_id, comment, tags) VALUES (?, ?, ?, ?, ?, ?)",
-                (parent_id, title, body, g.user.id, comment, tags),
+                (parent_id, title, body, current_user.id, comment, tags),
             )
             new_id = coursor.lastrowid
             db.commit()
@@ -274,13 +276,13 @@ def create_tag(id):
             flash(error)
         else:
             print('tag_id: ', tag_id)
-            print('g.user.id: ',g.user.id)
+            print('current_user.id: ',current_user.id)
             print('id: ', id)
             
             db = get_db()
             db.execute(
                 "INSERT INTO element_tag (tag_id, author_id, element_id) VALUES (?, ?, ?)",
-                (tag_id, g.user.id, id),
+                (tag_id, current_user.id, id),
             )
             
             db.commit()
@@ -305,13 +307,13 @@ def create_link(id):
             flash(error)
         else:
             print(title)
-            print(g.user.id)
+            print(current_user.id)
             print((id))
             
             db = get_db()
             db.execute(
                 "INSERT INTO element_link (title, comment, author_id, element_id) VALUES (?, ?, ?, ?)",
-                (title, comment, g.user.id, id),
+                (title, comment, current_user.id, id),
             )
             
             db.commit()

@@ -39,6 +39,7 @@ def init_db():
     with current_app.open_resource("schema.sql") as f:
         db.executescript(f.read().decode("utf8"))
         
+    """
     # Seed roles
     roles = ['admin', 'user', 'auditor']
     for role_name in roles:
@@ -51,6 +52,7 @@ def init_db():
             db.session.add(Role(name=role_name))
     
     db.session.commit()
+    """
 
 def update_db():
     """Update tables."""

@@ -12,7 +12,9 @@ from werkzeug.exceptions import abort
 
 from flaskr.models import Game, User, db_SQLAlchemy
 
-from .auth import login_required, user_has_role, role_required
+from .auth import user_has_role, role_required
+from flask_login import current_user, login_required
+
 from .db import get_db
 from .blog import get_element_by_title, clean_key
 
@@ -35,7 +37,7 @@ def _index():
     print('offset = ' + str(offset))
     print('limit = ' + str(limit))
     
-    user_id = g.user.id if g.user else None
+    user_id = current_user.id if current_user.is_authenticated else None
     user_is_admin = user_has_role(user_id, "admin") if user_id else False
     
     """Show all the games, most recent first."""
@@ -61,7 +63,7 @@ def index():
     page = request.args.get('page', 1, type=int)
     limit = 10
     
-    user_id = g.user.id if g.user else None
+    user_id = current_user.id if current_user.is_authenticated else None
     user_is_admin = user_has_role(user_id, "admin") if user_id else False
 
     # SQLAlchemy 2.0 Select Statement
@@ -270,7 +272,7 @@ def create():
             new_game = Game(
                 title=title,
                 body=body,
-                author_id=g.user.id,
+                author_id=current_user.id,
                 comment=comment
             )
             db_SQLAlchemy.session.add(new_game)
@@ -299,7 +301,7 @@ def _create():
             db = get_db()
             db.execute(
                 "INSERT INTO game (title, body, author_id, comment) VALUES (?, ?, ?, ?)",
-                (title, body, g.user.id, comment),
+                (title, body, current_user.id, comment),
             )
             db.commit()
             return redirect(url_for("games.index"))
@@ -324,7 +326,7 @@ def insert_elements(just_check_flag, not_existed_items, db, game_id, data, paren
         if not just_check_flag:
             cursor = db.execute(
                 "INSERT INTO game_and_element (type_of_id, element_id, parent_element_id, author_id, game_id, description) VALUES (?, ?, ?, ?, ?, ?)",
-                ("element", element_id, _parent_ge_id, g.user.id, game_id, str(value)),
+                ("element", element_id, _parent_ge_id, current_user.id, game_id, str(value)),
             )
             current_ge_id = cursor.lastrowid
             return current_ge_id
@@ -384,7 +386,7 @@ def import_game_data(just_check_flag, game_data_json):
     if not just_check_flag:
         cursor = db.execute(
             "INSERT INTO game (title, body, author_id, comment) VALUES (?, ?, ?, ?)",
-            (title, body, g.user.id, ""),
+            (title, body, current_user.id, ""),
         )
         game_id = cursor.lastrowid
     else:
@@ -580,7 +582,7 @@ def update_game(id):
     """Update a post if the current user is the author."""
     game_data = get_game(id)
     
-    user_id = g.user.id
+    user_id = current_user.id
     if game_data["game"]["author_id"] != user_id and not user_has_role(user_id, "admin"):
         abort(403)
     
@@ -640,7 +642,7 @@ def view(id):
     """View a game if the current user is the author."""
     print('Viewing game id = ', id)
     game_data = get_game(id)
-    user_id = g.user.id if g.user else None
+    user_id = current_user.id if current_user.is_authenticated else None
     if game_data["game"]["status"] != "public" and game_data["game"]["author_id"] != user_id and not user_has_role(user_id, "admin"):
         abort(403)
     
@@ -866,13 +868,13 @@ def create_link(id):
             flash(error)
         else:
             print(title)
-            print(g.user.id)
+            print(current_user.id)
             print((id))
             
             db = get_db()
             db.execute(
                 "INSERT INTO game_link (title, author_id, game_id, comment) VALUES (?, ?, ?, ?)",
-                (title, g.user.id, id, comment),
+                (title, current_user.id, id, comment),
             )
             
             db.commit()
@@ -918,7 +920,7 @@ def create_tag(id):
             flash(error)
         else:
             print(title)
-            print(g.user.id)
+            print(current_user.id)
             print((id))
             
             post=get_game(id)
@@ -926,7 +928,7 @@ def create_tag(id):
             db = get_db()
             db.execute(
                 "INSERT INTO game_tag (title, author_id, game_id) VALUES (?, ?, ?)",
-                (title, g.user.id, id),
+                (title, current_user.id, id),
             )
             
             if (post['game']['tags'].find(title) == -1):
@@ -1001,19 +1003,19 @@ def create_game_element(id):
         else:
             print(type_of_id)
             print(element_id)
-            print(g.user.id)
+            print(current_user.id)
             print((id))
             
             db = get_db()
             if (type_of_id == 'element'):
                 db.execute(
                     "INSERT INTO game_and_element (type_of_id, element_id, parent_element_id, author_id, game_id, description, link, weight, previous_game_element_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    (type_of_id, element_id, parent_element_id, g.user.id, id, description, link, weight, previous_game_element_id),
+                    (type_of_id, element_id, parent_element_id, current_user.id, id, description, link, weight, previous_game_element_id),
                 )
             else:
                 db.execute(
                     "INSERT INTO game_and_element (type_of_id, game_element_id, parent_element_id, author_id, game_id, description, link, weight, previous_game_element_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    (type_of_id, element_id, parent_element_id, g.user.id, id, description, link, weight, previous_game_element_id),
+                    (type_of_id, element_id, parent_element_id, current_user.id, id, description, link, weight, previous_game_element_id),
                 )
             
             db.commit()
@@ -1065,7 +1067,7 @@ def update_game_element(game_id, ge_id):
     db = get_db()
     game_element = db.execute(
         "SELECT * FROM game_and_element WHERE id = ? AND author_id = ?",
-        (ge_id, g.user.id),
+        (ge_id, current_user.id),
     ).fetchone()
 
     if game_element is None:
@@ -1106,7 +1108,7 @@ def update_game_element(game_id, ge_id):
         else:
             print(type_of_id)
             print(element_id)
-            print(g.user.id)
+            print(current_user.id)
             print((game_id))
             
             db = get_db()
@@ -1116,13 +1118,13 @@ def update_game_element(game_id, ge_id):
                     "parent_element_id = ?, author_id = ?, game_id = ?, description = ?, previous_game_element_id = ?, " \
                     "weight = ?, link = ? " \
                     "WHERE id = ?",
-                    (type_of_id, element_id, parent_element_id, g.user.id, game_id, description, previous_game_element_id, weight, link, ge_id),
+                    (type_of_id, element_id, parent_element_id, current_user.id, game_id, description, previous_game_element_id, weight, link, ge_id),
                 )
             else:
                 db.execute(
                     "UPDATE game_and_element SET type_of_id = ?, game_element_id = ?, parent_element_id = ?, author_id = ?, " \
                     "game_id = ?, description = ?, previous_game_element_id = ?, weight = ?, link = ? WHERE id = ?",
-                    (type_of_id, element_id, parent_element_id, g.user.id, game_id, description, previous_game_element_id, weight, link, ge_id),
+                    (type_of_id, element_id, parent_element_id, current_user.id, game_id, description, previous_game_element_id, weight, link, ge_id),
                 )
 
             db.commit()

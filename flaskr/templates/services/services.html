@@ -3,7 +3,7 @@
 {% block header %}
   <div uk-grid class="">
     <h1 class="">{% block title %}Services{% endblock %}</h1>
-    {% if g.user %}
+    {% if current_user.is_authenticated %}
     {% endif %}
   </div>
 {% endblock %}
@@ -17,7 +17,7 @@
 <p>Here you can find various services to help you work with game elements.</p>
 <a href="{{ url_for('services.get_prompt_to_compare_games') }}">Get a prompt to compare games</a><br>
 <a href="{{ url_for('services.google_play_store_review_analysis') }}">Google Play Store review analysis</a><br>
-{% if g.user %}
+{% if current_user.is_authenticated %}
 {% if "admin" in session.get("roles", []) %}
 <p class="mt-5">Only for admins:</p>
 <a href="{{ url_for('services.feedback') }}">Feedback</a><br>

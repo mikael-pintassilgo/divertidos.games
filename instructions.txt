@@ -1,3 +1,5 @@
+python -m pytest
+
 git remote add origin https://github.com/mikael-pintassilgo/divertidos.games.git
 git pull https://github.com/mikael-pintassilgo/divertidos.games.git
 git reset --hard HEAD

@@ -16,7 +16,7 @@
   <!--
   <h1 class="breadcrumb-item active">{% block title %}Game Element Details{% endblock %}</h1>
   -->
-  {% if g.user['id'] == game_element['author_id'] %}
+  {% if current_user.id == game_element['author_id'] %}
   <a href="{{ url_for('game_elements.update', ge_id=game_element['id']) + "?game_id=" + game_id|string }}">edit</a>
   {% endif %}
 {% endblock %}
@@ -87,9 +87,9 @@
                 <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
                   {# Check if current user is in the list of likes #}
                   {# Note: This assumes ge_variant is a model object or has the likes relationship mapped #}
-                  {% set liked = g.user.id in ge_variant.likes|map(attribute='user_id') %}
+                  {% set liked = current_user.id in ge_variant.likes|map(attribute='user_id') %}
                   
-                  {% if g.user['id'] %}
+                  {% if current_user.id %}
                   <form action="{{ url_for('game_element_variants.toggle_like', id=ge_variant['id']) }}" method="post">
                   {% else %}
                   <form action="{{ url_for('auth.login', next=url_for('game_elements.view', ge_id=ge_id, game_id=game_id)) }}" method="get">
@@ -137,7 +137,7 @@
                         <input class="form-control" type="" name="game_element_id" id="game_element_id" value="{{ ge_id }}" hidden>
                         <input class="form-control" type="" name="game_id" id="game_id" value="{{ game_id }}" hidden>
                         <input class="form-control" type="" name="is_view" id="is_view" value="true" hidden>
-                        {% if g.user and g.user['id'] %}
+                        {% if current_user.is_authenticated %}
                         <button id="btn-submit-variant" class="btn btn-primary mt-1" type="submit" value="Resubmit Variant">Resubmit Variant</button>
                         {% else %}
                         <p class="mt-2">Please <a href="{{ url_for('auth.login', next=url_for('game_elements.view', ge_id=ge_id, game_id=game_id)) }}">log in</a>
@@ -169,7 +169,7 @@
                 <input class="form-control" type="" name="game_element_id" id="game_element_id" value="{{ ge_id }}" hidden>
                 <input class="form-control" type="" name="game_id" id="game_id" value="{{ game_id }}" hidden>
                 <input class="form-control" type="" name="is_view" id="is_view" value="true" hidden>
-                {% if g.user and g.user['id'] %}
+                {% if current_user.is_authenticated %}
                 <button name="action" value="submit_for_publication" id="btn-submit-variant" class="btn btn-primary mt-1" type="submit" value="Add Variant">Submit for publication</button>
                 <button name="action" value="save_private" id="btn-submit-variant" class="btn btn-secondary mt-1" type="submit" value="Add Variant">Save as private</button>
                 {% else %}

@@ -7,7 +7,7 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
-from .auth import login_required
+from flask_login import login_required
 from .db import get_db
 
 bp = Blueprint("task", __name__, url_prefix="/task")

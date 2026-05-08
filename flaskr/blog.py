@@ -16,7 +16,8 @@ from collections import defaultdict
 from flaskr.composition_of_elements import get_composition_of_element
 from flaskr.html_services import sanitize_html
 from flaskr.models import CompositionOfElement, Element, ElementLink, ElementTag, Game, GameAndElement, Tag, User
-from flaskr.auth import login_required, role_required
+from flaskr.auth import role_required
+from flask_login import login_required
 from flaskr.db import get_db
 from flaskr.extensions import db_SQLAlchemy
 
@@ -217,7 +218,7 @@ def get_post(session, id, check_author=True):
     if element is None:
         abort(404, f"Element id {id} doesn't exist.")
 
-    if check_author and element.author_id != g.user.id:
+    if check_author and element.author_id != current_user.id:
         abort(403)
 
     # 3. Composition / Part Of Query
@@ -334,7 +335,7 @@ def create():
                 parent_id=parent_id,
                 title=title,
                 body=body,
-                author_id=g.user.id,
+                author_id=current_user.id,
                 comment=comment,
                 tags=tags
             )
@@ -368,13 +369,13 @@ def create_tag(id):
             flash(error)
         else:
             print('tag_id: ', tag_id)
-            print('g.user.id: ',g.user.id)
+            print('current_user.id: ',current_user.id)
             print('id: ', id)
             
             db = get_db()
             db.execute(
                 "INSERT INTO element_tag (tag_id, author_id, element_id) VALUES (?, ?, ?)",
-                (tag_id, g.user.id, id),
+                (tag_id, current_user.id, id),
             )
             
             db.commit()
@@ -399,13 +400,13 @@ def create_link(id):
             flash(error)
         else:
             print(title)
-            print(g.user.id)
+            print(current_user.id)
             print((id))
             
             db = get_db()
             db.execute(
                 "INSERT INTO element_link (title, comment, author_id, element_id) VALUES (?, ?, ?, ?)",
-                (title, comment, g.user.id, id),
+                (title, comment, current_user.id, id),
             )
             
             db.commit()
@@ -494,7 +495,7 @@ def delete_element(id):
     author of the post (handled by get_post).
     """
     # 1. Validation: get_post will abort(404) if missing 
-    # and abort(403) if g.user.id != element.author_id
+    # and abort(403) if current_user.id != element.author_id
     get_post(db_SQLAlchemy.session, id, check_author=True)
     
     # 2. Execution: Using the SQLAlchemy 2.0 delete construct
@@ -523,14 +524,14 @@ def delete_element_tag(id):
 
     if tag_to_delete is None:
         flash("Tag linkage not found.")
-    elif tag_to_delete.author_id != g.user.id:
+    elif tag_to_delete.author_id != current_user.id:
         flash("You are not authorized to delete this tag.")
     else:
         # 2. Execute the Delete
         stmt = (
             delete(ElementTag)
             .where(ElementTag.id == id)
-            # You can also add .where(ElementTag.author_id == g.user.id) 
+            # You can also add .where(ElementTag.author_id == current_user.id) 
             # here as a double safety measure
         )
         db_SQLAlchemy.session.execute(stmt)

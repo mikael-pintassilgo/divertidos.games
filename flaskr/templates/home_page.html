@@ -6,7 +6,7 @@
     
     <h1 class="">
       {% block title %}
-        Hello{% if g.user %}, {{ g.user['username'] }}{% else %}, Game Designer{% endif %}!
+        Hello{% if current_user.is_authenticated %}, {{ current_user.username }}{% else %}, Game Designer{% endif %}!
       {% endblock %}
     </h1>
   </div>

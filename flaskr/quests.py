@@ -7,7 +7,7 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
-from .auth import login_required
+from flask_login import login_required
 from .db import get_db
 
 bp = Blueprint("quests", __name__, url_prefix="/quests")
@@ -71,7 +71,7 @@ def create():
             db.execute(
                 "INSERT INTO quest (author_id, city, title, description, price, start_point, static_link, image_static_link, first_task_id) "
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                (g.user.id, city, title, description, price, start_point, static_link, image_static_link, first_task_id),
+                (current_user.id, city, title, description, price, start_point, static_link, image_static_link, first_task_id),
             )
             db.commit()
             return redirect(url_for("quests.index"))

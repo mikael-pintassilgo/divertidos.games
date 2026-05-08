@@ -3,7 +3,7 @@
 {% block header %}
   <div uk-grid class="uk-margin-bottom">
     <h1 class="uk-width-auto __uk-heading-divider">{% block title %}Quests{% endblock %}</h1>
-    {% if g.user %}
+    {% if current_user.is_authenticated %}
     <a class="uk-margin-left uk-button uk-button-default" href="{{ url_for('quests.create') }}">add quest</a>
     {% endif %}
   </div>

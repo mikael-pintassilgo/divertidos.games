@@ -7,7 +7,9 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
-from .auth import login_required, role_required, user_has_role
+from .auth import role_required, user_has_role
+from flask_login import login_required
+
 from .db import get_db
 from flaskr.html_services import sanitize_html
 
@@ -15,7 +17,7 @@ bp = Blueprint("game_element_variants", __name__, url_prefix="/game-element-vari
 
 def get_game_element_variants(ge_id):
     db = get_db()
-    user_id = g.user.id if g.user else None
+    user_id = current_user.id if g.user else None
     user_is_admin = user_has_role(user_id, "admin") if user_id else False
     
     game_element_variants = db.execute(
@@ -73,13 +75,13 @@ def create():
             flash(error)
         else:
             print('5')
-            print(g.user.id)
+            print(current_user.id)
             print((id))
             print('6')
             db = get_db()
             db.execute(
                 "INSERT INTO game_element_variant (title, author_id, game_element_id, game_id, target_type, status) VALUES (?, ?, ?, ?, ?, ?)",
-                (title, g.user.id, game_element_id, game_id, target_type, 'pending_review'),
+                (title, current_user.id, game_element_id, game_id, target_type, 'pending_review'),
             )
             
             db.commit()
@@ -119,7 +121,7 @@ def publish(id):
         else:
             
             print('Publishing game element variant with ID: ', id)
-            print(g.user.id)
+            print(current_user.id)
             
             db = get_db()
             db.execute(

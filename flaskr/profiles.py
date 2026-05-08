@@ -3,7 +3,7 @@ from sqlalchemy.orm import joinedload, selectinload
 
 from flaskr.extensions import db_SQLAlchemy as db
 from flaskr.models import GameElementVariant, GameElementVariantLike, GameElementVariant, GameElementVariantLike, User
-from flaskr.auth import login_required, role_required, user_has_role
+from flask_login import login_required, current_user
 
 from flask import Blueprint
 from flask import g
@@ -55,4 +55,4 @@ def get_user_profile_data(user_id):
 @login_required
 def index():
     print("Rendering profile page")
-    return render_template("profiles/profile.html", stats=get_user_profile_data(g.user.id))
+    return render_template("profiles/profile.html", stats=get_user_profile_data(current_user.id))

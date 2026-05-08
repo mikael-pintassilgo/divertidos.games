@@ -7,7 +7,9 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
-from flaskr.auth import login_required, role_required, user_has_role
+from flaskr.auth import role_required, user_has_role
+from flask_login import current_user, login_required
+
 from flaskr.db import get_db
 from flaskr.html_services import sanitize_html
 from flaskr.extensions import db_SQLAlchemy
@@ -23,7 +25,7 @@ from sqlalchemy import select, or_
 from sqlalchemy.orm import selectinload
 
 def get_game_element_variants(ge_id):
-    user_id = g.user.id if g.user else None
+    user_id = current_user.id if current_user.is_authenticated else None
     user_is_admin = user_has_role(user_id, "admin") if user_id else False
 
     # 1. Scalar subquery for the count (most efficient for sorting)
@@ -74,7 +76,7 @@ def get_game_element_variants(ge_id):
     return game_element_variants
 
 def _get_game_element_variants(ge_id):
-    user_id = g.user.id if g.user else None
+    user_id = current_user.id if current_user.is_authenticated else None
     user_is_admin = user_has_role(user_id, "admin") if user_id else False
 
     # 1. Build the Query
@@ -139,7 +141,7 @@ def create():
             try:
                 new_variant = GameElementVariant(
                     title=title,
-                    author_id=g.user.id,
+                    author_id=current_user.id,
                     game_element_id=game_element_id,
                     game_id=game_id,
                     target_type='game_and_element',
@@ -259,7 +261,7 @@ def resubmit(id):
             .where(
                 and_(
                     GameElementVariant.id == id,
-                    GameElementVariant.author_id == g.user.id,
+                    GameElementVariant.author_id == current_user.id,
                     GameElementVariant.status_name == 'needs_revision'
                 )
             )
@@ -296,7 +298,7 @@ def delete(id):
     """Delete a variant. Only the author or an admin can delete."""
     
     game_element_id = request.form.get("game_element_id")
-    user_id = g.user.id
+    user_id = current_user.id
     user_is_admin = user_has_role(user_id, "admin") # Assuming you have this helper
 
     try:
@@ -333,7 +335,7 @@ def delete(id):
 @bp.route("/variant/<int:id>/toggle_like", methods=("POST",))
 @login_required
 def toggle_like(id):
-    user_id = g.user.id
+    user_id = current_user.id
     
     # 1. Check if the like already exists
     stmt = select(GameElementVariantLike).where(

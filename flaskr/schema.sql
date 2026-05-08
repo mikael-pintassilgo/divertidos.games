@@ -37,6 +37,8 @@ CREATE TABLE element (
   body TEXT NOT NULL,
   comment TEXT,
   tags TEXT,
+  parent_id INTEGER,
+
   FOREIGN KEY (parent_id) REFERENCES element (id) ON DELETE SET NULL,
   FOREIGN KEY (author_id) REFERENCES user (id)
 );
@@ -159,7 +161,7 @@ CREATE TABLE game_element_variant (
   target_type TEXT NOT NULL CHECK(target_type IN ('game', 'game_and_element')),
   title TEXT NOT NULL,
 
-  #status TEXT NOT NULL DEFAULT 'private' CHECK(status IN ('private', 'pending_review', 'public')),
+  --status TEXT NOT NULL DEFAULT 'private' CHECK(status IN ('private', 'pending_review', 'public')),
   admin_feedback TEXT,
 
   status_name TEXT REFERENCES variant_status(name),

@@ -7,7 +7,9 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
-from .auth import login_required, role_required
+from .auth import role_required
+from flask_login import login_required
+
 from .db import get_db
 
 bp = Blueprint("composition_of_element", __name__, url_prefix="/composition-of-elements")
@@ -55,20 +57,20 @@ def create():
 
         if element is None:
             error = "Element not found."
-        elif element["author_id"] != g.user.id:
+        elif element["author_id"] != current_user.id:
             error = "You are not authorized to modify this element."
 
         if error is not None:
             flash(error)
         else:
             
-            print(g.user.id)
+            print(current_user.id)
             print((id))
             
             db = get_db()
             db.execute(
                 "INSERT INTO composition_of_element (element_id, subelement_id, author_id) VALUES (?, ?, ?)",
-                (element_id, subelement_id, g.user.id),
+                (element_id, subelement_id, current_user.id),
             )
             
             db.commit()
@@ -84,7 +86,7 @@ def delete(id):
         db = get_db()
         db.execute(
             "DELETE FROM composition_of_element WHERE id = ? AND author_id = ?",
-            (id, g.user.id),
+            (id, current_user.id),
         )
         db.commit()
         

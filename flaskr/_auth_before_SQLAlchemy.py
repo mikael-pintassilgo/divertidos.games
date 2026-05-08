@@ -13,7 +13,9 @@ from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 
 from flask import request, redirect, url_for, render_template
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user
+from flask_login import login_required
+
 from flaskr.user import User
 from .db import get_db
 

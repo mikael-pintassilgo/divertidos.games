@@ -3,7 +3,7 @@
 {% block header %}
   <div uk-grid class="">
     <h1 class="">{% block title %}Load Elements{% endblock %}</h1>
-    {% if g.user %}
+    {% if current_user.is_authenticated %}
     <div class="mb-3">
       <label for="game_title" class="form-label">1. Enter the game title that you want to load elements for</label>
       <input type="text" class="form-control" name="game_title" id="game_title" placeholder="Enter game title">

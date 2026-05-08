@@ -3,7 +3,7 @@
 {% block header %}
   <div class="">
     <h1 class="">{% block title %}Load Elements{% endblock %}</h1>
-    {% if g.user %}
+    {% if current_user.is_authenticated %}
     </script>
     <form action="{{ url_for('services.load_elements') }}" method="post">
       <div class="mb-3">

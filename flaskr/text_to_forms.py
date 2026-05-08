@@ -9,7 +9,7 @@ from werkzeug.exceptions import abort
 
 from transformers import pipeline
 
-from .auth import login_required
+from flask_login import login_required
 from .db import get_db
 
 bp = Blueprint("parse", __name__, url_prefix="/parse")
