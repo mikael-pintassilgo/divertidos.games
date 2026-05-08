@@ -4,6 +4,8 @@ from flask import Flask, app
 from flask_talisman import Talisman
 from flaskr.extensions import db_SQLAlchemy, login_manager
 
+from sqlalchemy import event
+
 def create_app(test_config=None):
     """Create and configure an instance of the Flask application."""
     app = Flask(__name__, instance_relative_config=True)
@@ -86,6 +88,11 @@ def create_app(test_config=None):
     
     # Initialize SQLAlchemy
     db_SQLAlchemy.init_app(app)
+    
+    with app.app_context():
+        @event.listens_for(db_SQLAlchemy.engine, "connect")
+        def set_sqlite_pragma(dbapi_connection, connection_record):
+            db_SQLAlchemy.engine.dialect.insert_returning = False
     
     with app.app_context():
         db_SQLAlchemy.create_all() # Creates tables if they don't exist
