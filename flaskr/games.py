@@ -10,13 +10,17 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
-from flaskr.models import Game, User, db_SQLAlchemy
+from flaskr.models import Game, User
+from flaskr.models import Element, GameAndElement
+from flaskr.extensions import db_SQLAlchemy
+
+from sqlalchemy import select
 
 from .auth import user_has_role, role_required
 from flask_login import current_user, login_required
 
-from .db import get_db
-from .blog import get_element_by_title, clean_key
+from flaskr.db import get_db
+from flaskr.blog import get_element_by_title, clean_key
 
 from flaskr.html_services import sanitize_html
 
@@ -312,7 +316,7 @@ def _create():
 # IMPORT
 #--------------------------------------#
 # Recursively insert game elements
-def insert_elements(just_check_flag, not_existed_items, db, game_id, data, parent_ge_id=None):
+def _insert_elements(just_check_flag, not_existed_items, db, game_id, data, parent_ge_id=None):
         
     def insert_simple_value(key, value, _parent_ge_id=parent_ge_id):
         # Try to find element by title
@@ -342,6 +346,7 @@ def insert_elements(just_check_flag, not_existed_items, db, game_id, data, paren
         
     simple_values_as_one_string = ''
     only_simiple_values = True
+    
     for _key, value in data.items():
         key = _key.replace('_', ' ').strip()
         if key in ["title", "gameDescription", "description", "game"]:
@@ -371,7 +376,7 @@ def insert_elements(just_check_flag, not_existed_items, db, game_id, data, paren
     else:
         return ''
 
-def import_game_data(just_check_flag, game_data_json):
+def _import_game_data(just_check_flag, game_data_json):
     """Import a new game for the current user."""
     db = get_db()
     
@@ -396,6 +401,116 @@ def import_game_data(just_check_flag, game_data_json):
     insert_elements(just_check_flag, not_existed_items, db, game_id, game_info)
     db.commit()
     return game_id, not_existed_items
+
+def insert_elements(just_check_flag, not_existed_items, session, game_id, data, parent_ge_id=None):
+    
+    def get_element_by_title(title):
+        return session.execute(
+            select(Element).where(Element.title == title)
+        ).scalar_one_or_none()
+    
+    def insert_simple_value(key, value, _parent_ge_id=parent_ge_id):
+        # 1. Try to find the element definition
+        element = get_element_by_title(key)
+        
+        if element is None:
+            not_existed_items.append(clean_key(key))
+            return None
+        
+        if not just_check_flag:
+            # 2. Create the junction table entry (GameAndElement)
+            new_ge = GameAndElement(
+                type_of_id="element",
+                element_id=element.id,
+                parent_element_id=_parent_ge_id,
+                author_id=current_user.id,
+                game_id=game_id,
+                description=str(value)
+            )
+            session.add(new_ge)
+            session.flush()  # Populates new_ge.id for children to use
+            return new_ge.id
+        else:
+            return -1
+
+    def insert_list(parent_key, value, current_parent_ge_id):
+        for item in value:
+            if isinstance(item, dict):
+                insert_elements(just_check_flag, not_existed_items, session, 
+                                game_id, item, current_parent_ge_id)
+            else:
+                insert_simple_value(parent_key, item, current_parent_ge_id)
+
+    simple_values_as_one_string = ''
+    only_simple_values = True
+    
+    for _key, value in data.items():
+        key = _key.replace('_', ' ').strip()
+        if key in ["title", "gameDescription", "description", "game"]:
+            continue
+        
+        if isinstance(value, list):
+            # Create a parent entry for the list
+            current_ge_id = insert_simple_value(key, '') 
+            if current_ge_id is not None:
+                insert_list(key, value, current_ge_id)
+            only_simple_values = False
+            
+        elif isinstance(value, dict):
+            only_simple_values = False
+            insert_elements(just_check_flag, not_existed_items, session, 
+                            game_id, value, parent_ge_id)
+            
+        else:
+            # Handle the string accumulation logic
+            clean_k = clean_key(key).strip()
+            val_str = str(value).strip()
+            entry = f"{clean_k}: {val_str}"
+            
+            if simple_values_as_one_string:
+                simple_values_as_one_string += f" ✦ {entry}"
+            else:
+                simple_values_as_one_string = entry
+                
+            insert_simple_value(key, value, parent_ge_id)
+
+    return simple_values_as_one_string if only_simple_values else ''
+
+def import_game_data(just_check_flag, game_data_json):
+    """Import a new game for the current user using SQLAlchemy 2.0."""
+    
+    game_info = game_data_json
+    title = game_info.get("title", "") or game_info.get("game", "")
+    body = game_info.get("gameDescription", "")
+    
+    if not title:
+        abort(400, "Game title is required.")
+    
+    game_id = -1
+    not_existed_items = []
+
+    if not just_check_flag:
+        # Create a new Game object using your model
+        new_game = Game(
+            title=title,
+            body=body,
+            author_id=current_user.id,
+            comment=""
+        )
+        
+        # Add to session and flush to get the ID back from the DB
+        db_SQLAlchemy.session.add(new_game)
+        db_SQLAlchemy.session.flush() 
+        game_id = new_game.id
+    
+    insert_elements(just_check_flag, not_existed_items, db_SQLAlchemy.session, game_id, game_info)
+    
+    # Final commit if not just checking
+    if not just_check_flag:
+        db_SQLAlchemy.session.commit()
+        
+    return game_id, not_existed_items
+
 
 @bp.route("/import-game", methods=("GET", "POST"))
 @login_required
