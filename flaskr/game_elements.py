@@ -12,13 +12,14 @@ from werkzeug.exceptions import abort
 from flaskr.game_element_variants import get_game_element_variants
 from flaskr.html_services import sanitize_html
 
-from .auth import role_required
+from flaskr.auth import role_required
 from flask_login import login_required
+from flask_login import current_user
 
-from .db import get_db
-from .game_element_tags import get_game_element_tags
-from .game_element_links import get_game_element_links
-from .blog import get_elements
+from flaskr.db import get_db
+from flaskr.game_element_tags import get_game_element_tags
+from flaskr.game_element_links import get_game_element_links
+from flaskr.blog import get_elements
 
 bp = Blueprint("game_elements", __name__, url_prefix="/game_elements")
 
