@@ -404,14 +404,11 @@ def _import_game_data(just_check_flag, game_data_json):
 
 def insert_elements(just_check_flag, not_existed_items, session, game_id, data, parent_ge_id=None):
     
-    def get_element_by_title(title):
-        return session.execute(
-            select(Element).where(Element.title == title)
-        ).scalar_one_or_none()
-    
     def insert_simple_value(key, value, _parent_ge_id=parent_ge_id):
         # 1. Try to find the element definition
-        element = get_element_by_title(key)
+        print(f"Searching for element with title: '{key}'")
+        element = get_element_by_title(session, key)
+        print(f"Element found: {element}")  # Debug output
         
         if element is None:
             not_existed_items.append(clean_key(key))

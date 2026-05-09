@@ -260,7 +260,7 @@ class GameAndElement(db_SQLAlchemy.Model):
     link: Mapped[Optional[str]] = mapped_column(Text)
     weight: Mapped[int] = mapped_column(default=0)
     element_order: Mapped[int] = mapped_column(default=0)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    #created: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
 
     game_id: Mapped[Optional[int]] = mapped_column(ForeignKey("game.id", ondelete="CASCADE"))
     type_of_id: Mapped[str] = mapped_column(
