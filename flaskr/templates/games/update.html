@@ -22,7 +22,7 @@
           <textarea class="form-control" name="body" id="body" rows="3">{{ request.form['body'] or game['body'] }}</textarea>
         </div>
   
-        {% if "admin" in session.get("roles", []) %}
+        {% if current_user.is_authenticated and current_user.has_role("admin") %}
         <div class="mb-3">
           <label for="status" class="form-label">Status</label>
           <select class="form-select" name="status" id="status">

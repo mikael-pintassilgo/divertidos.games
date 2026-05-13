@@ -11,7 +11,7 @@
 
 {% block header %}
   <h1 class="breadcrumb-item active">{% block title %}{{ post['title'] }}{% endblock %}</h1>
-  {% if "admin" in session.get("roles", []) %}
+  {% if current_user.is_authenticated and current_user.has_role("admin") %}
   <p class="fs-4"><a class="" href="{{ url_for('blog.update_element', id=post['id']) }}">edit</a></p>
   {% endif %}
   {% if post['parent_id'] %}

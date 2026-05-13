@@ -17,7 +17,7 @@ from flaskr.composition_of_elements import get_composition_of_element
 from flaskr.html_services import sanitize_html
 from flaskr.models import CompositionOfElement, Element, ElementLink, ElementTag, Game, GameAndElement, Tag, User
 from flaskr.auth import role_required
-from flask_login import login_required
+from flask_login import current_user, login_required
 from flaskr.db import get_db
 from flaskr.extensions import db_SQLAlchemy
 

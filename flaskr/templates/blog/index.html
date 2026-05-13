@@ -16,7 +16,7 @@
       <button type="button" class="btn btn-secondary" onclick="window.location.href='{{ url_for('blog.index') }}'">Clear</button>
       </div>
     </div>
-    {% if "admin" in session.get("roles", []) %}
+    {% if current_user.is_authenticated and current_user.has_role("admin") %}
     <a class="btn btn-secondary" href="{{ url_for('blog.create') }}">Add element</a>
     <a class="btn btn-secondary" href="{{ url_for('services.load_elements') }}">Load elements</a>
     {% endif %}

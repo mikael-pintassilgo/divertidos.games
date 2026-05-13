@@ -26,7 +26,7 @@
         actions
       </button>
       <ul class="dropdown-menu">
-        {% if "admin" in session.get("roles", []) %}
+        {% if current_user.is_authenticated and current_user.has_role("admin") %}
         <li><a class="dropdown-item" aria-current="page" href="{{ url_for('games.update_game', id=game['id']) }}">edit</a></li>
         {% endif %}
         <li><a class="dropdown-item" href="{{ url_for('games.get_full_description', id=game['id']) }}">get full description</a></li>
