@@ -15,7 +15,7 @@ from flaskr.html_services import sanitize_html
 from flaskr.extensions import db_SQLAlchemy
 from flaskr.models import GameElementVariant, GameElementVariantLike, VariantStatus, User
 
-from sqlalchemy import select, update, func
+from sqlalchemy import select, update, func, delete
 from sqlalchemy import or_, and_
 
 
@@ -64,6 +64,7 @@ def get_game_element_variants(ge_id):
         game_element_variants.append({
             "obj": variant,             # Keep the object for likes/relationships
             "id": variant.id,           # Explicit ID
+            "author_id": variant.author_id,           # Explicit ID
             "title": variant.title,
             "author_name": author_name,
             "likes_count": likes_count,
@@ -294,7 +295,7 @@ def resubmit(id):
     
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required
-def delete(id):
+def delete_variant(id):
     """Delete a variant. Only the author or an admin can delete."""
     
     game_element_id = request.form.get("game_element_id")
@@ -330,6 +331,10 @@ def delete(id):
         print(f"Error deleting variant: {e}")
         flash("An error occurred while trying to delete the variant.")
 
+    game_id = request.form.get("game_id")
+    is_view = request.form.get("is_view", "").lower() == "true"
+    if is_view:
+        return redirect(url_for("game_elements.view", ge_id=game_element_id, game_id=game_id))
     return redirect(url_for('game_elements.update', ge_id=game_element_id))
 
 @bp.route("/variant/<int:id>/toggle_like", methods=("POST",))

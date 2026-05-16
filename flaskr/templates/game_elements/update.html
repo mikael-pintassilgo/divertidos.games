@@ -214,7 +214,7 @@
                         <p>{{ ge_variant['game_element_id'] }}</p>
                       </td>
                       <td>
-                        <form action="{{ url_for('game_element_variants.delete', id=ge_variant['id']) }}" method="post">
+                        <form action="{{ url_for('game_element_variants.delete_variant', id=ge_variant['id']) }}" method="post">
                           <input class="form-control" type="hidden" name="game_element_id" id="game_element_id" value="{{ ge_id }}">
                           <input class="form-control" type="hidden" name="game_id" id="game_id" value="{{ game_element['game_id'] }}" disabled>   
                           <button class="btn btn-danger" type="submit" value="Delete Variant" onclick="return confirm('Are you sure?');">Delete</button>
