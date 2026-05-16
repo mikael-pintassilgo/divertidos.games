@@ -265,8 +265,23 @@ def get_post(session, id, check_author=True):
             GameAndElement.description
         )
         .join(GameAndElement, Game.id == GameAndElement.game_id)
-        .where(GameAndElement.element_id == id)
     )
+    # 2. Dynamically apply visibility constraints based on authentication state
+    if current_user.is_authenticated:
+        # Logged-in users see public games OR their own creations
+        games_stmt = games_stmt.where(
+            GameAndElement.element_id == id,
+            or_(
+                Game.status == 'public',
+                Game.author_id == current_user.id
+            )
+        )
+    else:
+        # Anonymous guests ONLY see public games
+        games_stmt = games_stmt.where(
+            GameAndElement.element_id == id,
+            Game.status == 'public'
+        )
     raw_rows = session.execute(games_stmt).fetchall()
 
     if False:

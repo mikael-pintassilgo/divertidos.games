@@ -62,16 +62,16 @@
 
     <div class="mt-5">
         <!-- Game Element Variants -->
+        {% if game_element_variants|length > 0 %}
         <div class="row">
           <div class="col-auto">
-            <h4>Variants</h4>
+            <h4>Variants of Designers</h4>
           </div>
         </div>
-        {% if game_element_variants|length > 0 %}
         
           {% for ge_variant in game_element_variants %}
             {% if ge_variant['status_name'] != 'needs_revision' %}
-            <div class="row mt-3">
+            <div class="row">
               <div class="cols-auto">
                 <div class="card mb-2">
                   <!-- img src="..." class="card-img-top" alt="..." -->
@@ -160,12 +160,41 @@
           
         {% endif %}
         
-        <div class='row mt-3'>
+        {% if element_common_variants|length > 0  %}
+        <div class="row {{"mt-3" if game_element_variants|length > 0 else ""}}">
+          <div class="col-auto">
+            <h4 class="">Common Variants</h4>
+            
+            <!-- Horizontal Scrolling Wrapper -->
+            <div class="d-flex flex-nowrap overflow-x-auto pb-3 mb-4" style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch;">
+                
+                {% for variant in element_common_variants %}
+                    <!-- Added 'variant-card' class, cursor style, and data-description attribute -->
+                    <div class="card flex-shrink-0 me-3 variant-card" 
+                        style="width: 18rem; cursor: pointer;" 
+                        data-description="{{ variant.description }}">
+                        
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <span class="card-text text-secondary" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                                    {{ variant.description }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class='row {{"mt-3" if game_element_variants|length > 0 or element_common_variants|length > 0 else ""}}'>
           <div class='col-12'>
-              
+            <h4 class="">Add Your Variant</h4>  
             <form action="{{ url_for('game_element_variants.create') }}?type=game_and_element" method="post">
               <fieldset class="mb-3">
-                <textarea class="form-control" placeholder="Enter description of a new variant here..." name="variant_title" id="variant_title" required>{{ request.form['variant_title'] }}</textarea>
+                <textarea class="form-control textarea mb-2" placeholder="Enter description of a new variant here..." name="variant_title" id="variant_title" rows="5" required>{{ request.form['variant_title'] }}</textarea>
                 <input class="form-control" type="" name="game_element_id" id="game_element_id" value="{{ ge_id }}" hidden>
                 <input class="form-control" type="" name="game_id" id="game_id" value="{{ game_id }}" hidden>
                 <input class="form-control" type="" name="is_view" id="is_view" value="true" hidden>
@@ -189,7 +218,33 @@
   </div>
 </div>
 
+<script>
+  if false {} // This code has to be improved and handle the case when users input their own variants and then click on the common variant cards.
+              //Currently, it will override the textarea content with the common variant description, even if the user has already inputted something in the textarea.
+    document.addEventListener("DOMContentLoaded", function() {
+          // Target your destination input field
+          const targetInput = document.getElementById("variant_title");
+          
+          // Find all variant cards
+          const variantCards = document.querySelectorAll(".variant-card");
 
+          variantCards.forEach(card => {
+              card.addEventListener("click", function() {
+                  if (targetInput) {
+                      // Grab the raw text value from the data attribute
+                      const variantText = this.getAttribute("data-description");
+                      
+                      // Set the value of the target input
+                      targetInput.value = variantText;
+                      
+                      // Optional: Give focus or visual feedback to the input field
+                      targetInput.focus();
+                  }
+              });
+          });
+      });
+    }
+</script>
 
 
 {% endblock %}

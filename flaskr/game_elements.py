@@ -9,6 +9,7 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
+from flaskr.element_common_variant import get_element_common_variant
 from flaskr.game_element_variants import get_game_element_variants
 from flaskr.html_services import sanitize_html
 
@@ -277,6 +278,7 @@ def view(ge_id):
     game_element_tags = get_game_element_tags(ge_id)
     game_element_links = get_game_element_links(ge_id)
     game_element_variants = get_game_element_variants(ge_id)
+    element_common_variants = get_element_common_variant(game_element['e_or_ge_id'])
                 
     for key, value in request.args.items():
         print(f'{key}: {value}')
@@ -288,6 +290,7 @@ def view(ge_id):
     print(f'ge_id = {ge_id}')
     print('Tags: ', game_element_tags)
     print('Variants: ', game_element_variants)
+    print('Common Variants: ', element_common_variants)
     
     return render_template("game_elements/view.html", 
                            ge_id=ge_id, 
@@ -296,7 +299,8 @@ def view(ge_id):
                            game_title=game_data['title'],
                            game_element_tags=game_element_tags,
                            game_element_links=game_element_links,
-                           game_element_variants=game_element_variants)
+                           game_element_variants=game_element_variants,
+                           element_common_variants=element_common_variants)
 
 # Services
 @bp.route("/load-parent-composition", methods=("GET", "POST"))

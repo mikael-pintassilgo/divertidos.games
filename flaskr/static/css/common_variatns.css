@@ -1,0 +1,15 @@
+/* Custom subtle scrollbar styling for the wrapper */
+.overflow-x-auto::-webkit-scrollbar {
+    height: 6px;
+}
+.overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #cbcbcb;
+    border-radius: 10px;
+}
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #b5b5b5;
+}
