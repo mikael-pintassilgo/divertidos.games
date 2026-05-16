@@ -65,7 +65,23 @@
   <br/>
   {% endif %}
 
+  <!-- Common Variants -->
+  {% if common_variants %}
+  <br/>
+  <h4>Common Variants</h4>
+  <ul class="list-group">
+  {% for variant in common_variants %}
+  <li class="list-group-item">  
+    <article class="">
+      <span class="fs-4">{{ variant['description'] | safe }}</span>
+    </article>
+  </li>
+  {% endfor %}
+  </ul>
+  <br/>
+  {% endif %}
 
+  
   <!-- Sub Elements -->
   {% if composition_of_element %}
   <br/>

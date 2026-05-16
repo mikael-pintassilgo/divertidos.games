@@ -97,6 +97,7 @@ def create_app(test_config=None):
     from . import profiles
     from . import home_page
     from . import blog
+    from . import element_common_variant
     from . import tags
     from . import quests
     from . import task
@@ -114,6 +115,7 @@ def create_app(test_config=None):
     app.register_blueprint(profiles.bp)
     app.register_blueprint(home_page.bp)
     app.register_blueprint(blog.bp)
+    app.register_blueprint(element_common_variant.bp)
     app.register_blueprint(composition_of_elements.bp)
     app.register_blueprint(tags.bp)
     app.register_blueprint(quests.bp)

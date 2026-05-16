@@ -66,6 +66,7 @@ class User(db_SQLAlchemy.Model, UserMixin):
     feedbacks: Mapped[List["Feedback"]] = relationship("Feedback", back_populates="author")
 
     # Deep Metadata (Elements)
+    element_common_variants: Mapped[List["ElementCommonVariant"]] = relationship("ElementCommonVariant", back_populates="author")
     element_links: Mapped[List["ElementLink"]] = relationship("ElementLink", back_populates="author")
     element_tags: Mapped[List["ElementTag"]] = relationship("ElementTag", back_populates="author")
     element_values: Mapped[List["ElementValue"]] = relationship("ElementValue", back_populates="author")
@@ -131,6 +132,7 @@ class Element(db_SQLAlchemy.Model):
     parent: Mapped[Optional["Element"]] = relationship("Element", remote_side=[id], backref="children")
     
     links: Mapped[List["ElementLink"]] = relationship("ElementLink", back_populates="element")
+    common_variants: Mapped[List["ElementCommonVariant"]] = relationship("ElementCommonVariant", back_populates="element")
     element_tags: Mapped[List["ElementTag"]] = relationship("ElementTag", back_populates="element")
     element_values: Mapped[List["ElementValue"]] = relationship("ElementValue", back_populates="element")
 
@@ -192,6 +194,19 @@ class CompositionOfElement(db_SQLAlchemy.Model):
     main_element: Mapped["Element"] = relationship("Element", foreign_keys=[element_id])
     sub_element: Mapped["Element"] = relationship("Element", foreign_keys=[subelement_id])
     author: Mapped["User"] = relationship("User", back_populates="compositions")
+
+class ElementCommonVariant(db_SQLAlchemy.Model):
+    __tablename__ = "element_common_variant"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    
+    element_id: Mapped[int] = mapped_column(ForeignKey("element.id", ondelete="CASCADE"))
+    author_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    
+    element: Mapped["Element"] = relationship("Element", back_populates="common_variants")
+    author: Mapped["User"] = relationship("User", back_populates="element_common_variants")
+
 # END ELEMENTS
 
 # GAMES
@@ -261,7 +276,8 @@ class GameAndElement(db_SQLAlchemy.Model):
     weight: Mapped[int] = mapped_column(default=0)
     element_order: Mapped[int] = mapped_column(default=0)
     #created: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
-
+    #is_reviewed_befor_publication = Mapped[Optional[bool]] = mapped_column(Boolean, default=None)
+    
     game_id: Mapped[Optional[int]] = mapped_column(ForeignKey("game.id", ondelete="CASCADE"))
     type_of_id: Mapped[str] = mapped_column(
         Text, 

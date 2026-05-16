@@ -41,6 +41,43 @@
     <input class="btn btn-danger" type="submit" value="Delete Element" onclick="return confirm('Are you sure?');">
   </form>
 
+  <!-- Common Variants -->
+  <h3 class="mt-3">Common Variants</h3>
+  <table class="">
+    <tbody>
+      <thead>
+        <tr>
+          <th scope="col">Description</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      {% for variant in common_variants %}
+      <tr>
+          <td>
+            <p>{{ variant['description'] }}</p>
+          </td>
+          <td>
+            <form action="{{ url_for('element_common_variants.delete_common_variant', id=variant['id'], element_id=post['id']) }}" method="post">
+              <input value="{{ post['id'] }}" name="element_id" id="element_id" hidden>
+              <input class="btn btn-danger" type="submit" value="Delete Variant" onclick="return confirm('Are you sure?');">
+            </form>
+          </td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <form action="{{ url_for('element_common_variants.create_common_variant') }}" method="post">
+          <td>
+            <input class="form-control" placeholder="Enter new variant here..." name="description" id="description" value="{{ request.form['description'] }}" required>
+          </td>
+          <td>
+            <input value="{{ post['id'] }}" name="element_id" id="element_id" hidden>
+            <input class="btn btn-secondary" type="submit" value="Add Variant">
+          </td>
+        </form>
+      </tr>
+    </tbody>
+  </table>
+
   <h3 class="mt-3">Tags</h3>
   <table class="">
     <tbody>

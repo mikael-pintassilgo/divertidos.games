@@ -144,7 +144,8 @@ ADD COLUMN status_name TEXT REFERENCES variant_status(name);
 
 UPDATE game_element_variant SET status_name = status;
 
-*/
-
 ALTER TABLE game_element_variant 
 DROP COLUMN status;
+
+
+*/

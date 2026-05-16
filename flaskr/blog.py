@@ -14,8 +14,10 @@ from werkzeug.exceptions import abort
 from collections import defaultdict
 
 from flaskr.composition_of_elements import get_composition_of_element
+from flaskr.element_common_variant import get_element_common_variant
+
 from flaskr.html_services import sanitize_html
-from flaskr.models import CompositionOfElement, Element, ElementLink, ElementTag, Game, GameAndElement, Tag, User
+from flaskr.models import CompositionOfElement, Element, ElementCommonVariant, ElementLink, ElementTag, Game, GameAndElement, Tag, User
 from flaskr.auth import role_required
 from flask_login import current_user, login_required
 from flaskr.db import get_db
@@ -298,7 +300,11 @@ def get_post(session, id, check_author=True):
     # 7. Get composition of element (subelements)
     composition_of_element = get_composition_of_element(session, id)
 
-    # 8. Return a unified dictionary
+    # 8. Common variants query
+    common_variants = get_element_common_variant(id)
+    #print('common_variants: ', common_variants)
+    
+    # 20. Return a unified dictionary
     return {
         "element": element,
         "composition_of_element": composition_of_element,
@@ -306,6 +312,7 @@ def get_post(session, id, check_author=True):
         "tags": tags,
         "links": links,
         "games": games,
+        "common_variants": common_variants,
     }
 
 @bp.route("/create", methods=("GET", "POST"))

@@ -94,7 +94,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         {% block header %}{% endblock %}
       </header>
       {% for message in get_flashed_messages() %}
-        <div class="alert alert-primary" role="alert">{{ message }}</div>
+        <div class="alert alert-primary alert-dismissible fade show" role="alert" id="auto-dismiss-alert">
+            {{ message }}
+            <!-- The close button (cross) -->
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
       {% endfor %}
       {% block content %}{% endblock %}
     </div>
@@ -146,3 +150,24 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script -->
 <script src="{{ url_for('static', filename='bootstrap-5-3-3-dist/js/bootstrap.bundle.min.js') }}"></script>
 
+<!-- 2. The JavaScript for the 10-Second Timer -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const alertElement = document.getElementById("auto-dismiss-alert");
+        
+        if (alertElement) {
+            setTimeout(() => {
+                // Check if Bootstrap's JS is available to close it smoothly
+                if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                    const bsAlert = new bootstrap.Alert(alertElement);
+                    bsAlert.close();
+                } else {
+                    // Fallback if Bootstrap JS isn't loaded: use a standard CSS fade & remove
+                    alertElement.style.transition = "opacity 0.5s ease";
+                    alertElement.style.opacity = "0";
+                    setTimeout(() => alertElement.remove(), 500);
+                }
+            }, 10000); // 10000 milliseconds = 10 seconds
+        }
+    });
+</script>
