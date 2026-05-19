@@ -261,7 +261,9 @@ def get_post(session, id, check_author=True):
             Game.id.label("g_id"), 
             Game.title, 
             Game.body,
+            GameAndElement.id.label("ge_id"),
             GameAndElement.element_id,  # Included for grouping 
+            GameAndElement.parent_element_id,
             GameAndElement.description
         )
         .join(GameAndElement, Game.id == GameAndElement.game_id)
@@ -288,19 +290,36 @@ def get_post(session, id, check_author=True):
         games = raw_rows
     else:
         # 6.2. Process the results in Python
-        grouped_data = defaultdict(lambda: {"descriptions": [], "title": "", "body": ""})
-
+        #grouped_data = defaultdict(lambda: {"descriptions": [], "title": "", "body": ""})
+        grouped_data = defaultdict(lambda: {"descriptions": [], "title": "", "body": "", "parent_ge_id": None, "element_id": None})
+        
+        existing_ge_ids = set()
         for row in raw_rows:
-            # Creating a composite key
+            existing_ge_ids.add( (row.ge_id, row.element_id) )
+        
+        print("-" * 50)    
+        for row in raw_rows:
             group_key = (row.g_id, row.element_id)
             
-            # Store attributes (they should be identical for the same group_key)
             grouped_data[group_key]["title"] = row.title
             grouped_data[group_key]["body"] = row.body
-            
-            if row.body:
-                grouped_data[group_key]["descriptions"].append(str(row.description))
-
+            grouped_data[group_key]["parent_ge_id"] = row.parent_element_id
+            grouped_data[group_key]["element_id"] = row.element_id
+                
+            if row.description:
+                print(f"Processing Game ID: {row.g_id}, Element ID: {row.element_id}, Parent GE ID: {row.parent_element_id}")
+                print(f"Title: {row.title}, Descriptions: {row.description}")
+                if row.parent_element_id and (row.parent_element_id, row.element_id) in existing_ge_ids:
+                    print("Skipping due to parent GE ID presence in existing GAE IDs")
+                    print("-" * 50)
+                    
+                    continue  # Оставляем только родителя, текущий элемент игнорируем
+                else:
+                    print("Adding game to final list")
+                    print("-" * 50)
+                    
+                    grouped_data[group_key]["descriptions"].append(str(row.description))
+                
         # 6.3. Finalize the list with concatenated strings
         games = []
         for (g_id, e_id), data in grouped_data.items():
