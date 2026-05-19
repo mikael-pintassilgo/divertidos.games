@@ -295,10 +295,14 @@ def get_post(session, id, check_author=True):
         
         existing_ge_ids = set()
         for row in raw_rows:
-            existing_ge_ids.add( (row.ge_id, row.element_id) )
+            if str(row.description):
+                existing_ge_ids.add( (row.ge_id, row.element_id) )
         
         #print("-" * 50)    
         for row in raw_rows:
+            #if not str(row.description):
+                #continue
+            
             group_key = (row.g_id, row.element_id)
             
             grouped_data[group_key]["title"] = row.title
