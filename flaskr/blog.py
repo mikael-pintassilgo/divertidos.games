@@ -297,7 +297,7 @@ def get_post(session, id, check_author=True):
         for row in raw_rows:
             existing_ge_ids.add( (row.ge_id, row.element_id) )
         
-        print("-" * 50)    
+        #print("-" * 50)    
         for row in raw_rows:
             group_key = (row.g_id, row.element_id)
             
@@ -307,16 +307,16 @@ def get_post(session, id, check_author=True):
             grouped_data[group_key]["element_id"] = row.element_id
                 
             if row.description:
-                print(f"Processing Game ID: {row.g_id}, Element ID: {row.element_id}, Parent GE ID: {row.parent_element_id}")
-                print(f"Title: {row.title}, Descriptions: {row.description}")
+                #print(f"Processing Game ID: {row.g_id}, Element ID: {row.element_id}, Parent GE ID: {row.parent_element_id}")
+                #print(f"Title: {row.title}, Descriptions: {row.description}")
                 if row.parent_element_id and (row.parent_element_id, row.element_id) in existing_ge_ids:
-                    print("Skipping due to parent GE ID presence in existing GAE IDs")
-                    print("-" * 50)
+                    #print("Skipping due to parent GE ID presence in existing GAE IDs")
+                    #print("-" * 50)
                     
                     continue  # Оставляем только родителя, текущий элемент игнорируем
                 else:
-                    print("Adding game to final list")
-                    print("-" * 50)
+                    #print("Adding game to final list")
+                    #print("-" * 50)
                     
                     grouped_data[group_key]["descriptions"].append(str(row.description))
                 
