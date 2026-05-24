@@ -2,9 +2,10 @@ import os
 import tempfile
 import pytest
 
-from flaskr import create_app
 from flaskr.extensions import db_SQLAlchemy  # Import your SQLAlchemy instance
-from flaskr.db import init_db  # Keep if you still use it for non-SQLAlchemy parts
+from flaskr import create_app
+from flaskr.db import init_db
+from flaskr.models import User, Role  # Keep if you still use it for non-SQLAlchemy parts
 
 # Read in SQL for populating test data
 with open(os.path.join(os.path.dirname(__file__), "data.sql"), "rb") as f:
@@ -67,3 +68,25 @@ class AuthActions:
 @pytest.fixture
 def auth(client):
     return AuthActions(client)
+
+@pytest.fixture
+def admin_client(client, auth, app):
+    """Logs in as an admin user and yields the client."""
+    with app.app_context():
+        admin_user = User.query.filter_by(username="test").first()
+        admin_role = Role.query.filter_by(name="admin").first()
+        
+        if admin_role not in admin_user.roles:
+            admin_user.roles.append(admin_role)
+            db_SQLAlchemy.session.commit()
+
+    auth.login(username="test", password="test")
+    yield client
+    auth.logout()
+
+@pytest.fixture
+def regular_client(client, auth):
+    """Logs in as a regular user and yields the client."""
+    auth.login(username="other", password="test_password")
+    yield client
+    auth.logout()

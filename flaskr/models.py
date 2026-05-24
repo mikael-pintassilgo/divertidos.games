@@ -220,7 +220,7 @@ class Game(db_SQLAlchemy.Model):
     created: Mapped[datetime] = mapped_column(
         DateTime, 
         nullable=False, 
-        default=datetime.utcnow
+        default=lambda: datetime.now(timezone.utc)
     )
     
     title: Mapped[str] = mapped_column(Text, nullable=False)
