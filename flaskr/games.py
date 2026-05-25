@@ -10,11 +10,11 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
-from flaskr.models import Game, User
+from flaskr.models import Game, GameTag, User, GameLink
 from flaskr.models import Element, GameAndElement
 from flaskr.extensions import db_SQLAlchemy
 
-from sqlalchemy import select
+from sqlalchemy import select, delete
 
 from .auth import user_has_role, role_required
 from flask_login import current_user, login_required
@@ -945,19 +945,19 @@ def update_game_elements_of_the_parent(game_id, parent_id):
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required
 @role_required("admin")
-def delete(id):
-    """Delete a game.
+def delete_game(id):
+    """Delete a game and its relations."""
+    
+    # 1. Fetch the game or abort 404 (Modern Session.get approach)
+    game = db_SQLAlchemy.session.get(Game, id)
+    if game is None:
+        abort(404, f"Game id {id} doesn't exist.")
+        
+    # 2. Delete the game
+    db_SQLAlchemy.session.delete(game)
 
-    Ensures that the game exists and that the logged in user is the
-    author of the game.
-    """
-    get_game(id)
-    db = get_db()
-    db.execute("DELETE FROM game_and_element WHERE game_id = ?", (id,))
-    db.execute("DELETE FROM game_link WHERE game_id = ?", (id,))
-    db.execute("DELETE FROM game_tag WHERE game_id = ?", (id,))
-    db.execute("DELETE FROM game WHERE id = ?", (id,))
-    db.commit()
+    # 3. Commit the transaction
+    db_SQLAlchemy.session.commit()
     
     return redirect(url_for("games.index"))
 

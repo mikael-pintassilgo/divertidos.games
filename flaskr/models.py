@@ -235,9 +235,11 @@ class Game(db_SQLAlchemy.Model):
         default='private'
     )
 
-    # Optional: Relationship back to the User model
     # This allows you to do `game.author.username` easily
     author: Mapped["User"] = relationship("User", back_populates="games")
+    links: Mapped[list["GameLink"]] = relationship(cascade="all, delete-orphan")
+    tags: Mapped[list["GameTag"]] = relationship(cascade="all, delete-orphan")
+    game_elements: Mapped[list["GameAndElement"]] = relationship(cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<Game {self.title!r}>"
