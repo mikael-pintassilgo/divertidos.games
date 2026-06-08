@@ -1,6 +1,6 @@
 
 Prompts:
-give me description of [the game title] game. Use as example the JSON structure of game elements that I used for Tetris game. 
+I need a description of [the game title] game. Use as example the JSON structure of game elements that I used for the [the example game title] game. 
 Do not change keys but you can add new keys or delete keys and can change description.
-The example for the Tetris:
+The example for the [the example game title]:
 <a JSON code for a game with structure>

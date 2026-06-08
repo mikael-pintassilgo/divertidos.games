@@ -1,0 +1,482 @@
+{% extends 'base.html' %}
+
+{% block breadcrumb %}
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('games.index') }}">Games</a></li>
+    <li class="breadcrumb-item active" aria-current="page"></li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block header %}
+  <div class="">
+    <h1 class="">{% block title %}{{ game['title'] }}{% endblock %}</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+
+<div class='row'>
+  <div class='col-12'>
+  
+    
+    
+    <div class="dropdown mb-1">
+      
+      {% if current_user.id == game['author_id'] %}
+      <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        actions
+      </button>
+      <ul class="dropdown-menu">
+        {% if current_user.is_authenticated and current_user.has_role("admin") %}
+        <li><a class="dropdown-item" aria-current="page" href="{{ url_for('games.update_game', id=game['id']) }}">Edit</a></li>
+        {% endif %}
+        <li><a class="dropdown-item" href="{{ url_for('games.get_full_description', id=game['id']) }}">Get full description (text)</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('games.get_full_description_JSON', id=game['id']) }}">Get full description (JSON)</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('games.get_full_description', id=game['id']) }}" aria-disabled="true">[under construcion] Get data to past into a Google Spreadsheet</a></li>
+      </ul>
+      {% endif %}
+    </div>
+    
+  </div>
+</div>
+    
+<div class='row'>
+  <div class='col-12'>
+
+    <!--
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link {{'active' if request.args.get('tab') != 'elements' else ''}}" id="general-tab" data-bs-toggle="tab" data-bs-target="#general-tab-pane" type="button" role="tab" aria-controls="general-tab-pane" aria-selected="true">Game Info</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link {{'active' if request.args.get('tab') == 'elements' else ''}}" id="elements-tab" data-bs-toggle="tab" data-bs-target="#elements-tab-pane" type="button" role="tab" aria-controls="elements-tab-pane" aria-selected="false">
+          Elements
+          {% if game_elements_tree %}
+            <span class="badge bg-secondary">filled</span>
+          {% endif %}
+        </button>
+      </li>
+    </ul>
+    -->
+
+    <!--
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade {{'show active' if request.args.get('tab') != 'elements' else ''}}" id="general-tab-pane" role="tabpanel" aria-labelledby="general-tab" tabindex="0">
+    -->
+
+        <div name="body" id="body">
+          <p class="fs-4">{{ game['body'] | safe }}</p>
+        </div>
+        
+        <div class="text-body-secondary mt-1" name="comment" id="comment">
+          <p class="fs-4">{{ game['comment'] | safe }}</p>
+        </div>
+
+        {% for link in links %}
+          {% if link['comment'] == None %}
+          <p><a href="{{ link['title'] }}" target="_blank">{{ link['title'] }}</a></p>
+          {% else %}
+          <p><a href="{{ link['title'] }}" target="_blank">{{ link['comment'] }}</a></p>
+          {% endif %}
+        {% endfor %}
+
+        {% if tags %}
+        <div class="hstack gap-3">
+          {% for tag in tags %}
+            <article class="">
+              <header>
+                <div>
+                  <a href="#" onclick="tagOnClick('{{ tag['title'] }}')">
+                    <p class="fs-4">#{{ tag['title'] }}</p>
+                  </a>
+                </div>
+              </header>
+            </article>
+          {% endfor %}
+        </div>
+        {% endif %}
+    
+      <!--
+        </div>
+      
+      <div class="tab-pane fade {{'show active' if request.args.get('tab') == 'elements' else ''}}" id="elements-tab-pane" role="tabpanel" aria-labelledby="elements-tab" tabindex="0">
+      -->
+      <div class="mt-4">
+          
+        <h4>Game elements</h4>
+        {% if not_existed_items %}
+          <h2>Did not added elements (not exist):</h2>
+          <ul>
+            {% for title in not_existed_items %}
+              <li>{{title}}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        <!--
+        <div class="input-group mb-1 mt-3">
+          <div class="d-flex gap-3 mb-3">
+            
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="varitanOfElementsVeiw" id="listView" value="all"
+              {% if request.args.get('varitanOfElementsVeiw') == 'all' or request.args.get('varitanOfElementsVeiw') == None %}checked{% endif %}
+              onchange="window.location.href='{{ url_for('games.view', id=game['id'], parent_id=parent_id, varitanOfElementsVeiw='all', tab='elements') }}'">
+              <label class="form-check-label" for="listView">
+                All elements
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="varitanOfElementsVeiw" id="oneLevelView" value="oneLevel"
+              {% if request.args.get('varitanOfElementsVeiw') == 'oneLevel' %}checked{% endif %}
+              onchange="window.location.href='{{ url_for('games.view', id=game['id'], parent_id=parent_id, varitanOfElementsVeiw='oneLevel', tab='elements') }}'">
+              <label class="form-check-label" for="oneLevelView">
+                Elements of the same level
+              </label>
+            </div>
+          </div>
+        </div>
+        -->
+
+        {% if parent_id != None and parent_id != '' and request.args.get('varitanOfElementsVeiw') == 'oneLevel' %}
+          <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{{ url_for('games.view', id=game['id'], varitanOfElementsVeiw='oneLevel', tab='elements') }}">1st level elements</a></li>
+              {% for parent in game_elements_parents %}
+                {% if loop.last %}
+                <li class="breadcrumb-item active" aria-current="page">{{ parent.description }}</li>
+                {% else %}
+                <li class="breadcrumb-item"><a href="{{ url_for('games.view', id=game['id'], parent_id=parent.id, varitanOfElementsVeiw='oneLevel', tab='elements') }}">{{ parent.description }}</a></li>
+                {% endif %}
+              {% endfor %}
+              <!-- <li class="breadcrumb-item active" aria-current="page">{{ parent }}</li> -->
+            </ol>
+          </nav>
+        {% endif %}
+        
+        <!-- Nested list  -->
+        <div class="just-padding">
+          <div class="list-group list-group-root well">
+    
+            {% macro render_list_of_elements(elements, level=0) %}
+              {% for element in elements %}
+                {% if element.children %}
+                    
+                  <div class="hstack gap-3 nested-dropdown-list">
+                    <div class="list-group-item" data-bs-toggle="collapse" data-bs-target={{ "#item-" + element['e_id'] | string }} aria-expanded="false" aria-controls={{ "item-" + element['e_id'] | string }}>
+                          <!-- a stretched-link href={{ "#item-" + element['e_id'] | string }} class="list-group-item" data-bs-toggle="collapse" -->
+                          <img src="{{ url_for('static', filename='svg/chevron-right.svg') }}"></img>
+                          <span class="fw-semibold">{{ element['title'] }}</span>
+                          {% if element['description'] %}: {{ element['description'] | safe }}{% endif %} 
+                                             
+                          
+                    </div>
+                    <div class="ms-auto hstack">
+                      <div>  
+                        {% if element['number_of_variants'] > 0 %}
+                        <a id="btn-add-or-view-variant" class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                          <span class="badge text-bg-info">+ {{ element['number_of_variants'] }} variants</span>
+                        </a>
+                        {% else %}
+                          <a id="btn-add-or-view-variant" class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                            <span class="badge text-bg-secondary">add variant</span>
+                          </a>
+                        {% endif %}
+                      </div>
+                      
+                      <div class="dropdown">
+                        <button class="btn btn-link text-dark shadow-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          <img src="{{ url_for('static', filename='svg/three-dots-vertical.svg') }}" style="flex-shrink: 0;"></img>
+                        </button>
+                        
+                        <ul class="dropdown-menu dropdown-menu-end">
+                          <li><a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">Open game element</a></li>                          
+                          <li><a class="dropdown-item" href="{{ url_for('blog.view', id=element['e_id']) }}">Open {{ element['title'] }}</a></li>                          
+                          <!--
+                          <li><hr class="dropdown-divider"></li>
+                          <li>
+                            <a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                              Add variant
+                            </a>
+                          </li>
+                          -->
+                        </ul>
+                      </div>
+
+                    </div>
+                  </div>
+                        
+                  <div class="list-group collapse" id={{ "item-" + element['e_id'] | string }}>
+                    {{ render_list_of_elements(element.children, level + 1) }}
+                  </div>
+                {% else %}
+                    <div class="nested-dropdown-item hstack gap-3">
+                      <div class="list-group-item">
+                      <!-- img src="{{ url_for('static', filename='svg/dash.svg') }}" style="flex-shrink: 0;"></img -->
+                        <!-- span class="fw-semibold">{{ element['title'] }}</span -->
+                        <a class="" href="{{ url_for('blog.view', id=element['e_id']) }}">{{ element['title'] }}</a>
+                        {% if element['description'] %}
+                          : {{ element['description'] | safe }}
+                          <!--
+                          {% if element['number_of_variants'] > 0 %}
+                          <a class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                            <span class="badge text-bg-info">+ {{ element['number_of_variants'] }} variants</span>
+                          </a>
+                          {% else %}
+                          <a class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                            <span class="badge text-bg-secondary">add variant</span>
+                          </a>
+                          {% endif %}
+                          -->
+                        {% endif %}
+                        
+                      </div>
+
+                      <div class="ms-auto hstack">
+                        <div>
+                          {% if element['number_of_variants'] > 0 %}
+                          <a id="btn-add-or-view-variant" class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                            <span class="badge text-bg-info">+ {{ element['number_of_variants'] }} variants</span>
+                          </a>
+                          {% else %}
+                          <a id="btn-add-or-view-variant" class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                            <span class="badge text-bg-secondary">add variant</span>
+                          </a>
+                          {% endif %}
+                        </div>
+                      
+                        <div class="dropdown">
+                          <button class="btn btn-link text-dark shadow-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="{{ url_for('static', filename='svg/three-dots-vertical.svg') }}" style="flex-shrink: 0;"></img>
+                          </button>
+                          
+                          <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">Open game element</a></li> 
+                            <li><a class="dropdown-item" href="{{ url_for('blog.view', id=element['e_id']) }}">Open {{ element['title'] }}</a></li>                          
+                            <!--
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a id="btn-add-or-view-variant" class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">Add variant</a></li>
+                            -->
+                          </ul>
+                        </div>
+                        
+                      </div>
+                    </div>
+                {% endif %}
+              {% endfor %}
+            {% endmacro %}
+            {{ render_list_of_elements(game_elements_tree) }}
+          </div>
+        </div>
+
+        <!-- End of Nested list -->
+
+        <!--
+        <table class="table table-hover">
+          <tbody>
+            {% if request.args.get('varitanOfElementsVeiw') != 'oneLevel' %}
+              {% macro render_elements(elements, level=0) %}
+                {% for element in elements %}
+                  <tr>
+                    <td style="padding-left: {{ level * 20 }}px;">
+                      <p><a href="{{ url_for('blog.view', id=element['e_id']) }}">{{ element['title'] }}</a></p>
+                      <p>{{ element['description'] | safe }}</p>
+                      
+                    </td>
+                    <td>
+                      {% if element['number_of_variants'] > 0 %}
+                      <a class="btn btn-primary btn-sm" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">more...</a>
+                      {% else %}
+                      <a class="btn btn-outline-primary btn-sm" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">more...</a>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% if element.children %}
+                    {{ render_elements(element.children, level + 1) }}
+                  {% endif %}
+                {% endfor %}
+              {% endmacro %}
+              {{ render_elements(game_elements_tree) }}
+
+            {% else %}
+            
+              {% for game_element in game_elements %}
+                {% if (game_element['parent_element_id'] == None or game_element['parent_element_id'] == '') or parent_id|string == game_element['parent_element_id']|string %}
+                  <tr>
+                      <td>
+                        <p><a href="{{ url_for('blog.view', id=game_element['e_id']) }}">{{ game_element['title'] }}</a></p>
+                      </td>
+                      <td>
+                        <p>{{ game_element['description'] }}</p>
+                      </td>
+                      
+                      <td>
+                        {% if game_element['consist_count'] == 1 %}
+                        <p><a href="{{ url_for('games.view', id=game['id'], parent_id=game_element['ge_id'], varitanOfElementsVeiw='oneLevel', tab='elements') }}">1 element</a></p>
+                        {% elif game_element['consist_count'] > 1 %}
+                        <p><a href="{{ url_for('games.view', id=game['id'], parent_id=game_element['ge_id'], varitanOfElementsVeiw='oneLevel', tab='elements') }}">{{ game_element['consist_count'] }} elements</a></p>
+                        {% else %}
+                        <p/>
+                        {% endif %}
+                        
+                      </td>
+                      <td class="">
+                        {% if game_element['number_of_variants'] > 0 %}
+                        <a class="btn btn-primary btn-sm" href="{{ url_for('game_elements.view', ge_id=game_element['ge_id'], game_id=game['id']) }}">more...</a>
+                        {% else %}
+                        {% endif %}
+                      </td>
+                      
+                  </tr>
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          </tbody>
+          
+        </table>
+      -->
+      </div>
+      
+
+    <!--
+    </div>
+    -->
+  </div>
+</div>
+
+<!--
+<div class='row mt-3'>
+  <div class='col-12'>
+
+    <div class="d-flex gap-2 align-items-center vote-box"
+        data-target-type="game"
+        data-target-id="{{ game.id }}">
+
+      <button type="button"
+              class="btn btn-outline-success btn-sm d-flex align-items-center gap-2 vote-btn like-btn rounded-pill">
+        <span>👍</span>
+        <span>Like</span>
+        <span class="badge text-bg-success like-count">0</span>
+      </button>
+
+      <button type="button"
+              class="btn btn-outline-danger btn-sm d-flex align-items-center gap-2 vote-btn dislike-btn rounded-pill">
+        <span>👎</span>
+        <span>Dislike</span>
+        <span class="badge text-bg-danger dislike-count">0</span>
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  const voteBox = document.querySelector(".vote-box");
+  if (!voteBox) return;
+
+  const targetType = voteBox.dataset.targetType;
+  const targetId = voteBox.dataset.targetId;
+
+  const likeBtn = voteBox.querySelector(".like-btn");
+  const dislikeBtn = voteBox.querySelector(".dislike-btn");
+
+  const likeCountEl = voteBox.querySelector(".like-count");
+  const dislikeCountEl = voteBox.querySelector(".dislike-count");
+
+  function updateUI(data) {
+    likeCountEl.textContent = data.likes;
+    dislikeCountEl.textContent = data.dislikes;
+
+    // reset state
+    likeBtn.classList.remove("active");
+    dislikeBtn.classList.remove("active");
+
+    // active state
+    if (data.user_vote === 1) {
+      likeBtn.classList.add("active");
+    } else if (data.user_vote === -1) {
+      dislikeBtn.classList.add("active");
+    }
+  }
+
+  async function loadVoteStatus() {
+    const res = await fetch(`/api/vote/status?target_type=${targetType}&target_id=${targetId}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Vote status error:", data);
+      return;
+    }
+
+    updateUI(data);
+  }
+
+  async function sendVote(action) {
+    const res = await fetch("/api/vote", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        target_type: targetType,
+        target_id: parseInt(targetId),
+        action: action
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || "Vote failed");
+      return;
+    }
+
+    await loadVoteStatus();
+  }
+
+  likeBtn.addEventListener("click", () => sendVote("like"));
+  dislikeBtn.addEventListener("click", () => sendVote("dislike"));
+
+  await loadVoteStatus();
+});
+</script>
+-->
+
+<script>
+  /*el = document.getElementById("body");
+  el.innerHTML = "{{ (request.form['body'] or game['body']) }}";
+  console.log("{{ (request.form['body'] or game['body']) }}");*/
+</script>
+<script>
+  const TAB_STORAGE_KEY = 'games_view_active_tab';
+  
+  // Save active tab on change
+  document.getElementById('myTab').addEventListener('shown.bs.tab', (e) => {
+    localStorage.setItem(TAB_STORAGE_KEY, e.target.id);
+  });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.list-group-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      const icon = this.querySelector('img');
+      //console.log("icon: ", icon);
+      if (icon) {
+        //console.log("icon src before: ", icon.src);
+        if (icon.src.includes('chevron-right') || icon.src.includes('chevron-down')) {
+          icon.src = icon.src.includes('chevron-right') ? '{{ url_for("static", filename="svg/chevron-down.svg") }}' : '{{ url_for("static", filename="svg/chevron-right.svg") }}';
+          // icon.classList.toggle('glyphicon-chevron-right');
+          // icon.classList.toggle('glyphicon-chevron-down');
+          //console.log("icon src after: ", icon.src);
+        }  
+      }
+    });
+  });
+});
+</script>
+
+{% endblock %}

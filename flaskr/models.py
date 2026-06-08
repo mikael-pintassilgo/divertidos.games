@@ -77,9 +77,15 @@ class User(db_SQLAlchemy.Model, UserMixin):
     game_element_tags: Mapped[List["GameElementTag"]] = relationship("GameElementTag", back_populates="author")
     compositions: Mapped[List["CompositionOfElement"]] = relationship("CompositionOfElement", back_populates="author")
     
+    # Challenges and Solutions
+    challenge_solutions: Mapped[List["ChallengeSolution"]] = relationship("ChallengeSolution", back_populates="author")
+    challenges: Mapped[List["Challenge"]] = relationship("Challenge", back_populates="author")
+    
     # Likes
     game_element_variant_likes: Mapped[list["GameElementVariantLike"]] = relationship(back_populates="user", cascade="all, delete-orphan")
-    
+    challenge_solution_likes: Mapped[list["ChallengeSolutionLike"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    challenge_likes: Mapped[list["ChallengeLike"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+
     def get_id(self):
         """Returns the user ID as a string, required by Flask-Login."""
         return str(self.id)
@@ -350,10 +356,83 @@ class GameElementVariant(db_SQLAlchemy.Model):
     author_id: Mapped[int] = mapped_column(ForeignKey("user.id", ondelete="SET NULL"))
     
     author: Mapped["User"] = relationship("User", back_populates="game_element_variants")
-    statuses: Mapped["VariantStatus"] = relationship(back_populates="statuses")
+    #statuses: Mapped["VariantStatus"] = relationship(back_populates="statuses")
     likes: Mapped[list["GameElementVariantLike"]] = relationship(back_populates="variant", cascade="all, delete-orphan")
 
 # END GAME ELEMENTS
+
+
+# GHALLENGES
+class Challenge(db_SQLAlchemy.Model):
+    __tablename__ = "challenge"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    html_text: Mapped[str] = mapped_column(Text, nullable=False)
+    
+    # JSON-string: json.dumps(images_list)
+    images_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    
+    status_name: Mapped[str] = mapped_column(
+        ForeignKey("variant_status.name"),
+        nullable=False,
+        server_default=text("'private'")
+    )
+    
+    author_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("user.id", ondelete="SET NULL"), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, 
+        nullable=False, 
+        default=lambda: datetime.now(timezone.utc)
+    )
+
+    # Relationships
+    author: Mapped["User"] = relationship("User", back_populates="challenges")
+    solutions: Mapped[List["ChallengeSolution"]] = relationship(
+        "ChallengeSolution", back_populates="challenge", cascade="all, delete-orphan"
+    )
+    #statuses: Mapped["VariantStatus"] = relationship(back_populates="statuses")
+    likes: Mapped[list["ChallengeLike"]] = relationship(back_populates="challenge", cascade="all, delete-orphan")
+
+class ChallengeSolution(db_SQLAlchemy.Model):
+    __tablename__ = "challenge_solution"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    challenge_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("challenge.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    author_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False
+    )
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    
+    status_name: Mapped[str] = mapped_column(
+        ForeignKey("variant_status.name"),
+        nullable=False,
+        server_default=text("'private'")
+    )
+    
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, 
+        nullable=False, 
+        default=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, 
+        nullable=False, 
+        default=lambda: datetime.now(timezone.utc)
+    )
+
+    # Relationships
+    challenge: Mapped["Challenge"] = relationship("Challenge", back_populates="solutions")
+    author: Mapped["User"] = relationship("User", back_populates="challenge_solutions")
+    #statuses: Mapped["VariantStatus"] = relationship(back_populates="statuses")
+    likes: Mapped[list["ChallengeSolutionLike"]] = relationship(back_populates="solution", cascade="all, delete-orphan")
+# END CHALLENGES
+
 
 # VOTES and FEEDBACK    
 class Vote(db_SQLAlchemy.Model):
@@ -448,7 +527,7 @@ class VariantStatus(db_SQLAlchemy.Model):
     description: Mapped[str | None] = mapped_column(String(200))
 
     # Reverse relationship (optional, for ease of search)
-    statuses: Mapped[List["GameElementVariant"]] = relationship(back_populates="statuses")
+    #statuses: Mapped[List["GameElementVariant"]] = relationship(back_populates="statuses")
 
     def __repr__(self) -> str:
         return f"VariantStatus(name={self.name!r})"
@@ -487,4 +566,71 @@ class GameElementVariantLike(db_SQLAlchemy.Model):
     __table_args__ = (
         UniqueConstraint("user_id", "variant_id", name="uix_user_variant_like"),
     )
+
+class ChallengeSolutionLike(db_SQLAlchemy.Model):
+    __tablename__ = "challenge_solution_like"
+
+    # 1. Composite Primary Key or Single ID
+    # Using a dedicated ID is often easier for modern ORMs
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    # 2. Foreign Keys
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("user.id", ondelete="CASCADE"), 
+        nullable=False
+    )
+    solution_id: Mapped[int] = mapped_column(
+        ForeignKey("challenge_solution.id", ondelete="CASCADE"), 
+        nullable=False
+    )
+
+    # 3. Metadata
+    created_at: Mapped[datetime] = mapped_column(
+        server_default=func.now()
+    )
+
+    # 4. Relationships (Optional, but very helpful)
+    # Allows you to do: variant.likes or user.liked_variants
+    user: Mapped["User"] = relationship(back_populates="challenge_solution_likes")
+    solution: Mapped["ChallengeSolution"] = relationship(back_populates="likes")
+
+    # 5. Constraints
+    # Crucial: Prevent a user from liking the same solution twice!
+    __table_args__ = (
+        UniqueConstraint("user_id", "solution_id", name="uix_user_challenge_solution_like"),
+    )
+
+class ChallengeLike(db_SQLAlchemy.Model):
+    __tablename__ = "challenge_like"
+
+    # 1. Composite Primary Key or Single ID
+    # Using a dedicated ID is often easier for modern ORMs
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    # 2. Foreign Keys
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("user.id", ondelete="CASCADE"), 
+        nullable=False
+    )
+    challenge_id: Mapped[int] = mapped_column(
+        ForeignKey("challenge.id", ondelete="CASCADE"), 
+        nullable=False
+    )
+
+    # 3. Metadata
+    created_at: Mapped[datetime] = mapped_column(
+        server_default=func.now()
+    )
+
+    # 4. Relationships (Optional, but very helpful)
+    # Allows you to do: variant.likes or user.liked_variants
+    user: Mapped["User"] = relationship(back_populates="challenge_likes")
+    challenge: Mapped["Challenge"] = relationship(back_populates="likes")
+
+    # 5. Constraints
+    # Crucial: Prevent a user from liking the same challenge twice!
+    __table_args__ = (
+        UniqueConstraint("user_id", "challenge_id", name="uix_user_challenge_like"),
+    )
+
 # END LIKES

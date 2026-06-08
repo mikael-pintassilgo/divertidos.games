@@ -234,31 +234,57 @@
 </div>
 
 <script>
-  if false {} // This code has to be improved and handle the case when users input their own variants and then click on the common variant cards.
-              //Currently, it will override the textarea content with the common variant description, even if the user has already inputted something in the textarea.
     document.addEventListener("DOMContentLoaded", function() {
-          // Target your destination input field
-          const targetInput = document.getElementById("variant_title");
-          
-          // Find all variant cards
-          const variantCards = document.querySelectorAll(".variant-card");
+        // --- 1. GTM Data Layer Tracking for Variant Submission ---
+        // Find the "Submit for publication" button specifically by its name and value attributes
+        const submitPubButton = document.querySelector('button[name="action"][value="submit_for_publication"]');
+        
+        if (submitPubButton) {
+            submitPubButton.addEventListener("click", function(e) {
+                // Initializing dataLayer safely
+                window.dataLayer = window.dataLayer || [];
+                
+                window.dataLayer.push({
+                    'event': 'submit_ge_variant_for_publication',
+                    // Remove all surrounding quotes from these three lines:
+                    'user_id': {{ current_user.id|tojson if current_user.is_authenticated else "" }},
+                    'game_name': {{ game_title|tojson if game_title else "" }},
+                    'game_element_name': {{ game_element['element_title']|tojson if game_element else "" }}
+                });
+            });
+        }
 
-          variantCards.forEach(card => {
-              card.addEventListener("click", function() {
-                  if (targetInput) {
-                      // Grab the raw text value from the data attribute
-                      const variantText = this.getAttribute("data-description");
-                      
-                      // Set the value of the target input
-                      targetInput.value = variantText;
-                      
-                      // Optional: Give focus or visual feedback to the input field
-                      targetInput.focus();
-                  }
-              });
-          });
-      });
-    }
+        const submitPrivButton = document.querySelector('button[name="action"][value="save_private"]');
+        
+        if (submitPrivButton) {
+            submitPrivButton.addEventListener("click", function(e) {
+                // Initializing dataLayer safely
+                window.dataLayer = window.dataLayer || [];
+                
+                window.dataLayer.push({
+                    'event': 'save_ge_variant_as_private',
+                    // Remove all surrounding quotes from these three lines:
+                    'user_id': {{ current_user.id|tojson if current_user.is_authenticated else "" }},
+                    'game_name': {{ game_title|tojson if game_title else "" }},
+                    'game_element_name': {{ game_element['element_title']|tojson if game_element else "" }}
+                });
+            });
+        }
+
+        // --- 2. Your Existing Common Variant Selection Code ---
+        const targetInput = document.getElementById("variant_title");
+        const variantCards = document.querySelectorAll(".variant-card");
+
+        variantCards.forEach(card => {
+            card.addEventListener("click", function() {
+                if (targetInput) {
+                    const variantText = this.getAttribute("data-description");
+                    targetInput.value = variantText;
+                    targetInput.focus();
+                }
+            });
+        });
+    });
 </script>
 
 

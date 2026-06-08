@@ -2,6 +2,7 @@ import os
 
 from flask import Flask, app
 from flask_talisman import Talisman
+from flaskr import challenges
 from flaskr.extensions import db_SQLAlchemy, login_manager
 
 def create_app(test_config=None):
@@ -113,18 +114,25 @@ def create_app(test_config=None):
         
     app.register_blueprint(auth.bp)
     app.register_blueprint(profiles.bp)
+    
     app.register_blueprint(home_page.bp)
+    
     app.register_blueprint(blog.bp)
     app.register_blueprint(element_common_variant.bp)
     app.register_blueprint(composition_of_elements.bp)
+    
     app.register_blueprint(tags.bp)
+    
     app.register_blueprint(quests.bp)
     app.register_blueprint(task.bp)
+    
     app.register_blueprint(games.bp)
     app.register_blueprint(game_elements.bp)
     app.register_blueprint(game_element_tags.bp)
     app.register_blueprint(game_element_links.bp)
     app.register_blueprint(game_element_variants.bp)
+    
+    app.register_blueprint(challenges.bp)
     
     app.register_blueprint(services.bp)
     app.register_blueprint(contacts.bp)

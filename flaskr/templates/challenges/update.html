@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class='row mt-3'>
+  <div class='col-12'>
+  
+    <div class="card" style="">
+    <div class="card-body">
+    <h5 class="card-title">Edit: {{ challenge['title'] }} <a href="{{ url_for('challenges.view', id=challenge['id']) }}" class="">view</a></h5>
+    
+    <form method="post">
+      <fieldset class="">
+  
+        <div class="mb-3">
+          <label for="title" class="form-label">Title</label>
+          <input class="form-control" type="text" aria-label="Title"
+          name="title" id="title" value="{{ request.form['title'] or challenge['title'] }}" required>
+        </div>
+  
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea class="form-control" name="description" id="description" rows="3">{{ request.form['description'] or challenge['description'] }}</textarea>
+        </div>
+  
+        {% if current_user.is_authenticated and current_user.has_role("admin") %}
+        <div class="mb-3">
+          <label for="status" class="form-label">Status</label>
+          <select class="form-select" name="status" id="status">
+            <option value="private" {% if challenge['status'] == 'private' %}selected{% endif %}>Private</option>
+            <option value="pending_review" {% if challenge['status'] == 'pending_review' %}selected{% endif %}>Pending Review</option>
+            <option value="public" {% if challenge['status'] == 'public' %}selected{% endif %}>Public</option>
+          </select>
+        </div>
+        {% else %}
+        <div class="mb-3">
+          <p>Status: {{ challenge['status'] }}</p>
+        </div>
+        {% endif %}
+        
+        <div class="mb-3">
+          <label for="html_text" class="form-label">HTML Text</label>
+          <textarea class="form-control" name="html_text" id="html_text" rows="30">{{ request.form['html_text'] or challenge['html_text'] }}</textarea>
+        </div>
+        
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">Update Challenge</button>
+        </div>
+      </div>
+    </form>
+  
+    <form action="{{ url_for('challenges.delete_challenge', id=challenge['id']) }}" method="post">
+      <fieldset class="">
+        <div class="col-12 mt-3">
+          <button type="submit" class="btn btn-link" onclick="return confirm('Are you sure?');">Delete Challenge</button>
+        </div>
+      </fieldset>
+    </form>
+
+    
+  </div>
+</div>
+
+{% endblock %}

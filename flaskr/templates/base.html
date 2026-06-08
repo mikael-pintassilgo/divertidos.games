@@ -51,6 +51,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           </li>
           -->
           <li class="nav-item">
+            <a class="nav-link {% block challenges_active %}{% endblock %}" href="{{ url_for('challenges.index') }}">Challenges</a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link {% block services_active %}{% endblock %}" href="{{ url_for('services.index') }}">Services</a>
           </li>
           <li class="nav-item">
