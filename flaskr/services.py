@@ -10,11 +10,18 @@ from flask import request
 from flask import url_for
 from werkzeug.exceptions import abort
 
-from .auth import role_required
+from flaskr.auth import role_required
 from flask_login import current_user, login_required
 
 from .db import get_db
 from .blog import get_element_by_title, clean_key
+
+from flaskr.extensions import db_SQLAlchemy
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+
+from flaskr.models import GameElementVariant, ChallengeSolution
+
 
 bp = Blueprint("services", __name__, url_prefix="/services")
 
@@ -97,10 +104,10 @@ def feedback():
 
     return render_template("services/feedback.html", feedback=feedback)
 
-@bp.route("/pending-reviews", methods=("GET",))
+@bp.route("/__pending-reviews", methods=("GET",))
 @login_required
 @role_required("admin")
-def pending_reviews():
+def __pending_reviews():
     db = get_db()
     
     ge_variants = db.execute(
@@ -112,6 +119,42 @@ def pending_reviews():
     ).fetchall()
 
     return render_template("services/pending-reviews.html", ge_variants=ge_variants)
+@bp.route("/pending-reviews", methods=("GET",))
+@login_required
+@role_required("admin")
+def pending_reviews():
+    print("pending_reviews route accessed by user:", current_user.username)
+    
+    # 1. Запрос вариантов игровых элементов, ожидающих проверки
+    # Использование selectinload сразу подгружает автора (User), исключая N+1 запросов
+    ge_stmt = (
+        select(GameElementVariant)
+        .options(selectinload(GameElementVariant.author))
+        .where(GameElementVariant.status_name == "pending_review")
+        .order_by(GameElementVariant.created.desc())
+    )
+    ge_variants = db_SQLAlchemy.session.scalars(ge_stmt).all()
+
+    # 2. Запрос решений челленджей, ожидающих проверки
+    # Жадная загрузка автора (author) и самого челленджа (challenge) для контекста
+    cs_stmt = (
+        select(ChallengeSolution)
+        .options(
+            selectinload(ChallengeSolution.author),
+            selectinload(ChallengeSolution.challenge)
+        )
+        .where(ChallengeSolution.status_name == "pending_review")
+        .order_by(ChallengeSolution.created_at.desc())
+    )
+    challenge_solutions = db_SQLAlchemy.session.scalars(cs_stmt).all()
+
+    print(f"Found {len(ge_variants)} pending GameElementVariants and {len(challenge_solutions)} pending ChallengeSolutions.")
+    
+    return render_template(
+        "services/pending-reviews.html",
+        ge_variants=ge_variants,
+        challenge_solutions=challenge_solutions
+    )
 
 
 @bp.route("/get-prompt-to-compare-games_for_clipboard", methods=("GET",))

@@ -1,50 +1,182 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <div uk-grid class="">
-    <h1 class="">{% block title %}Pending Reviews{% endblock %}</h1>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">{% block title %}Pending Reviews{% endblock %}</h1>
+    <span class="badge bg-secondary fs-6">
+      Total: {{ (ge_variants | length) + (challenge_solutions | length) }}
+    </span>
   </div>
 {% endblock %}
 
-<div class=""></div>
-{% block menu_items %}
-{% endblock %}
 {% block services_active %}active{% endblock %}
 
 {% block content %}
-  
-<div class="row row-cols-auto mt-3">
-{% for the_pending_variant in ge_variants %}
-  <div class="col">
-    <div class="card mb-2" style="width: 18rem;">
-      <!-- img src="..." class="card-img-top" alt="..." -->
-      <div class="card-body">
-        <h5 class="card-title">{{ the_pending_variant['title'] }}</a></h5>
-        <a href="{{ url_for('game_elements.view', ge_id=the_pending_variant['game_element_id'])  + '?game_id=' + the_pending_variant['game_id'] | string }}" class="btn btn-primary">View game element</a>
 
-        <form method="POST" action="{{ url_for('game_element_variants.publish', id=the_pending_variant['id']) }}" style="display:inline;">
-          <input type="hidden" name="game_element_id" value="{{ the_pending_variant['game_element_id'] }}">
-          <input type="hidden" name="game_id" value="{{ the_pending_variant['game_id'] }}">
-          
-          <button type="submit" class="btn btn-success ms-2">Publish</button>
-        </form>
+<!-- Навигация по вкладкам -->
+<ul class="nav nav-tabs mb-4" id="reviewTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="ge-variants-tab" data-bs-toggle="tab" data-bs-target="#ge-variants-pane" type="button" role="tab">
+      Game Element Variants 
+      <span class="badge bg-warning text-dark rounded-pill ms-1">{{ ge_variants | length }}</span>
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="solutions-tab" data-bs-toggle="tab" data-bs-target="#solutions-pane" type="button" role="tab">
+      Challenge Solutions 
+      <span class="badge bg-warning text-dark rounded-pill ms-1">{{ challenge_solutions | length }}</span>
+    </button>
+  </li>
+</ul>
 
-        <form method="POST" action="{{ url_for('game_element_variants.return_for_revision', id=the_pending_variant['id']) }}">
-          <input type="hidden" name="game_element_id" value="{{ the_pending_variant['game_element_id'] }}">
-          <input type="hidden" name="game_id" value="{{ the_pending_variant['game_id'] }}">
-            
-          <textarea name="admin_feedback" placeholder="What needs to be fixed?" required></textarea>
-          <button type="submit">Return for Revision</button>
-        </form>
+<div class="tab-content" id="reviewTabsContent">
+
+  <!-- ================= TAB 1: GAME ELEMENT VARIANTS ================= -->
+  <div class="tab-pane fade show active" id="ge-variants-pane" role="tabpanel" aria-labelledby="ge-variants-tab" tabindex="0">
+    {% if ge_variants %}
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+        {% for variant in ge_variants %}
+          <div class="col">
+            <div class="card h-100 shadow-sm border-warning">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title text-truncate mb-2">{{ variant.title }}</h5>
+                
+                <p class="card-text text-muted small mb-3">
+                  Author: <strong>{{ variant.author.username if variant.author else 'Community' }}</strong>
+                </p>
+
+                <div class="mt-auto vstack gap-2">
+                  <a href="{{ url_for('game_elements.view', ge_id=variant.game_element_id) + '?game_id=' + (variant.game_id | string) }}" class="btn btn-outline-primary btn-sm w-100" target="_blank">
+                    View Game Element ↗
+                  </a>
+
+                  <div class="d-flex gap-2">
+                    <!-- Публикация -->
+                    <form method="POST" action="{{ url_for('game_element_variants.publish', id=variant.id) }}" class="flex-fill">
+                      <input type="hidden" name="game_element_id" value="{{ variant.game_element_id }}">
+                      <input type="hidden" name="game_id" value="{{ variant.game_id }}">
+                      <button type="submit" class="btn btn-success btn-sm w-100">Publish Variant</button>
+                    </form>
+
+                    <!-- Вызов модального окна для отзыва -->
+                    <button type="button" class="btn btn-warning btn-sm flex-fill" data-bs-toggle="modal" data-bs-target="#geRevisionModal{{ variant.id }}">
+                      Revision
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer text-muted small">
+                Submitted: {{ variant.created.strftime('%b %d, %Y %H:%M') if variant.created else 'N/A' }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Модалка доработки для Variant -->
+          <div class="modal fade" id="geRevisionModal{{ variant.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <form method="POST" action="{{ url_for('game_element_variants.return_for_revision', id=variant.id) }}">
+                  <input type="hidden" name="game_element_id" value="{{ variant.game_element_id }}">
+                  <input type="hidden" name="game_id" value="{{ variant.game_id }}">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Return Variant for Revision</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="mb-3">
+                      <label for="ge_feedback_{{ variant.id }}" class="form-label">Feedback for Author:</label>
+                      <textarea name="admin_feedback" id="ge_feedback_{{ variant.id }}" class="form-control" rows="4" placeholder="Explain what needs to be fixed..." required></textarea>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning btn-sm">Send Back</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
       </div>
-      <div class="card-footer text-muted">
-        Submitted on {{ the_pending_variant['created'] }}
-        by {{ the_pending_variant['author_name'] }}
+    {% else %}
+      <div class="alert alert-light text-center border py-4" role="alert">
+        <p class="mb-0 text-muted">No pending game element variants to review 🎉</p>
       </div>
-    </div>
+    {% endif %}
   </div>
-{% endfor %}
+
+
+  <!-- ================= TAB 2: CHALLENGE SOLUTIONS ================= -->
+  <div class="tab-pane fade" id="solutions-pane" role="tabpanel" aria-labelledby="solutions-tab" tabindex="0">
+    {% if challenge_solutions %}
+      <div class="vstack gap-4">
+        {% for solution in challenge_solutions %}
+          <div class="card shadow-sm border-warning">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+              <div>
+                Challenge: 
+                <a href="{{ url_for('challenges.view', id=solution.challenge_id) }}" class="fw-bold text-decoration-none" target="_blank">
+                  {{ solution.challenge.title if solution.challenge else ('Challenge #' ~ solution.challenge_id) }} ↗
+                </a>
+              </div>
+              <small class="text-muted">
+                Author: <strong>{{ solution.author.username if solution.author else 'Anonymous' }}</strong> 
+                | {{ solution.created_at.strftime('%b %d, %Y %H:%M') if solution.created_at else '' }}
+              </small>
+            </div>
+
+            <div class="card-body">
+              <!-- Текст решения с HTML -->
+              <div class="card-text mb-4 p-3 bg-light rounded border">
+                {{ solution.content | safe }}
+              </div>
+
+              <div class="d-flex justify-content-end gap-2">
+                <!-- Одобрить и опубликовать -->
+                <form method="POST" action="{{ url_for('challenge_solutions.publish_solution', id=solution.id) }}">
+                  <button type="submit" class="btn btn-success btn-sm">Publish Solution</button>
+                </form>
+
+                <!-- Вызов модалки для отзыва -->
+                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#solutionRevisionModal{{ solution.id }}">
+                  Return for Revision
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Модалка доработки для Solution -->
+          <div class="modal fade" id="solutionRevisionModal{{ solution.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <form method="POST" action="{{ url_for('challenge_solutions.return_for_revision', id=solution.id) }}">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Return Solution #{{ solution.id }} for Revision</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="mb-3">
+                      <label for="sol_feedback_{{ solution.id }}" class="form-label">Feedback for Author:</label>
+                      <textarea name="admin_feedback" id="sol_feedback_{{ solution.id }}" class="form-control" rows="4" placeholder="Explain what needs to be changed or fixed in this solution..." required></textarea>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning btn-sm">Send Back</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-light text-center border py-4" role="alert">
+        <p class="mb-0 text-muted">No pending challenge solutions to review 🎉</p>
+      </div>
+    {% endif %}
+  </div>
+
 </div>
 
 {% endblock %}
-

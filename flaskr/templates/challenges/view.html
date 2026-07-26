@@ -13,7 +13,7 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0">{% block title %}{{ challenge.title }}{% endblock %}</h1>
     
-    {# Кнопка редактирования только для автора или администратора #}
+    {# Кнопка редактирования челленджа только для автора или администратора #}
     {% if current_user.is_authenticated and (current_user.has_role("admin") or current_user.id == challenge.author_id) %}
       <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('challenges.update_challenge', id=challenge.id) }}">
         Edit Challenge
@@ -53,7 +53,7 @@
   </div>
   {% endif %}
 
-  <!-- Теги (если используются) -->
+  <!-- Теги -->
   {% if tags %}
   <div class="hstack gap-2 mb-4">
     {% for tag in tags %}
@@ -73,24 +73,149 @@
       
       {% if current_user.is_authenticated %}
         <a href="#submit-solution-form" class="btn btn-primary">Submit Solution</a>
+      {% else %}
+        <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary">Submit Solution</a>
       {% endif %}
     </div>
-
+    
     <!-- Список предложенных решений -->
     {% if solutions %}
       <div class="vstack gap-4">
         {% for solution in solutions %}
-          <div class="card shadow-sm" id="solution-{{ solution.solution_id }}">
+          <div class="card shadow-sm" id="solution-{{ solution.id }}">
             <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-              <span class="fw-bold">{{ solution.author.username }}</span>
+              <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold">{{ solution.author_name or 'Anonymous' }}</span>
+                
+                {# Бейджи статусов для автора или админа #}
+                {% if solution.status_name == 'pending_review' %}
+                  <span class="badge bg-warning text-dark">Pending Review</span>
+                {% elif solution.status_name == 'needs_revision' %}
+                  <span class="badge bg-danger">Needs Revision</span>
+                {% elif solution.status_name == 'private' %}
+                  <span class="badge bg-secondary">Draft</span>
+                {% endif %}
+              </div>
+
               <small class="text-muted">{{ solution.created_at.strftime('%d.%m.%Y in %H:%M') }}</small>
             </div>
+
             <div class="card-body">
-              <div class="card-text fs-6">
+              {# Замечания администратора (если требуется доработка) #}
+              {% if solution.status_name == 'needs_revision' and solution.admin_feedback %}
+                <div class="alert alert-warning border-warning mb-3">
+                  <h6 class="alert-heading fw-bold mb-1">Feedback from Admin:</h6>
+                  <p class="mb-0">{{ solution.admin_feedback | safe }}</p>
+                </div>
+              {% endif %}
+
+              <div class="card-text fs-6 mb-3">
                 {{ solution.content | safe }}
+              </div>
+
+              <!-- Форма повторной отправки, если нужно исправить решение -->
+              {% if current_user.is_authenticated and current_user.id == solution.author_id and solution.status_name == 'needs_revision' %}
+                <div class="mt-4 pt-3 border-top">
+                  <h6>Update & Resubmit:</h6>
+                  <form action="{{ url_for('challenge_solutions.resubmit', id=solution.id) }}" method="POST">
+                    <input type="hidden" name="challenge_id" value="{{ challenge.id }}">
+                    <div class="mb-2">
+                      <textarea class="form-control" name="content" rows="4" required>{{ solution.content }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-warning btn-sm">Resubmit Solution</button>
+                  </form>
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Футер карточки решения (Лайки, удаление, действия админа) -->
+            <div class="card-footer bg-white border-top-0 d-flex justify-content-between align-items-center py-2">
+              <div class="d-flex align-items-center gap-2">
+                {% if current_user.is_authenticated %}
+                  <form action="{{ url_for('challenge_solutions.toggle_like', id=solution.id) }}" method="POST" class="d-inline">
+                    <input type="hidden" name="next" value="{{ request.path }}#solution-{{ solution.id }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                      ♥ {{ solution.likes_count }}
+                    </button>
+                  </form>
+                {% else %}
+                  <span class="btn btn-sm btn-outline-secondary disabled">
+                    ♥ {{ solution.likes_count }}
+                  </span>
+                {% endif %}
+              </div>
+
+              <div class="d-flex align-items-center gap-2">
+                {# Модерация админом #}
+                {% if current_user.is_authenticated and current_user.has_role("admin") and solution.status_name == 'pending_review' %}
+                  <form action="{{ url_for('challenge_solutions.publish_solution', id=solution.id) }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-success">Publish</button>
+                  </form>
+                  <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#revisionModal{{ solution.id }}">
+                    Revision
+                  </button>
+                {% endif %}
+
+                {# Удаление решения (для автора или админа) #}
+                {% if current_user.is_authenticated and (current_user.has_role("admin") or current_user.id == solution.author_id) %}
+                  <button type="button" class="btn btn-sm btn-outline-danger border-0" data-bs-toggle="modal" data-bs-target="#deleteModal{{ solution.id }}">
+                    Delete
+                  </button>
+                {% endif %}
               </div>
             </div>
           </div>
+
+          <!-- Модальное окно возврата на доработку (для админа) -->
+          {% if current_user.is_authenticated and current_user.has_role("admin") %}
+            <div class="modal fade" id="revisionModal{{ solution.id }}" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <form action="{{ url_for('challenge_solutions.return_for_revision', id=solution.id) }}" method="POST">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Return Solution #{{ solution.id }} for Revision</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="mb-3">
+                        <label for="admin_feedback_{{ solution.id }}" class="form-label">Feedback for the author:</label>
+                        <textarea class="form-control" id="admin_feedback_{{ solution.id }}" name="admin_feedback" rows="4" required placeholder="Explain what needs to be changed..."></textarea>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn btn-warning">Send Feedback</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+
+          <!-- Модальное окно удаления -->
+          {% if current_user.is_authenticated and (current_user.has_role("admin") or current_user.id == solution.author_id) %}
+            <div class="modal fade" id="deleteModal{{ solution.id }}" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    Are you sure you want to delete this solution?
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="{{ url_for('challenge_solutions.delete_solution', id=solution.id) }}" method="POST" class="d-inline">
+                      <input type="hidden" name="challenge_id" value="{{ challenge.id }}">
+                      <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+
         {% endfor %}
       </div>
     {% else %}
@@ -99,18 +224,26 @@
       </div>
     {% endif %}
 
-    <!-- Форма отправки своего решения (для авторизованных) -->
+    <!-- Форма отправки решения -->
     {% if current_user.is_authenticated %}
       <div class="card mt-5 border-primary" id="submit-solution-form">
         <div class="card-header bg-primary text-white">
           <h5 class="card-title mb-0">Your Solution</h5>
         </div>
         <div class="card-body">
-          <form action="#" method="POST">
+          <form action="{{ url_for('challenge_solutions.create_solution') }}" method="POST">
+            <input type="hidden" name="challenge_id" value="{{ challenge.id }}">
             <div class="mb-3">
               <textarea class="form-control" name="content" rows="6" placeholder="Describe your design decision, core loops, or mechanics (HTML syntax is supported)..." required></textarea>
             </div>
-            <button type="submit" class="btn btn-primary">Post Solution</button>
+            <div class="d-flex gap-2">
+              <button type="submit" name="action" value="submit_for_publication" class="btn btn-primary">
+                Submit Solution
+              </button>
+              <button type="submit" name="action" value="save_draft" class="btn btn-outline-secondary">
+                Save Draft
+              </button>
+            </div>
           </form>
         </div>
       </div>

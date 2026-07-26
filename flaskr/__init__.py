@@ -2,7 +2,28 @@ import os
 
 from flask import Flask, app
 from flask_talisman import Talisman
+
 from flaskr import challenges
+from flaskr import challenge_solutions
+from . import auth
+from . import profiles
+from . import home_page
+from . import blog
+from . import element_common_variant
+from . import tags
+from . import quests
+from . import task
+from . import games
+from . import game_elements
+from . import game_element_tags
+from . import game_element_links
+from . import game_element_variants
+from . import services
+from . import contacts
+from . import votes
+from . import composition_of_elements
+  
+
 from flaskr.extensions import db_SQLAlchemy, login_manager
 
 def create_app(test_config=None):
@@ -94,27 +115,8 @@ def create_app(test_config=None):
         db_SQLAlchemy.create_all() # Creates tables if they don't exist
 
     # apply the blueprints to the app
-    from . import auth
-    from . import profiles
-    from . import home_page
-    from . import blog
-    from . import element_common_variant
-    from . import tags
-    from . import quests
-    from . import task
-    from . import games
-    from . import game_elements
-    from . import game_element_tags
-    from . import game_element_links
-    from . import game_element_variants
-    from . import services
-    from . import contacts
-    from . import votes
-    from . import composition_of_elements
-        
     app.register_blueprint(auth.bp)
     app.register_blueprint(profiles.bp)
-    
     app.register_blueprint(home_page.bp)
     
     app.register_blueprint(blog.bp)
@@ -133,7 +135,8 @@ def create_app(test_config=None):
     app.register_blueprint(game_element_variants.bp)
     
     app.register_blueprint(challenges.bp)
-    
+    app.register_blueprint(challenge_solutions.bp)
+        
     app.register_blueprint(services.bp)
     app.register_blueprint(contacts.bp)
     app.register_blueprint(votes.vote_api)

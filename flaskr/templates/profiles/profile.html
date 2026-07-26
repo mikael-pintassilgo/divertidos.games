@@ -11,35 +11,181 @@
 {% block content %}
 
 {% if current_user.id %}
-<div class="container mt-5">
+<div class="container mt-4">
     <div class="row">
+        <!-- Левое меню навигации (Sidebar Tabs) -->
         <div class="col-md-3 mb-4">
             <div class="list-group list-group-flush border-end">
-                <a href="#my-variants" class="list-group-item list-group-item-action active" data-bs-toggle="list" aria-selected="true">My Variants</a>
-                <a href="#liked-variants" class="list-group-item list-group-item-action" data-bs-toggle="list" aria-selected="false">Liked Variants</a>
+                <a href="#my-variants" class="list-group-item list-group-item-action active" data-bs-toggle="list" aria-selected="true">
+                    My Variants
+                </a>
+                <a href="#liked-variants" class="list-group-item list-group-item-action" data-bs-toggle="list" aria-selected="false">
+                    Liked Variants
+                </a>
+                <a href="#my-solutions" class="list-group-item list-group-item-action" data-bs-toggle="list" aria-selected="false">
+                    My Challenge Solutions
+                </a>
+                <a href="#liked-solutions" class="list-group-item list-group-item-action" data-bs-toggle="list" aria-selected="false">
+                    Liked Solutions
+                </a>
+                {% if stats.created_challenges %}
+                <a href="#my-challenges" class="list-group-item list-group-item-action" data-bs-toggle="list" aria-selected="false">
+                    My Challenges
+                </a>
+                {% endif %}
             </div>
         </div>
 
-        <!-- Main Content -->
+        <!-- Основной контент (Tab Content) -->
         <div class="col-md-9">
             <div class="tab-content">
                 
-                <!-- Section: My Variatns -->
+                <!-- 1. Вкладка: My Variants -->
                 <div class="tab-pane fade show active" id="my-variants">
                     <h3 class="mb-4 fw-bold">My Variants</h3>
                     
-                    {{ render_variant_section("Needs Revision", stats.needs_revision, "border-danger", "needs_revision") }}
-                    
-                    {{ render_variant_section("Pending Review", stats.pending_review, "border-warning", "pending_review") }}
-                    {{ render_variant_section("Published", stats.public, "border-success", "public") }}
-                    {{ render_variant_section("Private", stats.private, "border-secondary", "private") }}
+                    {{ render_variant_section("Needs Revision", stats.variants_needs_revision, "border-danger", "needs_revision") }}
+                    {{ render_variant_section("Pending Review", stats.variants_pending_review, "border-warning", "pending_review") }}
+                    {{ render_variant_section("Published", stats.variants_public, "border-success", "public") }}
+                    {{ render_variant_section("Private", stats.variants_private, "border-secondary", "private") }}
                 </div>
 
-                <!-- Section: Liked Variants -->
+                <!-- 2. Вкладка: Liked Variants -->
                 <div class="tab-pane fade" id="liked-variants">
                     <h3 class="mb-4">Liked Variants</h3>
-                    {{ render_variant_list(stats.liked) }}
+                    {{ render_variant_list(stats.variants_liked) }}
                 </div>
+
+                <!-- 3. Вкладка: My Challenge Solutions -->
+                <div class="tab-pane fade" id="my-solutions">
+                    <h3 class="mb-4 fw-bold">My Challenge Solutions</h3>
+                    
+                    {# Секция: Требует доработки #}
+                    {% if stats.solutions_needs_revision %}
+                    <div class="mb-4 p-3 border border-danger rounded bg-light">
+                        <h5 class="text-danger">Needs Revision ({{ stats.solutions_needs_revision | length }})</h5>
+                        <div class="vstack gap-2 mt-3">
+                            {% for solution in stats.solutions_needs_revision %}
+                            <div class="card card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>Challenge:</strong> 
+                                        <a href="{{ url_for('challenges.view', id=solution.challenge_id) }}" class="text-decoration-none">
+                                            {{ solution.challenge.title if solution.challenge else ('Challenge #' ~ solution.challenge_id) }}
+                                        </a>
+                                    </div>
+                                    <a href="{{ url_for('challenge_solutions.edit', id=solution.id) }}" class="btn btn-sm btn-outline-danger">
+                                        Edit & Fix
+                                    </a>
+                                </div>
+                                {% if solution.admin_feedback %}
+                                <div class="alert alert-warning mt-2 mb-0 py-1 px-2 small">
+                                    <strong>Admin Feedback:</strong> {{ solution.admin_feedback }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {# Секция: На проверке #}
+                    {% if stats.solutions_pending_review %}
+                    <div class="mb-4 p-3 border border-warning rounded bg-light">
+                        <h5 class="text-warning text-dark">Pending Review ({{ stats.solutions_pending_review | length }})</h5>
+                        <div class="vstack gap-2 mt-3">
+                            {% for solution in stats.solutions_pending_review %}
+                            <div class="card card-body">
+                                <div>
+                                    <strong>Challenge:</strong> {{ solution.challenge.title if solution.challenge else ('Challenge #' ~ solution.challenge_id) }}
+                                    <span class="badge bg-warning text-dark ms-2">In Review</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {# Секция: Опубликованные решения #}
+                    <div class="mb-4">
+                        <h5>Public Solutions ({{ stats.solutions_public | length }})</h5>
+                        {% if stats.solutions_public %}
+                        <div class="vstack gap-2 mt-2">
+                            {% for solution in stats.solutions_public %}
+                            <div class="card card-body">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{{ url_for('challenges.view', id=solution.challenge_id) }}#sol-{{ solution.id }}" class="fw-bold text-decoration-none">
+                                        {{ solution.challenge.title if solution.challenge else ('Challenge #' ~ solution.challenge_id) }}
+                                    </a>
+                                    <span class="text-muted small">Likes: {{ solution.likes | length }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted small">No public solutions yet.</p>
+                        {% endif %}
+                    </div>
+
+                    {# Секция: Черновики / Приватные #}
+                    {% if stats.solutions_private %}
+                    <div class="mb-4">
+                        <h5 class="text-secondary">Private Drafts ({{ stats.solutions_private | length }})</h5>
+                        <div class="vstack gap-2 mt-2">
+                            {% for solution in stats.solutions_private %}
+                            <div class="card card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>{{ solution.challenge.title if solution.challenge else ('Challenge #' ~ solution.challenge_id) }}</span>
+                                    <a href="{{ url_for('challenge_solutions.edit', id=solution.id) }}" class="btn btn-sm btn-outline-secondary">
+                                        Edit Draft
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- 4. Вкладка: Liked Solutions -->
+                <div class="tab-pane fade" id="liked-solutions">
+                    <h3 class="mb-4">Liked Solutions</h3>
+                    {% if stats.solutions_liked %}
+                    <div class="vstack gap-3">
+                        {% for solution in stats.solutions_liked %}
+                        <div class="card card-body shadow-sm">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong>{{ solution.author.username if solution.author else 'Anonymous' }}</strong>
+                                <small class="text-muted">Likes: {{ solution.likes | length }}</small>
+                            </div>
+                            <p class="mb-2">
+                                <em>Challenge:</em> 
+                                <a href="{{ url_for('challenges.view', id=solution.challenge_id) }}" class="text-decoration-none fw-bold">
+                                    {{ solution.challenge.title if solution.challenge else ('Challenge #' ~ solution.challenge_id) }} ↗
+                                </a>
+                            </p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">You haven't liked any challenge solutions yet.</p>
+                    {% endif %}
+                </div>
+
+                <!-- 5. Вкладка: My Challenges (Опционально) -->
+                {% if stats.created_challenges %}
+                <div class="tab-pane fade" id="my-challenges">
+                    <h3 class="mb-4">My Created Challenges</h3>
+                    <div class="list-group">
+                        {% for challenge in stats.created_challenges %}
+                        <a href="{{ url_for('challenges.view', id=challenge.id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <span>{{ challenge.title }}</span>
+                            <small class="text-muted">{{ challenge.created_at.strftime('%b %d, %Y') if challenge.created_at else '' }}</small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
 
             </div>
         </div>
