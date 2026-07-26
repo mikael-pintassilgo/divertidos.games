@@ -527,7 +527,21 @@ def import_game():
         if error is not None:
             flash(error)
         else:
-            game_data_json = json.loads(game_json)
+            try:
+                game_data_json = json.loads(game_json)
+            except json.JSONDecodeError as e:
+                lines = game_json.splitlines()
+
+                print(f"Error at line {e.lineno}, column {e.colno}")
+                print("\nPrevious line:")
+                print(lines[e.lineno - 2])
+
+                print("\nProblem line:")
+                print(lines[e.lineno - 1])
+
+                print("\nNext line:")
+                print(lines[e.lineno])
+                
             game_id, not_existed_items = import_game_data(just_check_flag, game_data_json)
             print("not_existed_items: ", not_existed_items)
             

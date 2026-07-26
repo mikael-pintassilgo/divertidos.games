@@ -1,7 +1,7 @@
 import json
 
 from sqlalchemy import select, or_, desc, delete
-
+from sqlalchemy.orm import joinedload
 
 from flask import Blueprint
 from flask import flash
@@ -13,7 +13,7 @@ from flask import url_for
 
 from werkzeug.exceptions import abort
 
-from flaskr.models import Challenge, User
+from flaskr.models import Challenge, User, ChallengeSolution
 from flaskr.extensions import db_SQLAlchemy
 
 from .auth import user_has_role, role_required
@@ -54,6 +54,7 @@ def index():
     
     return render_template("challenges/index.html", challenges=challenges, currentPage=page)
 
+
 @bp.route("/create", methods=("GET", "POST"))
 @login_required
 @role_required("admin")
@@ -89,19 +90,41 @@ def create_challenge():
 
     return render_template("challenges/create.html")
 
+
 @bp.route("/<int:id>/view", methods=("GET", "POST"))
 def view(id):
-    return render_template("challenges/view.html")
+    # db.session передается напрямую в архитектурном стиле SQLAlchemy 2.0
+    challenge = get_challenge(id)
+    
+    # Сортируем решения по дате публикации перед отправкой в Jinja2
+    sorted_solutions = sorted(
+        challenge.solutions, 
+        key=lambda s: s.created_at, 
+        reverse=False
+    )
+    
+    return render_template(
+        "challenges/view.html",
+        challenge=challenge,
+        solutions=sorted_solutions
+    )
 
-"""
-def get_challenge(session: Session, challenge_id: int) -> Challenge:
+
+def get_challenge(challenge_id: int) -> Challenge:
+    """
+    Получает челлендж по ID со всеми связанными решениями и авторами.
+    Если челлендж не найден — вызывает Flask abort(404).
+    """
+    session = db_SQLAlchemy.session  # Получаем текущую сессию SQLAlchemy
+    
+    # Формируем запрос с жадной загрузкой (Eager Loading)
     stmt = (
         select(Challenge)
-        .where(Challenge.challenge_id == challenge_id)
+        .where(Challenge.id == challenge_id)
         .options(
             joinedload(Challenge.author),         # Подгружаем автора челленджа
             joinedload(Challenge.solutions)       # Подгружаем список решений
-            .joinedload(Solution.author)          # ...и сразу авторов для каждого решения
+            .joinedload(ChallengeSolution.author)          # ...и сразу авторов для каждого решения
         )
     )
     
@@ -110,7 +133,7 @@ def get_challenge(session: Session, challenge_id: int) -> Challenge:
     
     # Если в базе ничего нет — сразу отдаем 404 через Flask
     if challenge is None:
-        abort(404, description=f"Challenge with ID {challenge_id} not found.")
+        abort(404, description=f"Челлендж с ID {challenge_id} не найден.")
         
     # Превращаем JSON-строку из SQLite в удобный для шаблонизатора список
     if challenge.images_json:
@@ -122,7 +145,7 @@ def get_challenge(session: Session, challenge_id: int) -> Challenge:
         challenge.images = []
         
     return challenge
-"""
+
 
 def get_challenge_for_update(challenge_id: int) -> Challenge:
     stmt = (
@@ -151,35 +174,62 @@ def get_challenge_for_update(challenge_id: int) -> Challenge:
 @role_required("admin")
 def update_challenge(id):
     user_id = current_user.id
-    
+    # Получаем челлендж для редактирования
+    challenge = get_challenge_for_update(id)
+
     if request.method == "POST":
         if not user_has_role(user_id, "admin"):
             flash("You are not authorized to update this challenge.")
             return redirect(url_for("challenges.index"))
 
-        title = request.form["title"]
-        description = request.form["description"]
-        html_text = request.form["html_text"]
-        description = sanitize_html(description)  # Sanitize the description content to prevent XSS
-        html_text = sanitize_html(html_text)  # Sanitize the HTML text content to prevent XSS
+        title = request.form.get("title", "").strip()
+        description = request.form.get("description", "").strip()
+        html_text = request.form.get("html_text", "").strip()
+
+        # Очистка HTML для предотвращения XSS
+        description = sanitize_html(description)
+        html_text = sanitize_html(html_text)
 
         error = None
 
         if user_has_role(user_id, "admin"):
-            status = request.form["status"] or "private" # Admin can update status
+            # Извлекаем статус из формы или оставляем существующий
+            status = request.form.get("status") or challenge.status_name or "private"
         else:
-            #status = game_data["game"]["status"]
             error = "Non-admin cannot change status"
-        
+
         if not title:
             error = "Title is required."
 
         if error is not None:
             flash(error)
         else:
-            return redirect(url_for("challenges.index"))
+            try:
+                # ----------------------------------------------------
+                # Блок обновления данных в базе данных (SQLAlchemy)
+                # ----------------------------------------------------
+                challenge.title = title
+                challenge.description = description
+                challenge.html_text = html_text
+                challenge.status_name = status
 
-    return render_template("challenges/update.html", challenge=get_challenge_for_update(id))
+                # Обработка картинок, если они передаются списком/формой
+                images = request.form.getlist("images")
+                if images:
+                    challenge.images_json = json.dumps(images)
+
+                # Сохраняем изменения в SQLite
+                db_SQLAlchemy.session.commit()
+
+                flash("Challenge updated successfully!")
+                return redirect(url_for("challenges.index"))
+
+            except Exception as e:
+                db_SQLAlchemy.session.rollback()
+                flash("An error occurred while updating the challenge.")
+                print(f"Update error: {e}")
+
+    return render_template("challenges/update.html", challenge=challenge)
 
 @bp.route("/<int:id>/delete", methods=("POST",))
 @login_required

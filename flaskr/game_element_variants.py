@@ -76,36 +76,6 @@ def get_game_element_variants(ge_id):
 
     return game_element_variants
 
-def _get_game_element_variants(ge_id):
-    user_id = current_user.id if current_user.is_authenticated else None
-    user_is_admin = user_has_role(user_id, "admin") if user_id else False
-
-    # 1. Build the Query
-    # We select the columns we need. SQLAlchemy will handle the JOIN.
-    stmt = (
-        select(
-            GameElementVariant,
-            User.username.label("author_name")
-        )
-        .join(User, GameElementVariant.author_id == User.id, isouter=True) # isouter=True makes it a LEFT JOIN
-        .where(GameElementVariant.game_element_id == ge_id)
-        .where(
-            or_(
-                GameElementVariant.status_name == 'public',
-                user_is_admin,               # If True, this part of OR is always met
-                GameElementVariant.author_id == user_id
-            )
-        )
-    )
-
-    # 2. Execute
-    # .mappings() allows you to access columns by name like a dictionary (e.g., row['title'])
-    result = db_SQLAlchemy.session.execute(stmt).mappings().all()
-
-    print('game_element_variants: ', result)
-
-    return result
-
 @bp.route("/create", methods=("GET", "POST"))
 @login_required
 def create():
