@@ -149,3 +149,7 @@ DROP COLUMN status;
 
 
 */
+
+DROP TABLE IF EXISTS challenge_solution_like;
+DROP TABLE IF EXISTS challenge_solution;
+DROP TABLE IF EXISTS challenge;

@@ -143,6 +143,7 @@ def create_solution():
 def toggle_like(id):
     """Переключение лайка (лайкнуть / убрать лайк)."""
     user_id = current_user.id
+    challenge_id = request.form.get('challenge_id')
 
     stmt = select(ChallengeSolutionLike).where(
         ChallengeSolutionLike.user_id == user_id,
@@ -167,7 +168,7 @@ def toggle_like(id):
     target = request.form.get('next') or request.referrer
     if target and is_safe_url(target):
         return redirect(target)
-    return redirect(url_for('challenges.index'))
+    return redirect(url_for("challenges.view", id=challenge_id))
 
 
 @bp.route("/<int:id>/change_status", methods=("POST",))

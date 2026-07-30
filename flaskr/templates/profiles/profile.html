@@ -97,7 +97,10 @@
                             {% for solution in stats.solutions_pending_review %}
                             <div class="card card-body">
                                 <div>
-                                    <strong>Challenge:</strong> {{ solution.challenge.title if solution.challenge else ('Challenge #' ~ solution.challenge_id) }}
+                                    <strong>Challenge:</strong>
+                                    <a href="{{ url_for('challenges.view', id=solution.challenge_id) }}" class="text-decoration-none">
+                                        {{ solution.challenge.title if solution.challenge else ('Challenge #' ~ solution.challenge_id) }}
+                                    </a>
                                     <span class="badge bg-warning text-dark ms-2">In Review</span>
                                 </div>
                             </div>
@@ -136,8 +139,8 @@
                             <div class="card card-body">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span>{{ solution.challenge.title if solution.challenge else ('Challenge #' ~ solution.challenge_id) }}</span>
-                                    <a href="{{ url_for('challenge_solutions.resubmit', id=solution.id) }}" class="btn btn-sm btn-outline-secondary">
-                                        Edit Draft
+                                    <a href="{{ url_for('challenges.view', id=solution.challenge_id) }}" class="btn btn-sm btn-outline-secondary">
+                                        Open Challenge
                                     </a>
                                 </div>
                             </div>

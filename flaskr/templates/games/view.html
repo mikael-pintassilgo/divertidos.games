@@ -163,106 +163,85 @@
               {% for element in elements %}
                 {% if element.children %}
                     
-                  <div class="hstack gap-3 nested-dropdown-list">
-                    <div class="list-group-item" data-bs-toggle="collapse" data-bs-target={{ "#item-" + element['e_id'] | string }} aria-expanded="false" aria-controls={{ "item-" + element['e_id'] | string }}>
-                          <!-- a stretched-link href={{ "#item-" + element['e_id'] | string }} class="list-group-item" data-bs-toggle="collapse" -->
-                          <img src="{{ url_for('static', filename='svg/chevron-right.svg') }}"></img>
-                          <span class="fw-semibold">{{ element['title'] }}</span>
-                          {% if element['description'] %}: {{ element['description'] | safe }}{% endif %} 
-                                             
-                          
+                  <div id="ge-{{ element['ge_id'] }}" class="hstack gap-3 nested-dropdown-list game-element-item">
+                    <div class="list-group-item" data-bs-toggle="collapse" data-bs-target="#item-{{ element['e_id'] }}" aria-expanded="false" aria-controls="item-{{ element['e_id'] }}">
+                      <img src="{{ url_for('static', filename='svg/chevron-right.svg') }}"></img>
+                      <span class="fw-semibold">{{ element['title'] }}</span>
+                      {% if element['description'] %}: {{ element['description'] | safe }}{% endif %} 
                     </div>
-                    <div class="ms-auto hstack">
+
+                    <div class="ms-auto hstack gap-2">
+                      <!-- Block 1: Variant Badge for Parents -->
                       <div>  
                         {% if element['number_of_variants'] > 0 %}
-                        <a id="btn-add-or-view-variant" class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                        <a class="btn-add-or-view-variant" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
                           <span class="badge text-bg-info">+ {{ element['number_of_variants'] }} variants</span>
                         </a>
                         {% else %}
-                          <a id="btn-add-or-view-variant" class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
-                            <span class="badge text-bg-secondary">add variant</span>
-                          </a>
+                        <a class="btn-add-or-view-variant" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                          <span class="badge text-bg-secondary">add variant</span>
+                        </a>
                         {% endif %}
                       </div>
                       
+                      <!-- Dropdown Menu -->
                       <div class="dropdown">
                         <button class="btn btn-link text-dark shadow-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                           <img src="{{ url_for('static', filename='svg/three-dots-vertical.svg') }}" style="flex-shrink: 0;"></img>
                         </button>
                         
                         <ul class="dropdown-menu dropdown-menu-end">
-                          <li><a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">Open game element</a></li>                          
-                          <li><a class="dropdown-item" href="{{ url_for('blog.view', id=element['e_id']) }}">Open {{ element['title'] }}</a></li>                          
-                          <!--
-                          <li><hr class="dropdown-divider"></li>
-                          <li>
-                            <a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
-                              Add variant
-                            </a>
-                          </li>
-                          -->
+                          <li><a class="dropdown-item" href="#ge-{{ element['ge_id'] }}">Link to element</a></li>
+                          <li><a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">Open game element</a></li>          
+                          <li><a class="dropdown-item" href="{{ url_for('blog.view', id=element['e_id']) }}">Open {{ element['title'] }}</a></li>          
                         </ul>
                       </div>
-
                     </div>
                   </div>
                         
-                  <div class="list-group collapse" id={{ "item-" + element['e_id'] | string }}>
+                  <div class="list-group collapse" id="item-{{ element['e_id'] }}">
                     {{ render_list_of_elements(element.children, level + 1) }}
                   </div>
-                {% else %}
-                    <div class="nested-dropdown-item hstack gap-3">
-                      <div class="list-group-item">
-                      <!-- img src="{{ url_for('static', filename='svg/dash.svg') }}" style="flex-shrink: 0;"></img -->
-                        <!-- span class="fw-semibold">{{ element['title'] }}</span -->
-                        <a class="" href="{{ url_for('blog.view', id=element['e_id']) }}">{{ element['title'] }}</a>
-                        {% if element['description'] %}
-                          : {{ element['description'] | safe }}
-                          <!--
-                          {% if element['number_of_variants'] > 0 %}
-                          <a class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
-                            <span class="badge text-bg-info">+ {{ element['number_of_variants'] }} variants</span>
-                          </a>
-                          {% else %}
-                          <a class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
-                            <span class="badge text-bg-secondary">add variant</span>
-                          </a>
-                          {% endif %}
-                          -->
-                        {% endif %}
-                        
-                      </div>
 
-                      <div class="ms-auto hstack">
-                        <div>
-                          {% if element['number_of_variants'] > 0 %}
-                          <a id="btn-add-or-view-variant" class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
-                            <span class="badge text-bg-info">+ {{ element['number_of_variants'] }} variants</span>
-                          </a>
-                          {% else %}
-                          <a id="btn-add-or-view-variant" class="" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
-                            <span class="badge text-bg-secondary">add variant</span>
-                          </a>
-                          {% endif %}
-                        </div>
-                      
-                        <div class="dropdown">
-                          <button class="btn btn-link text-dark shadow-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ url_for('static', filename='svg/three-dots-vertical.svg') }}" style="flex-shrink: 0;"></img>
-                          </button>
-                          
-                          <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">Open game element</a></li> 
-                            <li><a class="dropdown-item" href="{{ url_for('blog.view', id=element['e_id']) }}">Open {{ element['title'] }}</a></li>                          
-                            <!--
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a id="btn-add-or-view-variant" class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">Add variant</a></li>
-                            -->
-                          </ul>
-                        </div>
+                {% else %}
+
+                  <div id="ge-{{ element['ge_id'] }}" class="nested-dropdown-item hstack gap-3 game-element-item">
+                    <div class="list-group-item">
+                      <a class="" href="{{ url_for('blog.view', id=element['e_id']) }}">{{ element['title'] }}</a>
+                      {% if element['description'] %}
+                        : {{ element['description'] | safe }}
+                      {% endif %}
+                    </div>
+
+                    <div class="ms-auto hstack gap-2">
+                      <!-- Block 2: Variant Badge for Leaf Nodes -->
+                      <div>
+                        {% if element['number_of_variants'] > 0 %}
+                        <a class="btn-add-or-view-variant" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                          <span class="badge text-bg-info">+ {{ element['number_of_variants'] }} variants</span>
+                        </a>
+                        {% else %}
+                        <a class="btn-add-or-view-variant" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">
+                          <span class="badge text-bg-secondary">add variant</span>
+                        </a>
+                        {% endif %}
+                      </div>
+                    
+                      <!-- Dropdown Menu -->
+                      <div class="dropdown">
+                        <button class="btn btn-link text-dark shadow-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          <img src="{{ url_for('static', filename='svg/three-dots-vertical.svg') }}" style="flex-shrink: 0;"></img>
+                        </button>
                         
+                        <ul class="dropdown-menu dropdown-menu-end">
+                          <li><a class="dropdown-item" href="#ge-{{ element['ge_id'] }}">Link to element</a></li>
+                          <li><a class="dropdown-item" href="{{ url_for('game_elements.view', ge_id=element['ge_id'], game_id=game['id']) }}">Open game element</a></li> 
+                          <li><a class="dropdown-item" href="{{ url_for('blog.view', id=element['e_id']) }}">Open {{ element['title'] }}</a></li>          
+                        </ul>
                       </div>
                     </div>
+                  </div>
+
                 {% endif %}
               {% endfor %}
             {% endmacro %}
@@ -476,6 +455,53 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  function handleHashNavigation() {
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    const targetEl = document.querySelector(hash);
+    if (!targetEl) return;
+
+    // 1. Expand all parent collapse elements leading up to this node
+    let parentCollapse = targetEl.closest('.collapse');
+    while (parentCollapse) {
+      // Show Bootstrap collapse programmatically
+      const bsCollapse = bootstrap.Collapse.getOrCreateInstance(parentCollapse, { toggle: false });
+      bsCollapse.show();
+
+      // Update the chevron icon of the controlling toggle element
+      const trigger = document.querySelector(`[data-bs-target="#${parentCollapse.id}"]`);
+      if (trigger) {
+        const icon = trigger.querySelector('img');
+        if (icon && icon.src.includes('chevron-right')) {
+          icon.src = '{{ url_for("static", filename="svg/chevron-down.svg") }}';
+        }
+      }
+
+      // Look for next parent collapse up the tree
+      parentCollapse = parentCollapse.parentElement ? parentCollapse.parentElement.closest('.collapse') : null;
+    }
+
+    // 2. Scroll target into view and apply brief visual highlight
+    setTimeout(() => {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      targetEl.classList.add('bg-warning', 'bg-opacity-25', 'rounded');
+      
+      // Fade out highlight after 2.5 seconds
+      setTimeout(() => {
+        targetEl.classList.remove('bg-warning', 'bg-opacity-25', 'rounded');
+      }, 2500);
+    }, 200);
+  }
+
+  handleHashNavigation();
+
+  // Listen for hash changes while staying on the same page
+  window.addEventListener('hashchange', handleHashNavigation);
 });
 </script>
 

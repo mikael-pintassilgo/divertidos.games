@@ -143,9 +143,16 @@
                 {% if current_user.is_authenticated %}
                   <form action="{{ url_for('challenge_solutions.toggle_like', id=solution.id) }}" method="POST" class="d-inline">
                     <input type="hidden" name="next" value="{{ request.path }}#solution-{{ solution.id }}">
-                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                      ♥ {{ solution.likes_count }}
-                    </button>
+                    <input type="hidden" name="challenge_id" value="{{ challenge.id }}">
+                    {% if solution.is_liked_by_user %}
+                      <button type="submit" class="btn btn-sm btn-danger" title="Click to unlike">
+                        ♥ You liked this ({{ solution.likes_count }})
+                      </button>
+                    {% else %}
+                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Click to like">
+                        ♡ Like ({{ solution.likes_count }})
+                      </button>
+                    {% endif %}
                   </form>
                 {% else %}
                   <span class="btn btn-sm btn-outline-secondary disabled">
