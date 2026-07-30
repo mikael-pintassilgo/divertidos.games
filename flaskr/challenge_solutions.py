@@ -8,7 +8,7 @@ from flaskr.html_services import sanitize_html
 from flaskr.extensions import db_SQLAlchemy
 from flaskr.models import ChallengeSolution, ChallengeSolutionLike, User, Challenge
 
-from sqlalchemy import select, update, func, delete, or_, and_
+from sqlalchemy import select, update, func, delete, or_, and_, literal
 
 bp = Blueprint("challenge_solutions", __name__, url_prefix="/challenge-solutions")
 
@@ -30,20 +30,24 @@ def get_challenge_solutions(challenge_id):
     user_id = current_user.id if current_user.is_authenticated else None
     user_is_admin = user_has_role(user_id, "admin") if user_id else False
 
-    # 1. Скалярный подзапрос для подсчета лайков
+    # 1. Подзапрос для подсчета лайков
     like_count_stmt = (
         select(func.count(ChallengeSolutionLike.id))
         .where(ChallengeSolutionLike.solution_id == ChallengeSolution.id)
         .scalar_subquery()
     )
 
-    # 2. Подзапрос: лайкнул ли текущий пользователь
-    is_liked_stmt = select(1).where(
-        and_(
-            ChallengeSolutionLike.solution_id == ChallengeSolution.id,
-            ChallengeSolutionLike.user_id == user_id
-        )
-    ).exists() if user_id else False
+    # 2. Флаг "лайкнул ли текущий пользователь"
+    if user_id:
+        is_liked_stmt = select(1).where(
+            and_(
+                ChallengeSolutionLike.solution_id == ChallengeSolution.id,
+                ChallengeSolutionLike.user_id == user_id
+            )
+        ).exists()
+    else:
+        # Для незалогиненных пользователей ставим жесткий False через literal()
+        is_liked_stmt = literal(False)
 
     # 3. Основной запрос
     stmt = (
@@ -51,7 +55,7 @@ def get_challenge_solutions(challenge_id):
             ChallengeSolution,
             User.username.label("author_name"),
             like_count_stmt.label("likes_count"),
-            is_liked_stmt.label("is_liked_by_user") if user_id else func.literal(False).label("is_liked_by_user")
+            is_liked_stmt.label("is_liked_by_user")
         )
         .join(User, ChallengeSolution.author_id == User.id, isouter=True)
         .where(ChallengeSolution.challenge_id == challenge_id)
@@ -59,7 +63,7 @@ def get_challenge_solutions(challenge_id):
             or_(
                 ChallengeSolution.status_name == 'public',
                 user_is_admin,
-                ChallengeSolution.author_id == user_id
+                and_(user_id is not None, ChallengeSolution.author_id == user_id)
             )
         )
         .order_by(like_count_stmt.desc(), ChallengeSolution.created_at.desc())
@@ -77,7 +81,7 @@ def get_challenge_solutions(challenge_id):
             "content": solution.content,
             "author_name": author_name or "Unknown",
             "likes_count": likes_count,
-            "is_liked_by_user": is_liked,
+            "is_liked_by_user": bool(is_liked),
             "status_name": solution.status_name,
             "admin_feedback": getattr(solution, 'admin_feedback', None),
             "created_at": solution.created_at,
