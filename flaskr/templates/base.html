@@ -29,7 +29,14 @@
     
     <nav class="navbar sticky-top navbar-expand-lg bg-dark" data-bs-theme="dark">
       <div class="container-fluid">
-        <a class="navbar-brand mx-auto p-2" href="{{ url_for('index') }}">Game Design Gym</a>
+        <a class="navbar-brand d-flex align-items-center gap-2 mx-auto p-2" href="{{ url_for('index') }}">
+          <img 
+            src="{{ url_for('static', filename='svg/GDGym_Logo.svg') }}" 
+            alt="Game Design Gym Logo" 
+            height="30" 
+            class="d-inline-block align-text-top"
+          >
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
