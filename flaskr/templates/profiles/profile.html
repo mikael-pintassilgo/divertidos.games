@@ -74,7 +74,7 @@
                                             {{ solution.challenge.title if solution.challenge else ('Challenge #' ~ solution.challenge_id) }}
                                         </a>
                                     </div>
-                                    <a href="{{ url_for('challenge_solutions.edit', id=solution.id) }}" class="btn btn-sm btn-outline-danger">
+                                    <a href="{{ url_for('challenge_solutions.resubmit', id=solution.id) }}" class="btn btn-sm btn-outline-danger">
                                         Edit & Fix
                                     </a>
                                 </div>
@@ -136,7 +136,7 @@
                             <div class="card card-body">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span>{{ solution.challenge.title if solution.challenge else ('Challenge #' ~ solution.challenge_id) }}</span>
-                                    <a href="{{ url_for('challenge_solutions.edit', id=solution.id) }}" class="btn btn-sm btn-outline-secondary">
+                                    <a href="{{ url_for('challenge_solutions.resubmit', id=solution.id) }}" class="btn btn-sm btn-outline-secondary">
                                         Edit Draft
                                     </a>
                                 </div>

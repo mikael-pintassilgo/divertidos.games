@@ -87,13 +87,15 @@
               <div class="d-flex align-items-center gap-2">
                 <span class="fw-bold">{{ solution.author_name or 'Anonymous' }}</span>
                 
-                {# Бейджи статусов для автора или админа #}
+                {# Бейджи статусов #}
                 {% if solution.status_name == 'pending_review' %}
                   <span class="badge bg-warning text-dark">Pending Review</span>
                 {% elif solution.status_name == 'needs_revision' %}
                   <span class="badge bg-danger">Needs Revision</span>
                 {% elif solution.status_name == 'private' %}
                   <span class="badge bg-secondary">Draft</span>
+                {% elif solution.status_name == 'published' %}
+                  <span class="badge bg-success">Published</span>
                 {% endif %}
               </div>
 
@@ -101,7 +103,7 @@
             </div>
 
             <div class="card-body">
-              {# Замечания администратора (если требуется доработка) #}
+              {# Замечания администратора (Фидбек при возврате на доработку) #}
               {% if solution.status_name == 'needs_revision' and solution.admin_feedback %}
                 <div class="alert alert-warning border-warning mb-3">
                   <h6 class="alert-heading fw-bold mb-1">Feedback from Admin:</h6>
@@ -113,22 +115,29 @@
                 {{ solution.content | safe }}
               </div>
 
-              <!-- Форма повторной отправки, если нужно исправить решение -->
-              {% if current_user.is_authenticated and current_user.id == solution.author_id and solution.status_name == 'needs_revision' %}
-                <div class="mt-4 pt-3 border-top">
-                  <h6>Update & Resubmit:</h6>
-                  <form action="{{ url_for('challenge_solutions.resubmit', id=solution.id) }}" method="POST">
+              {# Форма редактирования для автора (скрыта по умолчанию, вызывается по кнопке "Edit") #}
+              {% if current_user.is_authenticated and current_user.id == solution.author_id %}
+                <div class="collapse mt-3 pt-3 border-top" id="editSolutionForm{{ solution.id }}">
+                  <h6>Edit Solution:</h6>
+                  <form action="{{ url_for('challenge_solutions.update_solution', id=solution.id) }}" method="POST">
                     <input type="hidden" name="challenge_id" value="{{ challenge.id }}">
-                    <div class="mb-2">
+                    <div class="mb-3">
                       <textarea class="form-control" name="content" rows="4" required>{{ solution.content }}</textarea>
                     </div>
-                    <button type="submit" class="btn btn-warning btn-sm">Resubmit Solution</button>
+                    <div class="d-flex gap-2">
+                      <button type="submit" name="action" value="submit_for_publication" class="btn btn-warning btn-sm">
+                        Submit for Review
+                      </button>
+                      <button type="submit" name="action" value="save_draft" class="btn btn-outline-secondary btn-sm">
+                        Save as Draft
+                      </button>
+                    </div>
                   </form>
                 </div>
               {% endif %}
             </div>
 
-            <!-- Футер карточки решения (Лайки, удаление, действия админа) -->
+            <!-- Футер карточки решения (Лайки, переключение статуса автором, модерация, удаление) -->
             <div class="card-footer bg-white border-top-0 d-flex justify-content-between align-items-center py-2">
               <div class="d-flex align-items-center gap-2">
                 {% if current_user.is_authenticated %}
@@ -146,6 +155,25 @@
               </div>
 
               <div class="d-flex align-items-center gap-2">
+                {# Действия автора: Редактировать / Сменить статус #}
+                {% if current_user.is_authenticated and current_user.id == solution.author_id %}
+                  <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#editSolutionForm{{ solution.id }}" aria-expanded="false">
+                    Edit
+                  </button>
+
+                  {% if solution.status_name in ['private', 'needs_revision'] %}
+                    <form action="{{ url_for('challenge_solutions.change_status', id=solution.id) }}" method="POST" class="d-inline">
+                      <input type="hidden" name="status" value="pending_review">
+                      <button type="submit" class="btn btn-sm btn-outline-success">Submit for Review</button>
+                    </form>
+                  {% elif solution.status_name in ['pending_review', 'published'] %}
+                    <form action="{{ url_for('challenge_solutions.change_status', id=solution.id) }}" method="POST" class="d-inline">
+                      <input type="hidden" name="status" value="private">
+                      <button type="submit" class="btn btn-sm btn-outline-secondary">Move to Draft</button>
+                    </form>
+                  {% endif %}
+                {% endif %}
+
                 {# Модерация админом #}
                 {% if current_user.is_authenticated and current_user.has_role("admin") and solution.status_name == 'pending_review' %}
                   <form action="{{ url_for('challenge_solutions.publish_solution', id=solution.id) }}" method="POST" class="d-inline">
@@ -224,7 +252,7 @@
       </div>
     {% endif %}
 
-    <!-- Форма отправки решения -->
+    <!-- Форма создания нового решения -->
     {% if current_user.is_authenticated %}
       <div class="card mt-5 border-primary" id="submit-solution-form">
         <div class="card-header bg-primary text-white">

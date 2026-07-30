@@ -409,6 +409,7 @@ class ChallengeSolution(db_SQLAlchemy.Model):
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
     
+    admin_feedback: Mapped[str | None] = mapped_column(String(500))
     status_name: Mapped[str] = mapped_column(
         ForeignKey("variant_status.name"),
         nullable=False,

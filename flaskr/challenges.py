@@ -15,6 +15,7 @@ from werkzeug.exceptions import abort
 
 from flaskr.models import Challenge, User, ChallengeSolution
 from flaskr.extensions import db_SQLAlchemy
+from flaskr.challenge_solutions import get_challenge_solutions
 
 from .auth import user_has_role, role_required
 from flask_login import current_user, login_required
@@ -95,18 +96,12 @@ def create_challenge():
 def view(id):
     # db.session передается напрямую в архитектурном стиле SQLAlchemy 2.0
     challenge = get_challenge(id)
-    
-    # Сортируем решения по дате публикации перед отправкой в Jinja2
-    sorted_solutions = sorted(
-        challenge.solutions, 
-        key=lambda s: s.created_at, 
-        reverse=False
-    )
+    solutions = get_challenge_solutions(id)
     
     return render_template(
         "challenges/view.html",
         challenge=challenge,
-        solutions=sorted_solutions
+        solutions=solutions
     )
 
 
@@ -116,15 +111,22 @@ def get_challenge(challenge_id: int) -> Challenge:
     Если челлендж не найден — вызывает Flask abort(404).
     """
     session = db_SQLAlchemy.session  # Получаем текущую сессию SQLAlchemy
+    user_id = current_user.id if current_user.is_authenticated else None
+    user_is_admin = user_has_role(user_id, "admin") if user_id else False
     
     # Формируем запрос с жадной загрузкой (Eager Loading)
     stmt = (
         select(Challenge)
-        .where(Challenge.id == challenge_id)
+        .where(Challenge.id == challenge_id,
+            or_(
+                Challenge.status_name == 'public',
+                user_is_admin == True,
+                Challenge.author_id == user_id
+            ))
         .options(
-            joinedload(Challenge.author),         # Подгружаем автора челленджа
-            joinedload(Challenge.solutions)       # Подгружаем список решений
-            .joinedload(ChallengeSolution.author)          # ...и сразу авторов для каждого решения
+            joinedload(Challenge.author)         # Подгружаем автора челленджа
+            #, joinedload(Challenge.solutions)       # Подгружаем список решений
+            #.joinedload(ChallengeSolution.author)          # ...и сразу авторов для каждого решения
         )
     )
     
@@ -143,7 +145,7 @@ def get_challenge(challenge_id: int) -> Challenge:
             challenge.images = []
     else:
         challenge.images = []
-        
+    
     return challenge
 
 

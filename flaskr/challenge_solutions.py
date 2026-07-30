@@ -1,17 +1,25 @@
+from urllib.parse import urlparse
 from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 from werkzeug.exceptions import abort
 from flask_login import current_user, login_required
 
 from flaskr.auth import role_required, user_has_role
-from flaskr.db import get_db
 from flaskr.html_services import sanitize_html
 from flaskr.extensions import db_SQLAlchemy
-from flaskr.models import ChallengeSolution, ChallengeSolutionLike, VariantStatus, User, Challenge
+from flaskr.models import ChallengeSolution, ChallengeSolutionLike, User, Challenge
 
 from sqlalchemy import select, update, func, delete, or_, and_
-from sqlalchemy.orm import selectinload
 
 bp = Blueprint("challenge_solutions", __name__, url_prefix="/challenge-solutions")
+
+
+def is_safe_url(target):
+    """Проверка URL на безопасность для предотвращения Open Redirect."""
+    if not target:
+        return False
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(target)
+    return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
 
 
 def get_challenge_solutions(challenge_id):
@@ -29,12 +37,21 @@ def get_challenge_solutions(challenge_id):
         .scalar_subquery()
     )
 
-    # 2. Основной запрос
+    # 2. Подзапрос: лайкнул ли текущий пользователь
+    is_liked_stmt = select(1).where(
+        and_(
+            ChallengeSolutionLike.solution_id == ChallengeSolution.id,
+            ChallengeSolutionLike.user_id == user_id
+        )
+    ).exists() if user_id else False
+
+    # 3. Основной запрос
     stmt = (
         select(
             ChallengeSolution,
             User.username.label("author_name"),
-            like_count_stmt.label("likes_count")
+            like_count_stmt.label("likes_count"),
+            is_liked_stmt.label("is_liked_by_user") if user_id else func.literal(False).label("is_liked_by_user")
         )
         .join(User, ChallengeSolution.author_id == User.id, isouter=True)
         .where(ChallengeSolution.challenge_id == challenge_id)
@@ -48,21 +65,19 @@ def get_challenge_solutions(challenge_id):
         .order_by(like_count_stmt.desc(), ChallengeSolution.created_at.desc())
     )
 
-    # 3. Выполнение запроса
     rows = db_SQLAlchemy.session.execute(stmt).all()
 
-    # 4. Преобразование результатов в список словарей
     solutions = []
-    for solution, author_name, likes_count in rows:
+    for solution, author_name, likes_count, is_liked in rows:
         solutions.append({
             "obj": solution,
             "id": solution.id,
             "challenge_id": solution.challenge_id,
             "author_id": solution.author_id,
             "content": solution.content,
-            "author_name": author_name,
+            "author_name": author_name or "Unknown",
             "likes_count": likes_count,
-            "likes": solution.likes,
+            "is_liked_by_user": is_liked,
             "status_name": solution.status_name,
             "admin_feedback": getattr(solution, 'admin_feedback', None),
             "created_at": solution.created_at,
@@ -77,32 +92,28 @@ def get_challenge_solutions(challenge_id):
 def create_solution():
     """Создание нового решения для челленджа."""
     if request.method == "POST":
-        # 1. Извлечение и очистка HTML-контента
         content = sanitize_html(request.form.get("content", ""))
-        challenge_id = request.form.get("challenge_id")
+        raw_challenge_id = request.form.get("challenge_id")
 
         action = request.form.get('action')
-        if action == 'submit_for_publication':
-            status_name = 'pending_review'
-        else:
-            status_name = 'private'
+        status_name = 'pending_review' if action == 'submit_for_publication' else 'private'
 
-        # 2. Валидация
+        # Валидация
         error = None
         if not content or not content.strip():
             error = "Solution content is required."
-        elif not challenge_id:
-            error = "Challenge ID is required."
+        elif not raw_challenge_id or not raw_challenge_id.isdigit():
+            error = "Valid Challenge ID is required."
 
         if error:
             flash(error, "error")
         else:
-            # 3. Запись в БД
             try:
+                challenge_id = int(raw_challenge_id)
                 new_solution = ChallengeSolution(
                     content=content,
                     author_id=current_user.id,
-                    challenge_id=int(challenge_id),
+                    challenge_id=challenge_id,
                     status_name=status_name
                 )
 
@@ -118,7 +129,129 @@ def create_solution():
                 print(f"Database error: {e}")
 
     challenge_id = request.args.get('challenge_id') or request.form.get('challenge_id')
-    return redirect(url_for("challenges.view", id=challenge_id))
+    if challenge_id and challenge_id.isdigit():
+        return redirect(url_for("challenges.view", id=int(challenge_id)))
+    return redirect(url_for("challenges.index"))
+
+
+@bp.route("/<int:id>/toggle_like", methods=("POST",))
+@login_required
+def toggle_like(id):
+    """Переключение лайка (лайкнуть / убрать лайк)."""
+    user_id = current_user.id
+
+    stmt = select(ChallengeSolutionLike).where(
+        ChallengeSolutionLike.user_id == user_id,
+        ChallengeSolutionLike.solution_id == id
+    )
+    existing_like = db_SQLAlchemy.session.execute(stmt).scalar_one_or_none()
+
+    try:
+        if existing_like:
+            db_SQLAlchemy.session.delete(existing_like)
+            flash("Removed from your favorites.", "info")
+        else:
+            new_like = ChallengeSolutionLike(user_id=user_id, solution_id=id)
+            db_SQLAlchemy.session.add(new_like)
+            flash("You liked this solution!", "success")
+
+        db_SQLAlchemy.session.commit()
+    except Exception as e:
+        db_SQLAlchemy.session.rollback()
+        flash("An error occurred while updating likes.", "error")
+
+    target = request.form.get('next') or request.referrer
+    if target and is_safe_url(target):
+        return redirect(target)
+    return redirect(url_for('challenges.index'))
+
+
+@bp.route("/<int:id>/change_status", methods=("POST",))
+@login_required
+def change_status(id):
+    """
+    Allows the author to toggle solution status between 'private' and 'pending_review'.
+    """
+    new_status = request.form.get("status")
+    challenge_id = request.form.get("challenge_id")
+    
+    # 1. Strict whitelist validation
+    ALLOWED_STATUSES = {"private", "pending_review"}
+    if new_status not in ALLOWED_STATUSES:
+        print(f"Attempted to set invalid status: {new_status}")
+        flash("Invalid status selected.", "error")
+        return redirect(request.referrer or url_for("challenges.index"))
+
+    user_id = current_user.id
+    user_is_admin = user_has_role(user_id, "admin")
+
+    try:
+        # 2. Update status safely
+        # Only allow changing status if the user owns it (or is admin) 
+        # and the solution isn't already published.
+        stmt = (
+            update(ChallengeSolution)
+            .where(
+                and_(
+                    ChallengeSolution.id == id,
+                    or_(
+                        ChallengeSolution.author_id == user_id,
+                        user_is_admin
+                    ),
+                    # Prevent users from switching a published solution back to private/pending
+                    ChallengeSolution.status_name != "public" 
+                )
+            )
+            .values(
+                status_name=new_status,
+                updated_at=func.now()
+            )
+        )
+
+        result = db_SQLAlchemy.session.execute(stmt)
+        db_SQLAlchemy.session.commit()
+
+        if result.rowcount > 0:
+            msg = (
+                "Solution submitted for review!"
+                if new_status == "pending_review"
+                else "Solution status updated to private."
+            )
+            flash(msg, "success")
+        else:
+            flash("Could not update status. Solution not found, permission denied, or already published.", "error")
+
+    except Exception as e:
+        db_SQLAlchemy.session.rollback()
+        print(f"Error changing solution status: {e}")
+        flash("A database error occurred while updating status.", "error")
+
+    # Safe redirect
+    target = request.referrer
+    if target and is_safe_url(target):
+        return redirect(target)
+    if challenge_id and challenge_id.isdigit():
+        return redirect(url_for("challenges.view", id=int(challenge_id)))
+    return redirect(url_for("challenges.index"))
+
+
+@bp.route('/<int:id>/update', methods=['POST'])
+@login_required
+def update_solution(id):
+    solution = ChallengeSolution.query.get_or_404(id)
+    if solution.author_id != current_user.id:
+        abort(403)
+
+    solution.content = request.form.get('content')
+    action = request.form.get('action')
+
+    if action == 'submit_for_publication':
+        solution.status_name = 'pending_review'
+    else:
+        solution.status_name = 'private'
+
+    db_SQLAlchemy.session.commit()
+    return redirect(url_for('challenges.view', id=solution.challenge_id))
 
 
 @bp.route("/<int:id>/publish", methods=("POST",))
@@ -152,7 +285,8 @@ def publish_solution(id):
 def return_for_revision(id):
     """Возврат решения пользователю на доработку."""
     feedback = request.form.get("admin_feedback")
-
+    print(f"Rturning solution #{id} for revision with feedback: {feedback}")  # Debugging line
+    
     if not feedback or not feedback.strip():
         flash("Please provide feedback so the author knows what to fix.", "warning")
         return redirect(request.referrer or url_for('services.pending_reviews'))
@@ -264,32 +398,3 @@ def delete_solution(id):
         flash("An error occurred while deleting the solution.", "error")
 
     return redirect(url_for("challenges.view", id=challenge_id))
-
-
-@bp.route("/<int:id>/toggle_like", methods=("POST",))
-@login_required
-def toggle_like(id):
-    """Переключение лайка (лайкнуть / убрать лайк)."""
-    user_id = current_user.id
-
-    stmt = select(ChallengeSolutionLike).where(
-        ChallengeSolutionLike.user_id == user_id,
-        ChallengeSolutionLike.solution_id == id
-    )
-    existing_like = db_SQLAlchemy.session.execute(stmt).scalar_one_or_none()
-
-    try:
-        if existing_like:
-            db_SQLAlchemy.session.delete(existing_like)
-            flash("Removed from your favorites.", "info")
-        else:
-            new_like = ChallengeSolutionLike(user_id=user_id, solution_id=id)
-            db_SQLAlchemy.session.add(new_like)
-            flash("You liked this solution!", "success")
-
-        db_SQLAlchemy.session.commit()
-    except Exception as e:
-        db_SQLAlchemy.session.rollback()
-        flash("An error occurred while updating likes.", "error")
-
-    return redirect(request.form.get('next') or request.referrer or url_for('challenges.index'))
